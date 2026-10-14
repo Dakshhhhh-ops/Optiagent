@@ -25,6 +25,10 @@ Description (+ optional CSV/Excel)
 
 Supported in v1: **transportation** and **assignment** problems.
 
+Every approved solve is saved as a **project** (SQLite, `data/optiagent.db`) with its own page,
+a printable report (save as PDF from the browser) and CSV export of the plan. Each sample dataset
+can be downloaded as a template for your own data.
+
 ## Repository layout
 
 ```
@@ -62,6 +66,16 @@ pnpm dev
 If port 8000 is taken, run the API on another port and start the web app with
 `NEXT_PUBLIC_API_URL=http://localhost:<port> pnpm dev`.
 
+### With Docker
+
+```bash
+docker compose up --build                      # API on 8000, web on 3000
+API_PORT=8001 docker compose up --build        # if 8000 is taken
+```
+
+Ollama stays on the host; the API container reaches it through `host.docker.internal`.
+Saved projects and uploads are kept in named volumes.
+
 After changing API models, regenerate the TypeScript types with `pnpm gen:api` (in `web/`).
 
 ## Checks
@@ -87,12 +101,12 @@ Results and caveats are in [eval/REPORT.md](eval/REPORT.md) and on the Benchmark
 
 | Phase | Deliverable | Status |
 |---|---|---|
-| 0 | Foundations: monorepo, API, web shell, Docker, CI | Done (Docker stack not yet run locally) |
+| 0 | Foundations: monorepo, API, web shell, Docker, CI | Done; CI green (Docker stack not yet run locally) |
 | 1 | Solver engine: schema, builder, GLOP solve, solution checks | Done |
 | 2 | CSV/Excel ingestion, column mapping, results UI with flow diagram | Done |
 | 3 | LLM analysis, extraction, clarification, human confirmation | Done |
 | 4 | Formulation audit + error-injection benchmark | Done |
 | 5 | Sensitivity, exact one-unit effects, infeasibility diagnosis, what-if | Done |
-| 6 | Benchmarks, baselines, failure analysis | In progress |
-| 7 | Auth, saved projects, PDF export, real-data demo, deploy | Planned |
+| 6 | Benchmarks, baselines, failure analysis | Done ([report](eval/REPORT.md)) |
+| 7 | Saved projects, printable report, CSV export, templates; auth, real-data demo, deploy | In progress |
 | 8 | v2: MILP with fixed costs, CP-SAT rostering | Planned |
