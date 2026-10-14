@@ -59,7 +59,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["core/tests", "agent/tests", "api/tests", "eval/tests"]
 asyncio_mode = "auto"
-addopts = "--import-mode=importlib --basetemp=.pytest_cache/tmp"
+addopts = "--import-mode=importlib --basetemp=.pytest_tmp"
 filterwarnings = ["ignore:builtin type .* has no __module__ attribute:DeprecationWarning"]
 
 [tool.uv]
