@@ -1,0 +1,5 @@
+{
+  "name": "Warehouse to store distribution (India)",
+  "kind": "transportation",
+  "description": "Three warehouses supply five stores. Costs in rupees per unit, some routes capped or unavailable."
+}

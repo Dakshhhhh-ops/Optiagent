@@ -1,0 +1,12 @@
+warehouse,store,cost_per_unit,max_units
+Mumbai,Pune,₹12,
+Mumbai,Jaipur,₹38,
+Mumbai,Bengaluru,₹34,120
+Mumbai,Hyderabad,₹27,
+Delhi,Pune,₹41,
+Delhi,Jaipur,₹9,
+Delhi,Hyderabad,₹45,
+Delhi,Kolkata,₹52,
+Chennai,Bengaluru,₹11,
+Chennai,Hyderabad,₹19,150
+Chennai,Kolkata,₹48,

@@ -1,0 +1,6 @@
+{
+  "name": "SunRay Transport (cost matrix)",
+  "kind": "transportation",
+  "description": "Taha's 3 silos x 4 mills example with costs as a matrix and supply/demand in separate files.",
+  "expected_objective": 435
+}

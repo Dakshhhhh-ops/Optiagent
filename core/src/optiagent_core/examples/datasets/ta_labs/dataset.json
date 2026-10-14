@@ -1,0 +1,6 @@
+{
+  "name": "TA to lab sections (preferences)",
+  "kind": "assignment",
+  "description": "Four TAs rank two lab sections that each need two TAs. TA D cannot take L2.",
+  "expected_objective": 17
+}
