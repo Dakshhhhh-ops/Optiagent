@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     redis_port: int = 6379
 
     upload_dir: Path = Path("uploads")
+    database_path: Path = Path("data/optiagent.db")
     max_upload_bytes: int = 10_000_000
     max_upload_files: int = 10
 
