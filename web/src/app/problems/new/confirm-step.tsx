@@ -22,7 +22,7 @@ import {
   type DataIssue,
   type Formulation,
   type Problem,
-  type SolveReport,
+  type Project,
   type Trace,
   type Ungrounded,
   unwrap,
@@ -40,6 +40,7 @@ export interface Candidate {
   trace?: Trace;
   /** The user's description, used by the audit. */
   text?: string;
+  datasetId?: string | null;
 }
 
 const PREVIEW_ITEMS = 4;
@@ -81,11 +82,11 @@ function ConstraintCard({ group }: { group: Formulation["constraints"][number] }
 export function ConfirmStep({
   candidate,
   onBack,
-  onSolved,
+  onSaved,
 }: {
   candidate: Candidate;
   onBack: () => void;
-  onSolved: (report: SolveReport) => void;
+  onSaved: (project: Project) => void;
 }) {
   const { problem, requirements = [], ungrounded = [], issues = [], trace, text } = candidate;
   const audit = useAudit(problem, text);
@@ -97,8 +98,19 @@ export function ConfirmStep({
   });
 
   const solve = useMutation({
-    mutationFn: () => unwrap(client.POST("/api/v1/solve", { body: problem })),
-    onSuccess: onSolved,
+    // Saving a project solves it on the server; the project page then shows the results.
+    mutationFn: () =>
+      unwrap(
+        client.POST("/api/v1/projects", {
+          body: {
+            problem,
+            source: candidate.source,
+            description: text?.trim() || null,
+            dataset_id: candidate.datasetId ?? null,
+          },
+        }),
+      ),
+    onSuccess: onSaved,
   });
 
   const f = formulation.data;

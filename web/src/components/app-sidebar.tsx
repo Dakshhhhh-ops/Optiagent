@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import {
   Sidebar,
@@ -41,7 +42,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
     items: [
       { title: "Overview", href: "/", icon: LayoutDashboard },
       { title: "New problem", href: "/problems/new", icon: Sparkles },
-      { title: "Projects", href: "/projects", icon: FolderKanban, comingIn: 7 },
+      { title: "Projects", href: "/projects", icon: FolderKanban },
     ],
   },
   {
@@ -54,9 +55,58 @@ const NAV: { label: string; items: NavItem[] }[] = [
   },
 ];
 
-export function AppSidebar() {
-  const pathname = usePathname();
+/** The navigation groups; `pathname` is null while the current URL is not known yet. */
+function NavGroups({ pathname }: { pathname: string | null }) {
+  return (
+    <>
+    {NAV.map((group) => (
+      <SidebarGroup key={group.label}>
+        <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {group.items.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                {item.comingIn ? (
+                  <>
+                    <SidebarMenuButton disabled tooltip={item.title}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                    <SidebarMenuBadge className="text-muted-foreground">
+                      P{item.comingIn}
+                    </SidebarMenuBadge>
+                  </>
+                ) : (
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                        pathname !== null &&
+                        (item.href === "/" ? pathname === "/" : pathname.startsWith(item.href))
+                      }
+                    tooltip={item.title}
+                  >
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    ))}
+    </>
+  );
+}
 
+/** Reads the URL. Kept in its own Suspense boundary so pages with dynamic routes can prerender. */
+function LiveNavGroups() {
+  return <NavGroups pathname={usePathname()} />;
+}
+
+export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -80,41 +130,9 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {NAV.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    {item.comingIn ? (
-                      <>
-                        <SidebarMenuButton disabled tooltip={item.title}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </SidebarMenuButton>
-                        <SidebarMenuBadge className="text-muted-foreground">
-                          P{item.comingIn}
-                        </SidebarMenuBadge>
-                      </>
-                    ) : (
-                      <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href}
-                        tooltip={item.title}
-                      >
-                        <Link href={item.href}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    )}
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <Suspense fallback={<NavGroups pathname={null} />}>
+          <LiveNavGroups />
+        </Suspense>
       </SidebarContent>
 
       <SidebarFooter>

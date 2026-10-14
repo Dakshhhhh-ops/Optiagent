@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -10,7 +11,6 @@ import {
   type DatasetDetail,
   type Mapping,
   type ProblemKind,
-  type SolveReport,
   unwrap,
 } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,6 @@ import { AiPanel } from "./ai-panel";
 import { type Candidate, ConfirmStep } from "./confirm-step";
 import { DataStep } from "./data-step";
 import { MappingStep } from "./mapping-step";
-import { ResultsStep } from "./results-step";
 
 /** Mirror of the backend's with_answers(): answers count as part of the description. */
 function withAnswers(text: string, analysis: Analysis, answers: Record<string, string>): string {
@@ -73,7 +72,7 @@ export function Wizard() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [candidate, setCandidate] = useState<Candidate | null>(null);
-  const [report, setReport] = useState<SolveReport | null>(null);
+  const router = useRouter();
 
   const analyze = useMutation({
     mutationFn: () =>
@@ -129,7 +128,13 @@ export function Wizard() {
                 onKindChange={setKind}
                 answers={answers}
                 onAnswersChange={setAnswers}
-                onCandidate={(c) => review({ ...c, text: withAnswers(text, analysis, answers) })}
+                onCandidate={(c) =>
+                  review({
+                    ...c,
+                    text: withAnswers(text, analysis, answers),
+                    datasetId: dataset?.meta.id ?? null,
+                  })
+                }
               />
             )
           }
@@ -151,6 +156,7 @@ export function Wizard() {
               issues,
               requirements: analysis?.requirements,
               text: text || undefined,
+              datasetId: dataset.meta.id,
             })
           }
         />
@@ -160,18 +166,7 @@ export function Wizard() {
         <ConfirmStep
           candidate={candidate}
           onBack={() => setStep(candidate.source === "manual" ? "map" : "input")}
-          onSolved={(r) => {
-            setReport(r);
-            setStep("results");
-          }}
-        />
-      )}
-
-      {step === "results" && report && candidate && (
-        <ResultsStep
-          report={report}
-          problem={candidate.problem}
-          onBack={() => setStep("confirm")}
+          onSaved={(project) => router.push(`/projects/${project.id}`)}
         />
       )}
     </div>

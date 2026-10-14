@@ -166,3 +166,11 @@ def test_highs_and_ortools_never_share_a_process() -> None:
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         f.write(build_model(EXAMPLES["t1_two_by_two"]).model_dump_json())
     subprocess.run([sys.executable, "-c", probe, f.name], check=True)
+
+
+def test_unused_route_that_would_stay_unused_even_if_free() -> None:
+    p = EXAMPLES["t2_sunray"]
+    insights = explain(analyze_sensitivity(build_model(p)), minimize=True, transport=True)
+    texts = [i.text for i in insights if i.kind == "unused_option"]
+    assert not any("below -" in t for t in texts)
+    assert any("would stay unused even if it cost nothing" in t for t in texts)

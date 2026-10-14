@@ -90,10 +90,15 @@ export function ResultsStep({
   report,
   problem,
   onBack,
+  backLabel = "Model",
+  actions,
 }: {
   report: SolveReport;
   problem: Problem;
   onBack: () => void;
+  backLabel?: string;
+  /** Extra buttons shown next to the verification badge (export, print, ...). */
+  actions?: React.ReactNode;
 }) {
   const { result, solution, stats, model } = report;
   const minimize = model.sense === "minimize";
@@ -118,17 +123,20 @@ export function ResultsStep({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="outline" onClick={onBack}>
-          <ArrowLeft /> Model
+          <ArrowLeft /> {backLabel}
         </Button>
-        {report.verified ? (
-          <Badge className="gap-1.5 px-3 py-1 text-sm">
-            <ShieldCheck className="size-4" /> Verified optimal
-          </Badge>
-        ) : (
-          <Badge variant="destructive" className="gap-1.5 px-3 py-1 text-sm">
-            <ShieldAlert className="size-4" /> Not verified
-          </Badge>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {actions}
+          {report.verified ? (
+            <Badge className="gap-1.5 px-3 py-1 text-sm">
+              <ShieldCheck className="size-4" /> Verified optimal
+            </Badge>
+          ) : (
+            <Badge variant="destructive" className="gap-1.5 px-3 py-1 text-sm">
+              <ShieldAlert className="size-4" /> Not verified
+            </Badge>
+          )}
+        </div>
       </div>
 
       {!solution ? (

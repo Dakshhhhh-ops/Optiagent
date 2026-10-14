@@ -32,7 +32,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         <Providers>
           <SidebarProvider>
-            <AppSidebar />
+            {/* Hidden when printing so reports print without the app chrome. */}
+            <div className="contents print:hidden">
+              <AppSidebar />
+            </div>
             <SidebarInset>{children}</SidebarInset>
           </SidebarProvider>
         </Providers>

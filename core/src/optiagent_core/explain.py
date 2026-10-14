@@ -91,7 +91,12 @@ def _variable_insight(v: VariableInsight, minimize: bool, transport: bool) -> In
     frm, to = v.keys
     objective = "total cost" if minimize else "total score"
     if v.status == "at_lower" and v.value <= 1e-9 and abs(v.reduced_cost) > 1e-9:
-        if minimize:
+        if minimize and v.cost - abs(v.reduced_cost) < 0:
+            text = (
+                f"{frm} → {to} is not used, and would stay unused even if it cost nothing "
+                f"(the current plan is better by {_n(abs(v.reduced_cost))} per unit)."
+            )
+        elif minimize:
             text = (
                 f"{frm} → {to} is not used. It becomes worth using only if its cost falls by more "
                 f"than {_n(abs(v.reduced_cost))} (from {_n(v.cost)} to below {_n(v.cost - abs(v.reduced_cost))})."
