@@ -40,6 +40,7 @@ allowed-confusables = ["–", "×", "→"]
 # One-line user-facing messages and regexes read better unwrapped.
 "agent/src/optiagent_agent/audit.py" = ["E501"]
 "agent/src/optiagent_agent/textfacts.py" = ["E501"]
+"core/src/optiagent_core/explain.py" = ["E501"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["optiagent_core", "optiagent_agent", "optiagent_api", "optiagent_eval"]
