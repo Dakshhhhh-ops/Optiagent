@@ -14,7 +14,7 @@ from pydantic import BaseModel, ValidationError
 
 from optiagent_agent.audit import audit
 from optiagent_core.schema import AssignmentProblem, Pairing, Route, TransportationProblem
-from optiagent_eval.generate import DEFAULT_PATH, load
+from optiagent_eval.generate import DEFAULT_PATH, Item, load
 
 Problem = TransportationProblem | AssignmentProblem
 RESULTS = Path(__file__).resolve().parents[2] / "results" / "audit_mutations_v1.json"
@@ -76,7 +76,9 @@ def _transport_mutants(p: TransportationProblem, rng: random.Random) -> dict[str
         update={"destinations": [d.model_copy(update={"demand": d.demand + 5}) if k == dst else d
                                  for k, d in enumerate(p.destinations)]}
     )  # fmt: skip
-    out["flipped_sense"] = p.model_copy(update={"sense": "maximize"})
+    out["flipped_sense"] = p.model_copy(
+        update={"sense": "minimize" if p.sense == "maximize" else "maximize"}
+    )
     out["flipped_demand_direction"] = p.model_copy(
         update={"demand_constraint": "equal" if p.demand_constraint == "at_least" else "at_least"}
     )
@@ -194,9 +196,9 @@ class AuditEval(BaseModel):
     missed: list[str]
 
 
-def evaluate(seed: int = 7) -> AuditEval:
+def evaluate(seed: int = 7, items: list[Item] | None = None) -> AuditEval:
     rng = random.Random(seed)
-    items = [i for i in load(DEFAULT_PATH) if i.problem is not None]
+    items = [i for i in (items or load(DEFAULT_PATH)) if i.problem is not None]
     false_alarms = sum(
         any(f.severity != "info" for f in audit(i.problem, i.text).findings)  # type: ignore[arg-type]
         for i in items

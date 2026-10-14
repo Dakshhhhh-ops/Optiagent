@@ -34,15 +34,18 @@ _BLOCK = re.compile(
 )
 _AT_LEAST = re.compile(r"\b(at least|no less than|minimum of|or more)\b", re.I)
 _MAX_WORDS = re.compile(
-    r"\b(maximi[sz](e|es|ed|ing)|highest|largest|most preferred|best total|maximum total)\b",
+    r"\b(maximi[sz](e|es|ed|ing)|highest|largest|most preferred|best total|maximum total|"
+    r"as (high|large|big|much) as possible)\b",
     re.I,
 )
 _MIN_WORDS = re.compile(
-    r"\b(minimi[sz](e|es|ed|ing)|lowest|cheapest|smallest|least (total )?cost)\b", re.I
+    r"\b(minimi[sz](e|es|ed|ing)|lowest|cheapest|smallest|least (total )?cost|"
+    r"as (low|small|little|cheap) as possible)\b",
+    re.I,
 )
 # "Each lab section needs exactly one TA" / "Every other worker can take at most one job".
 _DEFAULT_ONE = re.compile(
-    r"\b(each|every)( other)?\s+[\w ]{1,30}?\s+(?P<verb>needs|requires|gets|can take|takes|may take)"
+    r"\b(each|every)( other)?\s+[\w ]{1,30}?\s+(?P<verb>needs|requires|can take|takes|may take|covers|works)"
     r"(\s+(exactly|at most|only))?\s+(one|1|a single)\b",
     re.I,
 )
@@ -181,6 +184,77 @@ def _table_facts(text: str, froms: list[str], tos: list[str], facts: Facts) -> N
 _QUANTITY_WORDS = re.compile(r"\b(needs?|requires?|demands?|wants?|orders?)\b", re.I)
 
 
+_LEAD_WORDS = re.compile(
+    r"\b(up to|can (send|ship|supply|produce|make|bake|provide)|has|holds|supplies|produces|capacity)\b",
+    re.I,
+)
+
+
+def _pair_facts(
+    seg: str,
+    mentions: list[Mention],
+    frm: Mention,
+    to_mentions: list[Mention],
+    nums: list[Num],
+    snippet: str,
+    facts: Facts,
+) -> None:
+    """Read pair values from one source/agent and several destinations/tasks.
+
+    Values may follow each destination ("Ravi: L1 8, L2 2") or precede it ("costs 0.40 to
+    Café Blue, 0.55 to Café Green", "5 from North Orchard to Shop A"). The clause is read in a
+    direction only if every destination has exactly one number on that side; otherwise it is
+    ambiguous and nothing is recorded.
+    """
+
+    def between(lo: int, hi: int) -> list[Num]:
+        return [n for n in nums if lo <= n.start < hi]
+
+    def gap_before(t: Mention) -> list[Num]:
+        k = mentions.index(t)
+        lo = mentions[k - 1].end if k > 0 else 0
+        found = between(lo, t.start)
+        if not found and mentions[k - 1] is frm and t is to_mentions[0]:
+            found = between(0, frm.start)  # "5 from North Orchard to Shop A"
+        return found
+
+    def gap_after(t: Mention) -> list[Num]:
+        k = mentions.index(t)
+        hi = mentions[k + 1].start if k + 1 < len(mentions) else len(seg)
+        return between(t.end, hi)
+
+    afters = [gap_after(t) for t in to_mentions]
+    befores = [gap_before(t) for t in to_mentions]
+    lead = between(frm.end, to_mentions[0].start) if frm.end <= to_mentions[0].start else []
+
+    reads_after = all(len(a) == 1 for a in afters) and (
+        not lead or (len(lead) == 1 and _LEAD_WORDS.search(seg[frm.end : lead[0].start + 1]))
+    )
+    reads_before = all(len(b) == 1 for b in befores) and not gap_after(to_mentions[-1])
+
+    if reads_after and not reads_before:
+        if lead:
+            # "Plant B can send up to 30 tons, shipping to ...": the source's own quantity.
+            facts.entities.append(
+                EntityFact(id=frm.id, role="from", value=lead[0].value, snippet=snippet)
+            )
+        for t, after in zip(to_mentions, afters, strict=True):
+            if _QUANTITY_WORDS.search(seg[t.end : after[0].start]):
+                # "C1 (needs 25)": the destination's own quantity, not a pair value.
+                facts.entities.append(
+                    EntityFact(id=t.id, role="to", value=after[0].value, snippet=snippet)
+                )
+            else:
+                facts.pairs.append(
+                    PairFact(frm=frm.id, to=t.id, value=after[0].value, snippet=snippet)
+                )
+    elif reads_before and not reads_after:
+        for t, before in zip(to_mentions, befores, strict=True):
+            facts.pairs.append(
+                PairFact(frm=frm.id, to=t.id, value=before[0].value, snippet=snippet)
+            )
+
+
 def _clause(seg: str, froms: list[str], tos: list[str], facts: Facts) -> None:
     mentions = _mentions(seg, froms, tos)
     from_mentions = [m for m in mentions if m.role == "from"]
@@ -215,40 +289,18 @@ def _clause(seg: str, froms: list[str], tos: list[str], facts: Facts) -> None:
         return
 
     if len(from_ids) == 1 and to_mentions:
-        frm = next(iter(from_ids))
-        first_to = to_mentions[0].start
-        from_end = from_mentions[0].end
-        # A number between the source/agent and its first destination/task is its own value
-        # ("Plant B can send up to 30 tons, shipping to ...").
-        lead = [n for n in nums if from_end <= n.start < first_to]
-        if from_end < first_to and len(lead) == 1:
-            facts.entities.append(
-                EntityFact(id=frm, role="from", value=lead[0].value, snippet=snippet)
-            )
-        for t in to_mentions:
-            index = mentions.index(t)
-            window_end = mentions[index + 1].start if index + 1 < len(mentions) else len(seg)
-            after = [n for n in nums if t.end <= n.start < window_end]
-            if not after:
-                continue
-            between = seg[t.end : after[0].start]
-            if _QUANTITY_WORDS.search(between):
-                # "C1 (needs 25)": the destination's own quantity, not a pair value.
-                facts.entities.append(
-                    EntityFact(id=t.id, role="to", value=after[0].value, snippet=snippet)
-                )
-            else:
-                facts.pairs.append(
-                    PairFact(frm=frm, to=t.id, value=after[0].value, snippet=snippet)
-                )
+        _pair_facts(seg, mentions, from_mentions[0], to_mentions, nums, snippet, facts)
         return
 
-    if len(mentions) == 1 and nums:
+    if len(mentions) == 1:
+        # One entity and exactly one number after it: "Austin requires 20 tons". Counts
+        # ("Three plants (Leeds") and positional lists ("M3 takes 7, 8, 3 and 9") are skipped.
         m = mentions[0]
-        after = [n for n in nums if n.start >= m.end] or nums
-        facts.entities.append(
-            EntityFact(id=m.id, role=m.role, value=after[0].value, snippet=snippet)
-        )
+        after = [n for n in nums if n.start >= m.end]
+        if len(nums) == 1 and after:
+            facts.entities.append(
+                EntityFact(id=m.id, role=m.role, value=after[0].value, snippet=snippet)
+            )
     elif mentions and len({m.role for m in mentions}) == 1:
         # A list of one kind of entity, each followed by its own number:
         # "Austin requires 20 tons, Seattle 20 tons and Denver 30 tons".
@@ -271,7 +323,7 @@ def extract_facts(text: str, problem: TransportationProblem | AssignmentProblem)
     )
     for match in _DEFAULT_ONE.finditer(text):
         verb = match.group("verb").lower()
-        facts.default_one.add("to" if verb in {"needs", "requires", "gets"} else "from")
+        facts.default_one.add("to" if verb in {"needs", "requires"} else "from")
     for match in _SCALE.finditer(text):
         facts.scale_numbers |= {n.value for n in numbers(match.group())[-2:]}
     _table_facts(text, froms, tos, facts)

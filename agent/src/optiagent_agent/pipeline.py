@@ -83,10 +83,14 @@ async def analyze(
 
 
 async def extract_from_text(
-    llm: LLM, text: str, kind: Kind, trace: Trace | None = None
+    llm: LLM, text: str, kind: Kind, trace: Trace | None = None, *, verify: bool = True
 ) -> TextExtraction:
-    """Extract a full problem from prose. Values not found in the text trigger a retry."""
+    """Extract a full problem from prose. Values not found in the text trigger a retry.
+
+    `verify=False` is the no-verification baseline: one attempt, no grounding feedback.
+    """
     trace = trace or Trace()
+    attempts = 3 if verify else 1
 
     def validate(problem: Problem) -> list[str]:
         return [
@@ -104,7 +108,8 @@ async def extract_from_text(
             user=text,
             output=TransportationProblem,
             trace=trace,
-            validate=validate,
+            validate=validate if verify else None,
+            max_attempts=attempts,
         )
     else:
         problem = await structured(
@@ -114,7 +119,8 @@ async def extract_from_text(
             user=text,
             output=AssignmentProblem,
             trace=trace,
-            validate=validate,
+            validate=validate if verify else None,
+            max_attempts=attempts,
         )
     return TextExtraction(problem=problem, ungrounded=ungrounded_values(problem, text), trace=trace)
 

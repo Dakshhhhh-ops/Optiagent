@@ -14,7 +14,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace
+from optiagent_agent.audit import audit
+from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace, structured
 from optiagent_agent.pipeline import analyze, extract_from_text
 from optiagent_agent.prompts import PROMPT_VERSION
 from optiagent_core.pipeline import solve_problem
@@ -49,10 +50,19 @@ class ItemResult(BaseModel):
     llm_calls: int = 0
     latency_ms: float = 0.0
     error: str | None = None
+    audit_flags: list[str] = Field(default_factory=list)
+    extracted_problem: TransportationProblem | AssignmentProblem | None = None
+    """Non-info audit findings on the extracted model (shown to the user before solving)."""
+
+    @property
+    def wrong(self) -> bool:
+        """An extracted model that differs from the truth or gives the wrong optimum."""
+        return self.extracted and (bool(self.diffs) or not self.correct)
 
 
 class Summary(BaseModel):
     dataset: str
+    mode: str
     model: str
     prompt_version: str
     started_at: datetime
@@ -68,6 +78,21 @@ class Summary(BaseModel):
     mean_llm_calls: float
     mean_latency_s: float
     diff_categories: dict[str, int]
+    wrong_models: int
+    audit_caught: int
+    """Wrong models the audit flagged before solving."""
+    audit_false_alarms: int
+    """Correct models the audit flagged anyway."""
+    silent_error_rate: float
+    """Share of problems that end with a wrong model and no warning to the user."""
+
+
+class DirectAnswer(BaseModel):
+    optimal_value: float
+
+
+DIRECT = """Solve the optimization problem and reply with only the optimal value of the objective
+(the minimum total cost or the maximum total score). Think carefully; give a single number."""
 
 
 def compare(truth: Problem, got: Problem) -> list[Diff]:
@@ -142,24 +167,47 @@ def compare(truth: Problem, got: Problem) -> list[Diff]:
     return diffs
 
 
-async def run_item(llm: LLM, item: Item) -> ItemResult:
+async def run_item(llm: LLM, item: Item, mode: str = "full") -> ItemResult:
     result = ItemResult(
         id=item.id, kind=item.kind, style=item.style, features=item.features,
         expected_objective=item.expected_objective,
     )  # fmt: skip
     trace = Trace()
     try:
+        if mode == "direct":
+            # Baseline: no model, no solver; the LLM states the optimum itself.
+            result.predicted_kind = item.kind
+            if item.kind == "unsupported":
+                return result
+            answer = await structured(
+                llm, step="direct", system=DIRECT, user=item.text, output=DirectAnswer, trace=trace
+            )
+            result.objective = answer.optimal_value
+            result.correct = item.expected_objective is not None and math.isclose(
+                answer.optimal_value, item.expected_objective, rel_tol=1e-6
+            )
+            return result
+
         analysis, _ = await analyze(llm, item.text, trace=trace)
         result.predicted_kind = analysis.kind
         result.questions = analysis.questions
         if item.kind == "unsupported" or analysis.kind == "unsupported":
             return result
-        extraction = await extract_from_text(llm, item.text, analysis.kind, trace=trace)
+        extraction = await extract_from_text(
+            llm, item.text, analysis.kind, trace=trace, verify=mode == "full"
+        )
         result.extracted = extraction.problem is not None
         result.ungrounded = len(extraction.ungrounded)
         if extraction.problem is None or item.problem is None:
             return result
+        result.extracted_problem = extraction.problem
         result.diffs = compare(item.problem, extraction.problem)
+        if mode == "full":
+            result.audit_flags = [
+                f.message
+                for f in audit(extraction.problem, item.text).findings
+                if f.severity != "info"
+            ]
         report = solve_problem(extraction.problem)
         result.status = report.result.status
         result.executed = report.result.status == SolveStatus.OPTIMAL and report.verified
@@ -177,15 +225,21 @@ async def run_item(llm: LLM, item: Item) -> ItemResult:
     return result
 
 
-def summarize(results: list[ItemResult], model: str, started: datetime) -> Summary:
+def summarize(results: list[ItemResult], model: str, started: datetime, mode: str) -> Summary:
     supported = [r for r in results if r.kind != "unsupported"]
     n = max(len(supported), 1)
     categories: dict[str, int] = {}
     for r in supported:
         for d in r.diffs:
             categories[d.category] = categories.get(d.category, 0) + 1
+    wrong = [r for r in supported if r.wrong]
+    caught = [r for r in wrong if r.audit_flags]
+    false_alarms = [r for r in supported if r.extracted and not r.wrong and r.audit_flags]
+    # Direct answers have nothing to check, so every wrong number is silent.
+    silent = sum(not r.correct for r in supported) if mode == "direct" else len(wrong) - len(caught)
     return Summary(
         dataset=DATASET,
+        mode=mode,
         model=model,
         prompt_version=PROMPT_VERSION,
         started_at=started,
@@ -202,6 +256,10 @@ def summarize(results: list[ItemResult], model: str, started: datetime) -> Summa
         mean_llm_calls=sum(r.llm_calls for r in results) / max(len(results), 1),
         mean_latency_s=sum(r.latency_ms for r in results) / max(len(results), 1) / 1000,
         diff_categories=dict(sorted(categories.items(), key=lambda kv: -kv[1])),
+        wrong_models=len(wrong),
+        audit_caught=len(caught),
+        audit_false_alarms=len(false_alarms),
+        silent_error_rate=silent / n,
     )
 
 
@@ -217,6 +275,7 @@ async def main() -> None:
     parser.add_argument("--data", type=Path, default=DEFAULT_PATH)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--ids")
+    parser.add_argument("--mode", choices=["full", "no-verify", "direct"], default="full")
     args = parser.parse_args()
 
     items = load(args.data)
@@ -231,7 +290,7 @@ async def main() -> None:
     results = []
     for item in items:
         t0 = time.perf_counter()
-        r = await run_item(llm, item)
+        r = await run_item(llm, item, args.mode)
         results.append(r)
         mark = (
             "OK "
@@ -241,14 +300,15 @@ async def main() -> None:
         print(
             f"{mark} {r.id} {r.kind:<14} pred={r.predicted_kind or '-':<14} calls={r.llm_calls} "
             f"{time.perf_counter() - t0:5.1f}s obj={r.objective} exp={r.expected_objective} "
-            f"diffs={[d.category for d in r.diffs]}{' error=' + r.error if r.error else ''}",
+            f"diffs={[d.category for d in r.diffs]} audit={len(r.audit_flags)}"
+            f"{' error=' + r.error if r.error else ''}",
             flush=True,
         )
 
-    summary = summarize(results, args.model, started)
+    summary = summarize(results, args.model, started, args.mode)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = started.strftime("%Y%m%dT%H%M%S")
-    out = RESULTS_DIR / f"{DATASET}__{args.model.replace(':', '-')}__{stamp}.json"
+    out = RESULTS_DIR / f"{DATASET}__{args.mode}__{args.model.replace(':', '-')}__{stamp}.json"
     out.write_text(
         Run(summary=summary, results=results).model_dump_json(indent=2), encoding="utf-8"
     )

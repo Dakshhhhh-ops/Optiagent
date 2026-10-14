@@ -41,3 +41,12 @@ def test_audit_catches_injected_errors_without_false_alarms() -> None:
     result = evaluate()
     assert result.false_alarms == 0
     assert result.detected / result.injected >= 0.95, result.missed
+
+
+def test_audit_on_hand_written_problems() -> None:
+    from optiagent_eval.handwritten import items
+    from optiagent_eval.mutations import evaluate
+
+    result = evaluate(items=items())
+    assert result.false_alarms == 0
+    assert result.detected / result.injected >= 0.85, result.missed
