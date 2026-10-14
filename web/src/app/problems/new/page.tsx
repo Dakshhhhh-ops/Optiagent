@@ -14,7 +14,7 @@ export default function NewProblemPage() {
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">New problem</h2>
           <p className="text-muted-foreground">
-            Upload your tables, confirm how the columns map to the model, then solve.
+            Describe the problem, add your data, confirm the model, then solve.
           </p>
         </div>
         <Wizard />

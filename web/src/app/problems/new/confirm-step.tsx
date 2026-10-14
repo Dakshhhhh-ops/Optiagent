@@ -40,6 +40,7 @@ export interface Candidate {
 }
 
 const PREVIEW_ITEMS = 4;
+const SET_PREVIEW = 8;
 
 function ConstraintCard({ group }: { group: Formulation["constraints"][number] }) {
   const [expanded, setExpanded] = useState(false);
@@ -168,15 +169,21 @@ export function ConfirmStep({
                   </h4>
                   <dl className="grid gap-2 text-sm">
                     {f.sets.map((s) => (
-                      <div key={s.symbol} className="flex gap-3">
+                      <div key={s.symbol} className="flex min-w-0 gap-3">
                         <dt className="w-40 shrink-0">
                           <Tex>{s.symbol}</Tex>{" "}
                           <span className="text-muted-foreground">
                             {s.name} ({s.members.length})
                           </span>
                         </dt>
-                        <dd className="min-w-0 truncate font-mono text-xs leading-5">
-                          {s.members.join(", ")}
+                        <dd className="min-w-0 font-mono text-xs leading-5 break-words">
+                          {s.members.slice(0, SET_PREVIEW).join(", ")}
+                          {s.members.length > SET_PREVIEW && (
+                            <span className="text-muted-foreground">
+                              {" "}
+                              +{s.members.length - SET_PREVIEW} more
+                            </span>
+                          )}
                         </dd>
                       </div>
                     ))}
