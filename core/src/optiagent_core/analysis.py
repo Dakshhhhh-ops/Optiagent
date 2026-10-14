@@ -10,17 +10,13 @@ are not unique and may hold for increases only or decreases only; the ranges say
 
 from __future__ import annotations
 
-import math
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
 from typing import Literal
 
-# OR-Tools bundles its own HiGHS. On Linux, if highspy's HiGHS is loaded first, libortools
-# binds to the wrong symbols and fails to import. Load OR-Tools first.
-from ortools.linear_solver import pywraplp  # noqa: F401  # isort: skip
-
-import highspy  # isort: skip
-import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from optiagent_core.highs_worker import HighsResult, run_highs
 from optiagent_core.model import LinearModel
 from optiagent_core.solver import SolveStatus, solve
 
@@ -72,8 +68,15 @@ class Sensitivity(BaseModel):
     variables: list[VariableInsight] = Field(default_factory=list)
 
 
-def _finite(x: float) -> float | None:
-    return None if math.isinf(x) or abs(x) >= highspy.kHighsInf else float(x)
+_pool: ProcessPoolExecutor | None = None
+
+
+def _highs(model: LinearModel) -> HighsResult:
+    """Run HiGHS in a long-lived worker process (see highs_worker for why)."""
+    global _pool
+    if _pool is None:
+        _pool = ProcessPoolExecutor(max_workers=1, mp_context=multiprocessing.get_context("spawn"))
+    return _pool.submit(run_highs, model.model_dump_json()).result(timeout=120)
 
 
 def _one_unit_change(model: LinearModel, row: int, delta: float, base: float) -> float | None:
@@ -92,56 +95,22 @@ def analyze_sensitivity(model: LinearModel) -> Sensitivity:
     if model.is_mip:
         return Sensitivity(available=False, reason="Duals only exist for linear programs.")
 
-    h = highspy.Highs()  # type: ignore[no-untyped-call]
-    h.setOptionValue("output_flag", False)
-    inf = highspy.kHighsInf
-    n = len(model.variables)
-    index = {v.name: i for i, v in enumerate(model.variables)}
-
-    h.addVars(
-        n,
-        np.array([v.lb for v in model.variables], dtype=np.float64),
-        np.array([inf if v.ub is None else v.ub for v in model.variables], dtype=np.float64),
-    )
-    h.changeColsCost(
-        n,
-        np.arange(n, dtype=np.int32),
-        np.array([v.objective for v in model.variables], dtype=np.float64),
-    )
-    for c in model.constraints:
-        lower = -inf if c.sense == "<=" else c.rhs
-        upper = inf if c.sense == ">=" else c.rhs
-        cols = np.array([index[name] for name in c.terms], dtype=np.int32)
-        vals = np.array(list(c.terms.values()), dtype=np.float64)
-        h.addRow(lower, upper, len(cols), cols, vals)
-    if model.sense == "maximize":
-        h.changeObjectiveSense(highspy.ObjSense.kMaximize)
-
-    h.run()
-    if h.getModelStatus() != highspy.HighsModelStatus.kOptimal:
-        return Sensitivity(
-            available=False, reason=f"HiGHS status: {h.modelStatusToString(h.getModelStatus())}"
-        )
-
-    solution = h.getSolution()
-    basis = h.getBasis()
-    status, ranging = h.getRanging()
-    if status != highspy.HighsStatus.kOk:
+    h = _highs(model)
+    if not h.optimal:
+        return Sensitivity(available=False, reason=f"HiGHS status: {h.status}")
+    if not h.ranging_ok:
         return Sensitivity(available=False, reason="Ranging is not available for this model.")
 
-    objective = h.getInfo().objective_function_value
-    col_value = list(solution.col_value)
-    row_value = list(solution.row_value)
-    row_dual = list(solution.row_dual)
-    col_dual = list(solution.col_dual)
+    objective = h.objective
+    col_value, col_dual, row_value, row_dual = h.col_value, h.col_dual, h.row_value, h.row_dual
 
     variables = []
     degenerate = False
     for i, v in enumerate(model.variables):
-        basic = basis.col_status[i] == highspy.HighsBasisStatus.kBasic
+        basic = h.col_basic[i]
         if basic and abs(col_value[i]) <= ZERO:
             degenerate = True
-        at_upper = basis.col_status[i] == highspy.HighsBasisStatus.kUpper
+        at_upper = h.col_at_upper[i]
         variables.append(
             VariableInsight(
                 name=v.name,
@@ -151,8 +120,8 @@ def analyze_sensitivity(model: LinearModel) -> Sensitivity:
                 cost=v.objective,
                 reduced_cost=col_dual[i],
                 status="basic" if basic else ("at_upper" if at_upper else "at_lower"),
-                cost_from=_finite(ranging.col_cost_dn.value_[i]),
-                cost_to=_finite(ranging.col_cost_up.value_[i]),
+                cost_from=h.cost_dn[i],
+                cost_to=h.cost_up[i],
             )
         )
 
@@ -164,9 +133,7 @@ def analyze_sensitivity(model: LinearModel) -> Sensitivity:
         # A constraint that is tight but still basic is degenerate: its dual is not a reliable
         # two-sided price and HiGHS's range does not describe its right-hand side. Report no
         # range and rely on the exact one-unit re-solves instead.
-        row_degenerate = (
-            basis.row_status[r] == highspy.HighsBasisStatus.kBasic and abs(slack) <= ZERO
-        )
+        row_degenerate = h.row_basic[r] and abs(slack) <= ZERO
         degenerate = degenerate or row_degenerate
         constraints.append(
             ConstraintInsight(
@@ -180,8 +147,8 @@ def analyze_sensitivity(model: LinearModel) -> Sensitivity:
                 binding=abs(slack) <= 1e-7 * max(1.0, abs(c.rhs)),
                 shadow_price=row_dual[r],
                 degenerate=row_degenerate,
-                rhs_from=None if row_degenerate else _finite(ranging.row_bound_dn.value_[r]),
-                rhs_to=None if row_degenerate else _finite(ranging.row_bound_up.value_[r]),
+                rhs_from=None if row_degenerate else h.rhs_dn[r],
+                rhs_to=None if row_degenerate else h.rhs_up[r],
             )
         )
 

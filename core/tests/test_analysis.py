@@ -146,3 +146,23 @@ def test_insights_use_exact_one_unit_effects() -> None:
     assert any(
         "Raising the limit by one unit would improve the total cost by about 1" in t for t in texts
     )
+
+
+def test_highs_and_ortools_never_share_a_process() -> None:
+    """Both ship HiGHS; on Linux they cannot be loaded into one process (see highs_worker)."""
+    import subprocess
+    import sys
+
+    analyze_sensitivity(build_model(EXAMPLES["t1_two_by_two"]))
+    assert "highspy" not in sys.modules
+
+    probe = (
+        "import sys, optiagent_core.highs_worker as w; "
+        "w.run_highs(open(sys.argv[1]).read()); "
+        "assert not any(m.startswith('ortools') for m in sys.modules), 'ortools loaded'"
+    )
+    import tempfile
+
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        f.write(build_model(EXAMPLES["t1_two_by_two"]).model_dump_json())
+    subprocess.run([sys.executable, "-c", probe, f.name], check=True)
