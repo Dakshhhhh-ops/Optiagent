@@ -8,3 +8,5 @@ web
 mlruns
 uploads
 .env
+data
+.pytest_tmp

@@ -1,3 +1,5 @@
+# Ports are configurable in case 8000/3000 are taken on the host:
+#   API_PORT=8001 WEB_PORT=3000 docker compose up --build
 services:
   postgres:
     image: postgres:17-alpine
@@ -26,8 +28,12 @@ services:
       # Ollama runs on the host machine, not in a container.
       OPTIAGENT_OLLAMA_BASE_URL: http://host.docker.internal:11434
       OPTIAGENT_OLLAMA_MODEL: ${OPTIAGENT_OLLAMA_MODEL:-qwen3:8b}
+      OPTIAGENT_CORS_ORIGINS: '["http://localhost:${WEB_PORT:-3000}"]'
     extra_hosts: ["host.docker.internal:host-gateway"]
-    ports: ["8000:8000"]
+    ports: ["${API_PORT:-8000}:8000"]
+    volumes:
+      - appdata:/app/data # saved projects (SQLite)
+      - uploads:/app/uploads # uploaded datasets
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -36,9 +42,12 @@ services:
     build:
       context: web
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8000
-    ports: ["3000:3000"]
+        # Baked into the browser bundle, so it must be the API address as seen from the host.
+        NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+    ports: ["${WEB_PORT:-3000}:3000"]
     depends_on: [api]
 
 volumes:
   pgdata:
+  appdata:
+  uploads:
