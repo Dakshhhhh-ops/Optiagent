@@ -1,0 +1,20 @@
+[project]
+name = "optiagent-agent"
+version = "0.1.0"
+description = "LLM pipeline: classification, extraction, clarification, audit, explanation"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "optiagent-core",
+    "httpx>=0.27",
+    "pydantic>=2.9",
+]
+
+[tool.uv.sources]
+optiagent-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/optiagent_agent"]

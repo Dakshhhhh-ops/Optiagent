@@ -1,0 +1,43 @@
+[project]
+name = "optiagent"
+version = "0.1.0"
+description = "Natural language to verified optimization"
+requires-python = ">=3.12,<3.14"
+dependencies = ["optiagent-core", "optiagent-agent", "optiagent-api"]
+
+[tool.uv.workspace]
+members = ["core", "agent", "api"]
+
+[tool.uv.sources]
+optiagent-core = { workspace = true }
+optiagent-agent = { workspace = true }
+optiagent-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["optiagent_core", "optiagent_agent", "optiagent_api"]
+
+[tool.pytest.ini_options]
+testpaths = ["core/tests", "agent/tests", "api/tests"]
+asyncio_mode = "auto"
+addopts = "--import-mode=importlib"
+
+[tool.uv]
+package = false
