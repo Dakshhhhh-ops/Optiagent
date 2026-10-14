@@ -25,8 +25,8 @@ function Bars({
   return (
     <figure className="space-y-3" aria-label={label}>
       {rows.map((r) => (
-        <div key={r.name} className="grid grid-cols-[16rem_1fr_3rem] items-center gap-3 text-sm">
-          <span className={r.highlight ? "font-medium" : "text-muted-foreground"}>{r.name}</span>
+        <div key={r.name} className="grid grid-cols-[1fr_3rem] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[16rem_1fr_3rem]">
+          <span className={`col-span-2 sm:col-span-1 ${r.highlight ? "font-medium" : "text-muted-foreground"}`}>{r.name}</span>
           <div className="h-3 overflow-hidden rounded-full bg-primary/10">
             <div
               className={`h-full rounded-full ${r.highlight ? "bg-primary" : "bg-primary/45"}`}
