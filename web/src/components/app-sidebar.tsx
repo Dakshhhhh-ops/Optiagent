@@ -137,7 +137,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          v0.1.0 · Phase 6
+          v0.1.0 · Phase 7
         </p>
       </SidebarFooter>
       <SidebarRail />

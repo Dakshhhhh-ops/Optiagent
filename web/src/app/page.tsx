@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { BenchmarkHeadline, RecentProjects } from "./home-widgets";
+
 const PIPELINE = [
   {
     icon: MessageSquareText,
@@ -58,10 +60,10 @@ const PHASES = [
   { n: 4, title: "Formulation audit", done: "Catches most injected errors" },
   { n: 5, title: "Analysis & explanation", done: "Duals match a manual calculation" },
   { n: 6, title: "Evaluation", done: "Results table and error distribution" },
-  { n: 7, title: "Product hardening", done: "A real user runs it on their own data" },
+  { n: 7, title: "Product hardening", done: "Saved projects, reports, export; a real user on real data" },
 ];
 
-const CURRENT_PHASE = 6;
+const CURRENT_PHASE = 7;
 
 export default function OverviewPage() {
   return (
@@ -74,7 +76,7 @@ export default function OverviewPage() {
             Natural language to <span className="text-primary">verified</span> optimization
           </h2>
           <p className="max-w-2xl text-muted-foreground">
-            OptiAgent turns a planning problem and your tabular data into a linear or mixed-integer
+            OptiAgent turns a planning problem and your tabular data into a linear
             program, solves it, audits the formulation, and explains the result in business
             language. The LLM never produces the final numbers.
           </p>
@@ -83,6 +85,11 @@ export default function OverviewPage() {
               New problem <ArrowRight />
             </Link>
           </Button>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
+          <RecentProjects />
+          <BenchmarkHeadline />
         </section>
 
         <section className="space-y-4">

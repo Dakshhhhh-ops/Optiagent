@@ -75,6 +75,20 @@ export function DataStep({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
+  const system = useQuery({
+    queryKey: ["system-status"],
+    queryFn: () => unwrap(client.GET("/api/v1/system/status")),
+    staleTime: 30_000,
+  });
+  const ollama = system.data?.ollama;
+  const aiProblem = system.error
+    ? "the API is not reachable"
+    : ollama && !ollama.reachable
+      ? `Ollama is not running at ${ollama.base_url}`
+      : ollama && !ollama.configured_model_available
+        ? `the model ${ollama.configured_model} is not downloaded (run: ollama pull ${ollama.configured_model})`
+        : null;
+
   const samples = useQuery({
     queryKey: ["samples"],
     queryFn: () => unwrap(client.GET("/api/v1/datasets/samples")),
@@ -284,6 +298,15 @@ export function DataStep({
           </h3>
           <TablePreview tables={dataset.tables} />
         </section>
+      )}
+
+      {aiProblem && (
+        <Alert>
+          <AlertTitle>AI analysis is unavailable</AlertTitle>
+          <AlertDescription>
+            Because {aiProblem}. You can still upload data and map the columns manually.
+          </AlertDescription>
+        </Alert>
       )}
 
       {analyzeError && (
