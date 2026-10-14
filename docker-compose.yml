@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: optiagent
+      POSTGRES_PASSWORD: optiagent
+      POSTGRES_DB: optiagent
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U optiagent"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      OPTIAGENT_POSTGRES_HOST: postgres
+      OPTIAGENT_REDIS_HOST: redis
+      # Ollama runs on the host machine, not in a container.
+      OPTIAGENT_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OPTIAGENT_OLLAMA_MODEL: ${OPTIAGENT_OLLAMA_MODEL:-qwen3:8b}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  web:
+    build:
+      context: web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  pgdata:

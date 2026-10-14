@@ -29,7 +29,8 @@ async def _tcp_check(name: str, host: str, port: int) -> ServiceStatus:
     try:
         _, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=2)
     except (OSError, TimeoutError) as exc:
-        return ServiceStatus(name=name, reachable=False, detail=f"{host}:{port} — {exc}")
+        reason = str(exc) or type(exc).__name__
+        return ServiceStatus(name=name, reachable=False, detail=f"{host}:{port} — {reason}")
     writer.close()
     await writer.wait_closed()
     return ServiceStatus(name=name, reachable=True, detail=f"{host}:{port}")
