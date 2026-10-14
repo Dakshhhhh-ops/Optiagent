@@ -1,0 +1,16 @@
+{
+  "expected_status": "infeasible",
+  "derivation": "Total supply 40 < total demand 50.",
+  "problem": {
+    "kind": "transportation",
+    "name": "Not enough supply",
+    "sources": [{"id": "S1", "supply": 15}, {"id": "S2", "supply": 25}],
+    "destinations": [{"id": "D1", "demand": 30}, {"id": "D2", "demand": 20}],
+    "routes": [
+      {"source": "S1", "destination": "D1", "cost": 1},
+      {"source": "S1", "destination": "D2", "cost": 2},
+      {"source": "S2", "destination": "D1", "cost": 3},
+      {"source": "S2", "destination": "D2", "cost": 1}
+    ]
+  }
+}

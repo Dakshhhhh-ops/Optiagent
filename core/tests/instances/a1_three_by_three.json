@@ -1,0 +1,15 @@
+{
+  "expected_objective": 9,
+  "derivation": "Enumerate all 6 permutations of [[9,2,7],[6,4,3],[5,8,1]]: 14, 20, 9, 10, 21, 16. Minimum 9 = A->T2 (2), B->T1 (6), C->T3 (1).",
+  "problem": {
+    "kind": "assignment",
+    "name": "Three workers, three jobs",
+    "agents": [{"id": "A"}, {"id": "B"}, {"id": "C"}],
+    "tasks": [{"id": "T1"}, {"id": "T2"}, {"id": "T3"}],
+    "pairings": [
+      {"agent": "A", "task": "T1", "value": 9}, {"agent": "A", "task": "T2", "value": 2}, {"agent": "A", "task": "T3", "value": 7},
+      {"agent": "B", "task": "T1", "value": 6}, {"agent": "B", "task": "T2", "value": 4}, {"agent": "B", "task": "T3", "value": 3},
+      {"agent": "C", "task": "T1", "value": 5}, {"agent": "C", "task": "T2", "value": 8}, {"agent": "C", "task": "T3", "value": 1}
+    ]
+  }
+}

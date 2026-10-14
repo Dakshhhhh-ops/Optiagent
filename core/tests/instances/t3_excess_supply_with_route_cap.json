@@ -1,0 +1,51 @@
+{
+  "expected_objective": 280,
+  "derivation": "Let a = S1->D1 (cap 20), c = S2->D2. Then S2->D1 = 30-a, S1->D2 = 30-c and S2 supply gives c <= 10+a. Cost = 5a + 6(30-a) + 4c + 8(30-c) = 420 - a - 4c, minimized at a=20, c=30: 20 S1->D1 (100) + 10 S2->D1 (60) + 30 S2->D2 (120) = 280. S1 keeps 30 units unused.",
+  "problem": {
+    "kind": "transportation",
+    "name": "Excess supply with a capped route",
+    "sources": [
+      {
+        "id": "S1",
+        "supply": 50
+      },
+      {
+        "id": "S2",
+        "supply": 40
+      }
+    ],
+    "destinations": [
+      {
+        "id": "D1",
+        "demand": 30
+      },
+      {
+        "id": "D2",
+        "demand": 30
+      }
+    ],
+    "routes": [
+      {
+        "source": "S1",
+        "destination": "D1",
+        "cost": 5,
+        "capacity": 20
+      },
+      {
+        "source": "S1",
+        "destination": "D2",
+        "cost": 8
+      },
+      {
+        "source": "S2",
+        "destination": "D1",
+        "cost": 6
+      },
+      {
+        "source": "S2",
+        "destination": "D2",
+        "cost": 4
+      }
+    ]
+  }
+}

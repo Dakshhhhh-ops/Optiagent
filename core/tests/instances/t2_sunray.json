@@ -1,0 +1,27 @@
+{
+  "expected_objective": 435,
+  "derivation": "Taha, Operations Research: An Introduction, SunRay Transport example (3 silos x 4 mills). Published optimum $435.",
+  "problem": {
+    "kind": "transportation",
+    "name": "SunRay Transport (Taha)",
+    "sources": [{"id": "Silo1", "supply": 15}, {"id": "Silo2", "supply": 25}, {"id": "Silo3", "supply": 10}],
+    "destinations": [
+      {"id": "Mill1", "demand": 5}, {"id": "Mill2", "demand": 15},
+      {"id": "Mill3", "demand": 15}, {"id": "Mill4", "demand": 15}
+    ],
+    "routes": [
+      {"source": "Silo1", "destination": "Mill1", "cost": 10},
+      {"source": "Silo1", "destination": "Mill2", "cost": 2},
+      {"source": "Silo1", "destination": "Mill3", "cost": 20},
+      {"source": "Silo1", "destination": "Mill4", "cost": 11},
+      {"source": "Silo2", "destination": "Mill1", "cost": 12},
+      {"source": "Silo2", "destination": "Mill2", "cost": 7},
+      {"source": "Silo2", "destination": "Mill3", "cost": 9},
+      {"source": "Silo2", "destination": "Mill4", "cost": 20},
+      {"source": "Silo3", "destination": "Mill1", "cost": 4},
+      {"source": "Silo3", "destination": "Mill2", "cost": 14},
+      {"source": "Silo3", "destination": "Mill3", "cost": 16},
+      {"source": "Silo3", "destination": "Mill4", "cost": 18}
+    ]
+  }
+}

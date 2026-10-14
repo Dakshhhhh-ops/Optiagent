@@ -29,15 +29,23 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["optiagent_core", "optiagent_agent", "optiagent_api"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
 packages = ["optiagent_core", "optiagent_agent", "optiagent_api"]
 
+[[tool.mypy.overrides]]
+module = ["ortools.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["core/tests", "agent/tests", "api/tests"]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"
+filterwarnings = ["ignore:builtin type .* has no __module__ attribute:DeprecationWarning"]
 
 [tool.uv]
 package = false

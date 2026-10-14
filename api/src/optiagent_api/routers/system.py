@@ -2,10 +2,10 @@ import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from optiagent_agent.ollama import OllamaClient, OllamaStatus
 from pydantic import BaseModel
 
 import optiagent_api
+from optiagent_agent.ollama import OllamaClient, OllamaStatus
 from optiagent_api.settings import Settings, get_settings
 
 router = APIRouter(tags=["system"])

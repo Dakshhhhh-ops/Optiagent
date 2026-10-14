@@ -1,0 +1,17 @@
+{
+  "expected_objective": 17,
+  "derivation": "Maximize preference. Each lab needs 2 TAs, each TA takes 1 lab, D cannot teach L2 so D->L1. L1's partner is A, B or C, rest go to L2: A gives 5+3+(B4+C5)=17, B gives 4+3+(A3+C5)=15, C gives 2+3+(A3+B4)=12. Optimum 17.",
+  "problem": {
+    "kind": "assignment",
+    "name": "TA to lab sections (preferences)",
+    "sense": "maximize",
+    "agents": [{"id": "A"}, {"id": "B"}, {"id": "C"}, {"id": "D"}],
+    "tasks": [{"id": "L1", "required": 2}, {"id": "L2", "required": 2}],
+    "pairings": [
+      {"agent": "A", "task": "L1", "value": 5}, {"agent": "A", "task": "L2", "value": 3},
+      {"agent": "B", "task": "L1", "value": 4}, {"agent": "B", "task": "L2", "value": 4},
+      {"agent": "C", "task": "L1", "value": 2}, {"agent": "C", "task": "L2", "value": 5},
+      {"agent": "D", "task": "L1", "value": 3}
+    ]
+  }
+}
