@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { API_URL, apiGet, type SystemStatus } from "@/lib/api";
+import { API_URL, client, unwrap } from "@/lib/api";
 
 function StatusBadge({ ok, warn }: { ok: boolean; warn?: boolean }) {
   if (!ok) return <Badge variant="destructive">Unreachable</Badge>;
@@ -20,7 +20,7 @@ const SERVICE_ICONS: Record<string, typeof Database> = { postgres: Database, red
 export function StatusPanel() {
   const { data, error, isPending, isFetching, refetch, dataUpdatedAt } = useQuery({
     queryKey: ["system-status"],
-    queryFn: () => apiGet<SystemStatus>("/api/v1/system/status"),
+    queryFn: () => unwrap(client.GET("/api/v1/system/status")),
     refetchInterval: 15_000,
   });
 

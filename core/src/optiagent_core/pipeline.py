@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, computed_field
 
 from optiagent_core.builders import assign_var, build_model, flow_var
@@ -36,7 +38,7 @@ class DestinationUsage(BaseModel):
 
 
 class TransportationSolution(BaseModel):
-    kind: str = "transportation"
+    kind: Literal["transportation"] = "transportation"
     shipments: list[Shipment]
     sources: list[SourceUsage]
     destinations: list[DestinationUsage]
@@ -49,7 +51,7 @@ class Assignment(BaseModel):
 
 
 class AssignmentSolution(BaseModel):
-    kind: str = "assignment"
+    kind: Literal["assignment"] = "assignment"
     assignments: list[Assignment]
     unassigned_agents: list[str]
 

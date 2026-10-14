@@ -27,3 +27,6 @@ next-env.d.ts
 # Data / experiments
 mlruns/
 uploads/
+
+# Generated from the API; types are committed in web/src/lib/api-types.ts
+web/openapi.json

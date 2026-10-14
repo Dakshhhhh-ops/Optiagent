@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   BarChart3,
   CheckCircle2,
   Circle,
@@ -9,8 +10,11 @@ import {
   UserCheck,
 } from "lucide-react";
 
+import Link from "next/link";
+
 import { AppHeader } from "@/components/app-header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PIPELINE = [
@@ -57,7 +61,7 @@ const PHASES = [
   { n: 7, title: "Product hardening", done: "A real user runs it on their own data" },
 ];
 
-const CURRENT_PHASE = 2;
+const CURRENT_PHASE = 3;
 
 export default function OverviewPage() {
   return (
@@ -74,6 +78,11 @@ export default function OverviewPage() {
             program, solves it, audits the formulation, and explains the result in business
             language. The LLM never produces the final numbers.
           </p>
+          <Button asChild className="mt-2">
+            <Link href="/problems/new">
+              New problem <ArrowRight />
+            </Link>
+          </Button>
         </section>
 
         <section className="space-y-4">

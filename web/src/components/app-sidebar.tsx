@@ -40,7 +40,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
     label: "Workspace",
     items: [
       { title: "Overview", href: "/", icon: LayoutDashboard },
-      { title: "New problem", href: "/problems/new", icon: Sparkles, comingIn: 2 },
+      { title: "New problem", href: "/problems/new", icon: Sparkles },
       { title: "Projects", href: "/projects", icon: FolderKanban, comingIn: 7 },
     ],
   },
@@ -119,7 +119,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          v0.1.0 · Phase 2
+          v0.1.0 · Phase 3
         </p>
       </SidebarFooter>
       <SidebarRail />
