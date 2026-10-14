@@ -75,9 +75,16 @@ class OllamaLLM:
         try:
             async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
                 response = await client.post("/api/chat", json=payload)
-                response.raise_for_status()
         except httpx.HTTPError as exc:
-            raise LLMError(f"Ollama request failed: {type(exc).__name__}: {exc}") from exc
+            raise LLMError(f"Could not reach Ollama at {self.base_url}: {exc}") from exc
+        if response.is_error:
+            try:
+                detail = response.json().get("error", response.text)
+            except ValueError:
+                detail = response.text
+            if response.status_code == 404:
+                detail += f" (run: ollama pull {self.model})"
+            raise LLMError(f"Ollama error {response.status_code}: {detail}")
         data = response.json()
         return LLMReply(
             content=data["message"]["content"],

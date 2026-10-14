@@ -13,6 +13,7 @@ members = [
     "optiagent-agent",
     "optiagent-api",
     "optiagent-core",
+    "optiagent-eval",
 ]
 
 [[package]]
@@ -388,6 +389,7 @@ dependencies = [
     { name = "optiagent-agent" },
     { name = "optiagent-api" },
     { name = "optiagent-core" },
+    { name = "optiagent-eval" },
 ]
 
 [package.dev-dependencies]
@@ -405,6 +407,7 @@ requires-dist = [
     { name = "optiagent-agent", editable = "agent" },
     { name = "optiagent-api", editable = "api" },
     { name = "optiagent-core", editable = "core" },
+    { name = "optiagent-eval", editable = "eval" },
 ]
 
 [package.metadata.requires-dev]
@@ -474,6 +477,21 @@ requires-dist = [
     { name = "openpyxl", specifier = ">=3.1" },
     { name = "ortools", specifier = ">=9.12" },
     { name = "pydantic", specifier = ">=2.9" },
+]
+
+[[package]]
+name = "optiagent-eval"
+version = "0.1.0"
+source = { editable = "eval" }
+dependencies = [
+    { name = "optiagent-agent" },
+    { name = "optiagent-core" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "optiagent-agent", editable = "agent" },
+    { name = "optiagent-core", editable = "core" },
 ]
 
 [[package]]
