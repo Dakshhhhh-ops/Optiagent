@@ -1,7 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Body, HTTPException
+from pydantic import BaseModel, Field
 
+from optiagent_agent.audit import AuditReport, audit
 from optiagent_core.examples import Example, list_examples
 from optiagent_core.formulation import Formulation, describe_problem
 from optiagent_core.pipeline import SolveReport, solve_problem
@@ -36,3 +38,13 @@ def formulation(
     problem: Annotated[TransportationProblem | AssignmentProblem, Body(discriminator="kind")],
 ) -> Formulation:
     return describe_problem(problem)
+
+
+class AuditRequest(BaseModel):
+    problem: TransportationProblem | AssignmentProblem = Field(discriminator="kind")
+    text: str | None = Field(default=None, max_length=20_000)
+
+
+@router.post("/audit", response_model=AuditReport)
+def audit_endpoint(request: AuditRequest) -> AuditReport:
+    return audit(request.problem, request.text)

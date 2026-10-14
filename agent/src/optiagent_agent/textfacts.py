@@ -8,6 +8,7 @@ Missing a fact costs nothing; a wrong fact would cause a false alarm in the audi
 from __future__ import annotations
 
 import re
+from itertools import pairwise
 from collections.abc import Iterator
 
 from pydantic import BaseModel, Field
@@ -177,6 +178,89 @@ def _table_facts(text: str, froms: list[str], tos: list[str], facts: Facts) -> N
                     )
 
 
+_QUANTITY_WORDS = re.compile(r"\b(needs?|requires?|demands?|wants?|orders?)\b", re.I)
+
+
+def _clause(seg: str, froms: list[str], tos: list[str], facts: Facts) -> None:
+    mentions = _mentions(seg, froms, tos)
+    from_mentions = [m for m in mentions if m.role == "from"]
+    if len({m.id for m in from_mentions}) > 1:
+        # "P1 to C1 is 2, P1 to C2 is 4, P2 to C1 is 3": read each source's part on its own.
+        starts = [m.start for m in from_mentions]
+        cuts = [0, *starts[1:], len(seg)]
+        for a, b in pairwise(cuts):
+            _clause(seg[a:b], froms, tos, facts)
+        return
+
+    nums = numbers(seg)
+    # Numbers inside an id ("Plant 1", "L2") are not values.
+    nums = [n for n in nums if not any(m.start <= n.start < m.end for m in mentions)]
+    from_ids = {m.id for m in from_mentions}
+    to_mentions = [m for m in mentions if m.role == "to"]
+    snippet = seg.strip(" ,")
+
+    if _BLOCK.search(seg) and len(from_ids) == 1 and to_mentions:
+        frm = next(iter(from_ids))
+        facts.pairs += [
+            PairFact(frm=frm, to=t.id, value=None, snippet=snippet) for t in to_mentions
+        ]
+        return
+
+    if _LIMIT.search(seg) and len(from_ids) == 1 and len(to_mentions) == 1 and len(nums) == 1:
+        facts.limits.append(
+            PairFact(
+                frm=next(iter(from_ids)), to=to_mentions[0].id, value=nums[0].value, snippet=snippet
+            )
+        )
+        return
+
+    if len(from_ids) == 1 and to_mentions:
+        frm = next(iter(from_ids))
+        first_to = to_mentions[0].start
+        from_end = from_mentions[0].end
+        # A number between the source/agent and its first destination/task is its own value
+        # ("Plant B can send up to 30 tons, shipping to ...").
+        lead = [n for n in nums if from_end <= n.start < first_to]
+        if from_end < first_to and len(lead) == 1:
+            facts.entities.append(
+                EntityFact(id=frm, role="from", value=lead[0].value, snippet=snippet)
+            )
+        for t in to_mentions:
+            index = mentions.index(t)
+            window_end = mentions[index + 1].start if index + 1 < len(mentions) else len(seg)
+            after = [n for n in nums if t.end <= n.start < window_end]
+            if not after:
+                continue
+            between = seg[t.end : after[0].start]
+            if _QUANTITY_WORDS.search(between):
+                # "C1 (needs 25)": the destination's own quantity, not a pair value.
+                facts.entities.append(
+                    EntityFact(id=t.id, role="to", value=after[0].value, snippet=snippet)
+                )
+            else:
+                facts.pairs.append(
+                    PairFact(frm=frm, to=t.id, value=after[0].value, snippet=snippet)
+                )
+        return
+
+    if len(mentions) == 1 and nums:
+        m = mentions[0]
+        after = [n for n in nums if n.start >= m.end] or nums
+        facts.entities.append(
+            EntityFact(id=m.id, role=m.role, value=after[0].value, snippet=snippet)
+        )
+    elif mentions and len({m.role for m in mentions}) == 1:
+        # A list of one kind of entity, each followed by its own number:
+        # "Austin requires 20 tons, Seattle 20 tons and Denver 30 tons".
+        for k, m in enumerate(mentions):
+            end = mentions[k + 1].start if k + 1 < len(mentions) else len(seg)
+            own = [n for n in nums if m.end <= n.start < end]
+            if own:
+                facts.entities.append(
+                    EntityFact(id=m.id, role=m.role, value=own[0].value, snippet=snippet)
+                )
+
+
 def extract_facts(text: str, problem: TransportationProblem | AssignmentProblem) -> Facts:
     froms, tos = _ids(problem)
     facts = Facts(
@@ -193,64 +277,5 @@ def extract_facts(text: str, problem: TransportationProblem | AssignmentProblem)
     _table_facts(text, froms, tos, facts)
 
     for seg in _segments(text):
-        mentions = _mentions(seg, froms, tos)
-        nums = numbers(seg)
-        # Numbers inside an id ("Plant 1", "L2") are not values.
-        nums = [n for n in nums if not any(m.start <= n.start < m.end for m in mentions)]
-        from_ids = {m.id for m in mentions if m.role == "from"}
-        to_mentions = [m for m in mentions if m.role == "to"]
-
-        if _BLOCK.search(seg) and len(from_ids) == 1 and to_mentions:
-            frm = next(iter(from_ids))
-            facts.pairs += [
-                PairFact(frm=frm, to=t.id, value=None, snippet=seg) for t in to_mentions
-            ]
-            continue
-
-        if _LIMIT.search(seg) and len(from_ids) == 1 and len(to_mentions) == 1 and len(nums) == 1:
-            facts.limits.append(
-                PairFact(
-                    frm=next(iter(from_ids)), to=to_mentions[0].id, value=nums[0].value, snippet=seg
-                )
-            )
-            continue
-
-        if len(from_ids) == 1 and to_mentions:
-            frm = next(iter(from_ids))
-            first_to = to_mentions[0].start
-            from_end = next(m.end for m in mentions if m.role == "from")
-            # A number between the source/agent and its first destination/task is its own value
-            # ("Plant B can send up to 30 tons, shipping to ...").
-            lead = [n for n in nums if from_end <= n.start < first_to]
-            if from_end < first_to and len(lead) == 1:
-                facts.entities.append(
-                    EntityFact(id=frm, role="from", value=lead[0].value, snippet=seg)
-                )
-            for i, t in enumerate(to_mentions):
-                window_end = (
-                    mentions[mentions.index(t) + 1].start if t != mentions[-1] else len(seg)
-                )
-                after = [n for n in nums if t.end <= n.start < window_end]
-                if after and i < len(to_mentions):
-                    facts.pairs.append(
-                        PairFact(frm=frm, to=t.id, value=after[0].value, snippet=seg)
-                    )
-            continue
-
-        if len(mentions) == 1 and nums:
-            m = mentions[0]
-            after = [n for n in nums if n.start >= m.end] or nums
-            facts.entities.append(
-                EntityFact(id=m.id, role=m.role, value=after[0].value, snippet=seg)
-            )
-        elif mentions and len({m.role for m in mentions}) == 1:
-            # A list of one kind of entity, each followed by its own number:
-            # "Austin requires 20 tons, Seattle 20 tons and Denver 30 tons".
-            for k, m in enumerate(mentions):
-                end = mentions[k + 1].start if k + 1 < len(mentions) else len(seg)
-                own = [n for n in nums if m.end <= n.start < end]
-                if own:
-                    facts.entities.append(
-                        EntityFact(id=m.id, role=m.role, value=own[0].value, snippet=seg)
-                    )
+        _clause(seg, froms, tos, facts)
     return facts

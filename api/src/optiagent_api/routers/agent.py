@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
+from optiagent_agent.audit import AuditReport, audit
 from optiagent_agent.grounding import Ungrounded
 from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace
 from optiagent_agent.pipeline import (
@@ -15,6 +16,7 @@ from optiagent_agent.pipeline import (
     extract_from_text,
     with_answers,
 )
+from optiagent_agent.review import Review, review_requirements
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.routers.datasets import StoreDep
 from optiagent_api.settings import get_settings
@@ -64,6 +66,7 @@ class ExtractResponse(BaseModel):
     formulation: Formulation | None = None
     ungrounded: list[Ungrounded] = Field(default_factory=list)
     issues: list[DataIssue] = Field(default_factory=list)
+    audit: AuditReport | None = None
     trace: Trace
 
 
@@ -114,4 +117,26 @@ async def extract_endpoint(
         raise HTTPException(502, str(exc)) from None
     if response.problem is not None:
         response.formulation = describe_problem(response.problem)
+        response.audit = audit(response.problem, text)
     return response
+
+
+class ReviewRequest(BaseModel):
+    requirements: list[str] = Field(min_length=1, max_length=50)
+    problem: TransportationProblem | AssignmentProblem = Field(discriminator="kind")
+
+
+class ReviewResponse(BaseModel):
+    review: Review
+    trace: Trace
+
+
+@router.post("/review", response_model=ReviewResponse)
+async def review_endpoint(request: ReviewRequest, llm: LLMDep) -> ReviewResponse:
+    try:
+        review, trace = await review_requirements(
+            llm, request.requirements, describe_problem(request.problem)
+        )
+    except LLMError as exc:
+        raise HTTPException(502, str(exc)) from None
+    return ReviewResponse(review=review, trace=trace)

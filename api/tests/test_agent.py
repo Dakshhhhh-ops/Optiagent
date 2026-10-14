@@ -125,3 +125,45 @@ def test_llm_failure_is_a_502() -> None:
 def test_formulation_endpoint() -> None:
     body = client.post("/api/v1/formulation", json={"kind": "transportation", **PROBLEM}).json()
     assert body["objective_latex"].startswith(r"\min")
+
+
+def test_extract_includes_audit() -> None:
+    dropped = {**PROBLEM, "routes": PROBLEM["routes"][:3]}
+    use_llm(FakeLLM(dropped))
+    body = client.post(
+        "/api/v1/agent/extract", json={"text": TEXT, "kind": "transportation"}
+    ).json()
+    assert body["audit"]["passed"] is False
+    assert any("P2 → C2 = 1" in f["message"] for f in body["audit"]["findings"])
+
+
+def test_audit_endpoint() -> None:
+    body = client.post(
+        "/api/v1/audit", json={"problem": {"kind": "transportation", **PROBLEM}, "text": TEXT}
+    ).json()
+    assert body["passed"] is True
+    assert "text_cross_check" in body["checks_run"]
+
+
+def test_review_endpoint() -> None:
+    use_llm(
+        FakeLLM(
+            {
+                "checks": [
+                    {"requirement": "x", "status": "covered", "where": "Objective"},
+                    {"requirement": "y", "status": "missing", "reason": "no limit"},
+                ],
+                "unexplained": [],
+            }
+        )
+    )
+    body = client.post(
+        "/api/v1/agent/review",
+        json={
+            "requirements": ["Minimize cost", "At most 5 from P1 to C1"],
+            "problem": {"kind": "transportation", **PROBLEM},
+        },
+    ).json()
+    checks = body["review"]["checks"]
+    assert [c["requirement"] for c in checks] == ["Minimize cost", "At most 5 from P1 to C1"]
+    assert [c["status"] for c in checks] == ["covered", "missing"]
