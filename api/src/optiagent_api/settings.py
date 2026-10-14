@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -16,6 +17,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
     redis_host: str = "localhost"
     redis_port: int = 6379
+
+    upload_dir: Path = Path("uploads")
+    max_upload_bytes: int = 10_000_000
+    max_upload_files: int = 10
 
 
 @lru_cache

@@ -335,7 +335,7 @@ def _load_transportation(
     demand = _read_key_values(tables, m.demand, issues)
     _cross_reference({p.frm for p in pairs}, set(supply), "source", m.supply.table, issues)
     _cross_reference({p.to for p in pairs}, set(demand), "destination", m.demand.table, issues)
-    if not pairs:
+    if not pairs and not issues.has_errors:
         issues.add("error", "no allowed routes were found", m.costs.table)
     return _finish(
         TransportationProblem,
@@ -376,7 +376,7 @@ def _load_assignment(tables: dict[str, Table], m: AssignmentMapping, issues: _Is
     else:
         issues.add("info", "no task requirement table: each task needs exactly 1 agent")
 
-    if not pairs:
+    if not pairs and not issues.has_errors:
         issues.add("error", "no allowed pairs were found", m.values.table)
     return _finish(
         AssignmentProblem,
