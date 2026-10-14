@@ -104,3 +104,15 @@ def test_unknown_or_malformed_dataset_id() -> None:
     assert (
         client.post("/api/v1/datasets/abc/suggest", json={"kind": "assignment"}).status_code == 404
     )
+
+
+def test_download_sample_template() -> None:
+    import io
+    import zipfile
+
+    response = client.get("/api/v1/datasets/samples/sunray/download")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/zip"
+    names = zipfile.ZipFile(io.BytesIO(response.content)).namelist()
+    assert sorted(names) == ["costs.csv", "mills.csv", "silos.csv"]
+    assert client.get("/api/v1/datasets/samples/nope/download").status_code == 404

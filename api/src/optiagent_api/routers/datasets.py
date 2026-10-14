@@ -1,6 +1,8 @@
+import io
+import zipfile
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
 from optiagent_api.datasets import DatasetError, DatasetMeta, DatasetStore
@@ -58,6 +60,28 @@ def _tables(store: DatasetStore, dataset_id: str) -> list[Table]:
 @router.get("/samples", response_model=list[SampleDataset])
 def samples() -> list[SampleDataset]:
     return list_sample_datasets()
+
+
+@router.get(
+    "/samples/{sample_id}/download",
+    responses={200: {"content": {"application/zip": {}}}},
+    response_class=Response,
+)
+def download_sample(sample_id: str) -> Response:
+    """The sample's files as a .zip, to use as a template for your own data."""
+    try:
+        files = sample_dataset_files(sample_id)
+    except KeyError:
+        raise HTTPException(404, f"unknown sample {sample_id!r}") from None
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, data in files:
+            archive.writestr(name, data)
+    return Response(
+        content=buffer.getvalue(),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{sample_id}-template.zip"'},
+    )
 
 
 @router.post("/samples/{sample_id}", response_model=DatasetDetail, status_code=201)

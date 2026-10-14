@@ -1,7 +1,16 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Columns3, FileSpreadsheet, Loader2, Network, Sparkles, Upload, Users } from "lucide-react";
+import {
+  Columns3,
+  Download,
+  FileSpreadsheet,
+  Loader2,
+  Network,
+  Sparkles,
+  Upload,
+  Users,
+} from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { client, type DatasetDetail, type ProblemKind, unwrap } from "@/lib/api";
+import { API_URL, client, type DatasetDetail, type ProblemKind, unwrap } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 import { TablePreview } from "./table-preview";
@@ -245,33 +254,45 @@ export function DataStep({
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-base">Or start from a sample</CardTitle>
-              <CardDescription>Hand-verified datasets with known answers.</CardDescription>
+              <CardDescription>
+                Hand-verified datasets with known answers. Download one as a template for your data.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               {samples.isPending &&
                 [0, 1, 2].map((i) => <Skeleton key={i} className="h-14 w-full" />)}
               {samples.data?.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  disabled={busy}
-                  onClick={() => {
-                    onKindChange(s.kind as ProblemKind);
-                    fromSample.mutate(s.id);
-                  }}
-                  className="flex w-full items-start gap-3 rounded-lg border p-3 text-left text-sm transition-colors hover:bg-muted/50 disabled:opacity-50"
-                >
-                  <FileSpreadsheet className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate font-medium">{s.name}</span>
-                      <Badge variant="secondary" className="shrink-0 capitalize">
-                        {s.kind}
-                      </Badge>
+                <div key={s.id} className="flex items-stretch gap-1">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      onKindChange(s.kind as ProblemKind);
+                      fromSample.mutate(s.id);
+                    }}
+                    className="flex min-w-0 flex-1 items-start gap-3 rounded-lg border p-3 text-left text-sm transition-colors hover:bg-muted/50 disabled:opacity-50"
+                  >
+                    <FileSpreadsheet className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate font-medium">{s.name}</span>
+                        <Badge variant="secondary" className="shrink-0 capitalize">
+                          {s.kind}
+                        </Badge>
+                      </div>
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
                     </div>
-                    <p className="line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
-                  </div>
-                </button>
+                  </button>
+                  <a
+                    href={`${API_URL}/api/v1/datasets/samples/${s.id}/download`}
+                    download
+                    title="Download these files as a template"
+                    aria-label={`Download ${s.name} as a template`}
+                    className="flex w-9 shrink-0 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+                  >
+                    <Download className="size-4" />
+                  </a>
+                </div>
               ))}
               {samples.error && (
                 <p className="text-sm text-destructive">{samples.error.message}</p>
