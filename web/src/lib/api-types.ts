@@ -106,6 +106,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Audit Endpoint */
+        post: operations["audit_endpoint_api_v1_audit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/datasets/samples": {
         parameters: {
             query?: never;
@@ -236,6 +253,23 @@ export interface paths {
         put?: never;
         /** Extract Endpoint */
         post: operations["extract_endpoint_api_v1_agent_extract_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Endpoint */
+        post: operations["review_endpoint_api_v1_agent_review_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -374,6 +408,22 @@ export interface components {
             assignments: components["schemas"]["Assignment"][];
             /** Unassigned Agents */
             unassigned_agents: string[];
+        };
+        /** AuditReport */
+        AuditReport: {
+            /** Findings */
+            findings: components["schemas"]["Finding"][];
+            /** Checks Run */
+            checks_run: string[];
+            /** Passed */
+            readonly passed: boolean;
+        };
+        /** AuditRequest */
+        AuditRequest: {
+            /** Problem */
+            problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
+            /** Text */
+            text?: string | null;
         };
         /** Body_upload_api_v1_datasets_post */
         Body_upload_api_v1_datasets_post: {
@@ -560,7 +610,22 @@ export interface components {
             ungrounded: components["schemas"]["Ungrounded"][];
             /** Issues */
             issues: components["schemas"]["DataIssue"][];
+            audit: components["schemas"]["AuditReport"] | null;
             trace: components["schemas"]["Trace"];
+        };
+        /** Finding */
+        Finding: {
+            /** Check */
+            check: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "error" | "warning" | "info";
+            /** Message */
+            message: string;
+            /** Evidence */
+            evidence?: string | null;
         };
         /** Formulation */
         Formulation: {
@@ -728,6 +793,45 @@ export interface components {
             task: string;
             /** Value */
             value: number;
+        };
+        /** RequirementCheck */
+        RequirementCheck: {
+            /** Requirement */
+            requirement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "covered" | "missing" | "contradicted" | "not_applicable";
+            /**
+             * Where
+             * @default
+             */
+            where: string;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+        };
+        /** Review */
+        Review: {
+            /** Checks */
+            checks: components["schemas"]["RequirementCheck"][];
+            /** Unexplained */
+            unexplained: string[];
+        };
+        /** ReviewRequest */
+        ReviewRequest: {
+            /** Requirements */
+            requirements: string[];
+            /** Problem */
+            problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
+        };
+        /** ReviewResponse */
+        ReviewResponse: {
+            review: components["schemas"]["Review"];
+            trace: components["schemas"]["Trace"];
         };
         /** Route */
         Route: {
@@ -1201,6 +1305,39 @@ export interface operations {
             };
         };
     };
+    audit_endpoint_api_v1_audit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AuditRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     samples_api_v1_datasets_samples_get: {
         parameters: {
             query?: never;
@@ -1439,6 +1576,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExtractResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_endpoint_api_v1_agent_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResponse"];
                 };
             };
             /** @description Validation Error */

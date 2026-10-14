@@ -74,3 +74,7 @@ export type Answer = Schemas["Answer"];
 export type Formulation = Schemas["Formulation"];
 export type Ungrounded = Schemas["Ungrounded"];
 export type Trace = Schemas["Trace"];
+export type AuditReport = Schemas["AuditReport"];
+export type Finding = Schemas["Finding"];
+export type Review = Schemas["Review"];
+export type RequirementCheck = Schemas["RequirementCheck"];

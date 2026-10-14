@@ -4,7 +4,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowLeft,
-  ClipboardCheck,
   Cpu,
   Info,
   Loader2,
@@ -30,6 +29,8 @@ import {
 } from "@/lib/api";
 import { fmt } from "@/lib/format";
 
+import { AuditPanel, RequirementsPanel, useAudit } from "./audit-panels";
+
 export interface Candidate {
   problem: Problem;
   source: "ai" | "manual";
@@ -37,6 +38,8 @@ export interface Candidate {
   ungrounded?: Ungrounded[];
   issues?: DataIssue[];
   trace?: Trace;
+  /** The user's description, used by the audit. */
+  text?: string;
 }
 
 const PREVIEW_ITEMS = 4;
@@ -84,7 +87,9 @@ export function ConfirmStep({
   onBack: () => void;
   onSolved: (report: SolveReport) => void;
 }) {
-  const { problem, requirements = [], ungrounded = [], issues = [], trace } = candidate;
+  const { problem, requirements = [], ungrounded = [], issues = [], trace, text } = candidate;
+  const audit = useAudit(problem, text);
+  const auditErrors = audit.data?.findings.filter((x) => x.severity === "error").length ?? 0;
 
   const formulation = useQuery({
     queryKey: ["formulation", problem],
@@ -209,24 +214,11 @@ export function ConfirmStep({
       </div>
 
       <div className="space-y-4 lg:sticky lg:top-20">
+        <AuditPanel report={audit.data} loading={audit.isPending} />
+        {audit.error && <p className="text-sm text-destructive">{audit.error.message}</p>}
+
         {requirements.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <ClipboardCheck className="size-4" /> Your requirements
-              </CardTitle>
-              <CardDescription>
-                Read from your description. Check that each one appears in the model.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ol className="list-decimal space-y-1.5 pl-5 text-sm">
-                {requirements.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ol>
-            </CardContent>
-          </Card>
+          <RequirementsPanel requirements={requirements} problem={problem} />
         )}
 
         {warnings.length > 0 && (
@@ -264,8 +256,14 @@ export function ConfirmStep({
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft /> Back
           </Button>
-          <Button className="flex-1" disabled={!f || solve.isPending} onClick={() => solve.mutate()}>
-            {solve.isPending ? <Loader2 className="animate-spin" /> : <Play />} Approve &amp; solve
+          <Button
+            className="flex-1"
+            variant={auditErrors ? "destructive" : "default"}
+            disabled={!f || solve.isPending}
+            onClick={() => solve.mutate()}
+          >
+            {solve.isPending ? <Loader2 className="animate-spin" /> : <Play />}
+            {auditErrors ? `Approve despite ${auditErrors} issue(s)` : "Approve & solve"}
           </Button>
         </div>
       </div>

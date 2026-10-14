@@ -21,6 +21,14 @@ import { DataStep } from "./data-step";
 import { MappingStep } from "./mapping-step";
 import { ResultsStep } from "./results-step";
 
+/** Mirror of the backend's with_answers(): answers count as part of the description. */
+function withAnswers(text: string, analysis: Analysis, answers: Record<string, string>): string {
+  const given = analysis.questions.filter((q) => answers[q]?.trim());
+  if (!given.length) return text;
+  const extra = given.map((q) => `Q: ${q}\nA: ${answers[q].trim()}`).join("\n");
+  return `${text}\n\nAdditional information from the user:\n${extra}`;
+}
+
 type Step = "input" | "map" | "confirm" | "results";
 
 const STEPS: { id: Step; label: string }[] = [
@@ -121,7 +129,7 @@ export function Wizard() {
                 onKindChange={setKind}
                 answers={answers}
                 onAnswersChange={setAnswers}
-                onCandidate={review}
+                onCandidate={(c) => review({ ...c, text: withAnswers(text, analysis, answers) })}
               />
             )
           }
@@ -142,6 +150,7 @@ export function Wizard() {
               source: "manual",
               issues,
               requirements: analysis?.requirements,
+              text: text || undefined,
             })
           }
         />
