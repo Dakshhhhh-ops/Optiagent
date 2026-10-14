@@ -5,9 +5,10 @@ import { ArrowLeft, CheckCircle2, ShieldAlert, ShieldCheck, TriangleAlert, XCirc
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Check, SolveReport } from "@/lib/api";
+import type { Check, Problem, SolveReport } from "@/lib/api";
 import { fmt } from "@/lib/format";
 
+import { DiagnosisPanel, InsightsPanel, WhatIfPanel } from "./analysis-panels";
 import { type Flow, FlowDiagram } from "./flow-diagram";
 
 const CHECK_LABELS: Record<string, string> = {
@@ -85,7 +86,15 @@ function CheckRow({ check }: { check: Check }) {
   );
 }
 
-export function ResultsStep({ report, onBack }: { report: SolveReport; onBack: () => void }) {
+export function ResultsStep({
+  report,
+  problem,
+  onBack,
+}: {
+  report: SolveReport;
+  problem: Problem;
+  onBack: () => void;
+}) {
   const { result, solution, stats, model } = report;
   const minimize = model.sense === "minimize";
   const transport = solution?.kind === "transportation" ? solution : null;
@@ -271,6 +280,10 @@ export function ResultsStep({ report, onBack }: { report: SolveReport; onBack: (
           </div>
         </>
       )}
+
+      {report.diagnosis && <DiagnosisPanel diagnosis={report.diagnosis} />}
+      {solution && <InsightsPanel report={report} />}
+      {solution && <WhatIfPanel problem={problem} base={report} />}
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
         <Card>

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from optiagent_core.analysis import Sensitivity, analyze_sensitivity
 from optiagent_core.builders import assign_var, build_model, flow_var
@@ -67,6 +67,8 @@ class ModelStats(BaseModel):
 
 
 class SolveReport(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     prechecks: list[Check]
     stats: ModelStats
     model: LinearModel

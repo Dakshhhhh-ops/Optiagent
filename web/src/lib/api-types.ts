@@ -513,6 +513,40 @@ export interface components {
             /** Items */
             items: string[];
         };
+        /** ConstraintInsight */
+        ConstraintInsight: {
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Keys */
+            keys: string[];
+            /** Description */
+            description: string;
+            /** Activity */
+            activity: number;
+            /** Rhs */
+            rhs: number;
+            /** Slack */
+            slack: number;
+            /** Binding */
+            binding: boolean;
+            /** Shadow Price */
+            shadow_price: number;
+            /**
+             * Degenerate
+             * @default false
+             */
+            degenerate: boolean;
+            /** Rhs From */
+            rhs_from: number | null;
+            /** Rhs To */
+            rhs_to: number | null;
+            /** Change If Increased */
+            change_if_increased?: number | null;
+            /** Change If Decreased */
+            change_if_decreased?: number | null;
+        };
         /** DataIssue */
         DataIssue: {
             /**
@@ -567,6 +601,20 @@ export interface components {
             demand: number;
             /** Received */
             received: number;
+        };
+        /** Diagnosis */
+        Diagnosis: {
+            /** Relaxed Feasible */
+            relaxed_feasible: boolean;
+            /**
+             * Total Shortfall
+             * @default 0
+             */
+            total_shortfall: number;
+            /** Shortfalls */
+            shortfalls: components["schemas"]["Shortfall"][];
+            /** Explanation */
+            explanation: string;
         };
         /** Example */
         Example: {
@@ -648,6 +696,22 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Insight */
+        Insight: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "binding" | "slack" | "unused_option" | "cost_range" | "limit";
+            /** Title */
+            title: string;
+            /** Text */
+            text: string;
+            /** Impact */
+            impact: number;
+            /** Source */
+            source: string;
         };
         /**
          * KeyValue
@@ -859,6 +923,24 @@ export interface components {
             /** Expected Objective */
             expected_objective?: number | null;
         };
+        /** Sensitivity */
+        Sensitivity: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: string | null;
+            /** Objective */
+            objective: number | null;
+            /**
+             * Degenerate
+             * @default false
+             */
+            degenerate: boolean;
+            /** Constraints */
+            constraints: components["schemas"]["ConstraintInsight"][];
+            /** Variables */
+            variables: components["schemas"]["VariableInsight"][];
+        };
         /** ServiceStatus */
         ServiceStatus: {
             /** Name */
@@ -890,6 +972,21 @@ export interface components {
             /** Cost */
             cost: number;
         };
+        /** Shortfall */
+        Shortfall: {
+            /** Constraint */
+            constraint: string;
+            /** Kind */
+            kind: string;
+            /** Id */
+            id: string;
+            /** Required */
+            required: number;
+            /** Achievable */
+            achievable: number;
+            /** Shortfall */
+            shortfall: number;
+        };
         /** SolveReport */
         SolveReport: {
             /** Prechecks */
@@ -900,6 +997,10 @@ export interface components {
             verification: components["schemas"]["CheckReport"];
             /** Solution */
             solution: components["schemas"]["TransportationSolution"] | components["schemas"]["AssignmentSolution"] | null;
+            sensitivity: components["schemas"]["Sensitivity"] | null;
+            /** Insights */
+            insights: components["schemas"]["Insight"][];
+            diagnosis: components["schemas"]["Diagnosis"] | null;
             /** Verified */
             readonly verified: boolean;
         };
@@ -1136,6 +1237,30 @@ export interface components {
              */
             objective: number;
             origin: components["schemas"]["Origin"];
+        };
+        /** VariableInsight */
+        VariableInsight: {
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Keys */
+            keys: string[];
+            /** Value */
+            value: number;
+            /** Cost */
+            cost: number;
+            /** Reduced Cost */
+            reduced_cost: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "basic" | "at_lower" | "at_upper";
+            /** Cost From */
+            cost_from: number | null;
+            /** Cost To */
+            cost_to: number | null;
         };
     };
     responses: never;

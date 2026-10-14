@@ -78,3 +78,6 @@ export type AuditReport = Schemas["AuditReport"];
 export type Finding = Schemas["Finding"];
 export type Review = Schemas["Review"];
 export type RequirementCheck = Schemas["RequirementCheck"];
+export type Insight = Schemas["Insight"];
+export type Diagnosis = Schemas["Diagnosis"];
+export type Sensitivity = Schemas["Sensitivity"];

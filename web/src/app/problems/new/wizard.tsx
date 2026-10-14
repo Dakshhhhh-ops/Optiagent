@@ -167,8 +167,12 @@ export function Wizard() {
         />
       )}
 
-      {step === "results" && report && (
-        <ResultsStep report={report} onBack={() => setStep("confirm")} />
+      {step === "results" && report && candidate && (
+        <ResultsStep
+          report={report}
+          problem={candidate.problem}
+          onBack={() => setStep("confirm")}
+        />
       )}
     </div>
   );
