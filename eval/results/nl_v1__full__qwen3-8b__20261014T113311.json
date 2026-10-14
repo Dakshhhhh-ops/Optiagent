@@ -1,0 +1,3032 @@
+{
+  "summary": {
+    "dataset": "nl_v1",
+    "mode": "full",
+    "model": "qwen3:8b",
+    "prompt_version": "2026-10-14.1",
+    "started_at": "2026-10-14T11:33:11.276386Z",
+    "items": 27,
+    "supported": 24,
+    "classification_accuracy": 1.0,
+    "unnecessary_question_rate": 0.0,
+    "extraction_rate": 1.0,
+    "execution_rate": 1.0,
+    "objective_accuracy": 1.0,
+    "structure_exact_rate": 1.0,
+    "grounding_flag_rate": 0.0,
+    "mean_llm_calls": 1.962962962962963,
+    "mean_latency_s": 55.73948864444449,
+    "diff_categories": {},
+    "wrong_models": 0,
+    "audit_caught": 0,
+    "audit_false_alarms": 0,
+    "silent_error_rate": 0.0
+  },
+  "results": [
+    {
+      "id": "T01",
+      "kind": "transportation",
+      "style": "list",
+      "features": [],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 17775.0,
+      "expected_objective": 17775.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 68579.04919999964,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Delhi",
+            "supply": 715.0
+          },
+          {
+            "id": "Kolkata",
+            "supply": 535.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Lucknow",
+            "demand": 350.0
+          },
+          {
+            "id": "Bengaluru",
+            "demand": 200.0
+          },
+          {
+            "id": "Hyderabad",
+            "demand": 400.0
+          },
+          {
+            "id": "Jaipur",
+            "demand": 300.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Delhi",
+            "destination": "Lucknow",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Bengaluru",
+            "cost": 24.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Hyderabad",
+            "cost": 28.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Jaipur",
+            "cost": 16.0,
+            "capacity": null
+          },
+          {
+            "source": "Kolkata",
+            "destination": "Lucknow",
+            "cost": 24.0,
+            "capacity": null
+          },
+          {
+            "source": "Kolkata",
+            "destination": "Bengaluru",
+            "cost": 12.0,
+            "capacity": null
+          },
+          {
+            "source": "Kolkata",
+            "destination": "Hyderabad",
+            "cost": 23.0,
+            "capacity": null
+          },
+          {
+            "source": "Kolkata",
+            "destination": "Jaipur",
+            "cost": 18.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T02",
+      "kind": "transportation",
+      "style": "narrative",
+      "features": [
+        "blocked_route"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 790.0,
+      "expected_objective": 790.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 67335.16270000109,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Plant C",
+            "supply": 40.0
+          },
+          {
+            "id": "Plant B",
+            "supply": 30.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Austin",
+            "demand": 20.0
+          },
+          {
+            "id": "Seattle",
+            "demand": 20.0
+          },
+          {
+            "id": "Denver",
+            "demand": 30.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Plant C",
+            "destination": "Austin",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant C",
+            "destination": "Seattle",
+            "cost": 8.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant B",
+            "destination": "Austin",
+            "cost": 11.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant B",
+            "destination": "Seattle",
+            "cost": 18.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant B",
+            "destination": "Denver",
+            "cost": 19.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T03",
+      "kind": "transportation",
+      "style": "table",
+      "features": [
+        "route_capacity",
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 144443.0,
+      "expected_objective": 144443.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 85643.54699999967,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Sunny Fields",
+            "supply": 7578.0
+          },
+          {
+            "id": "Hill Farm",
+            "supply": 4461.0
+          },
+          {
+            "id": "Green Acres",
+            "supply": 4461.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "South Market",
+            "demand": 4500.0
+          },
+          {
+            "id": "North Market",
+            "demand": 4500.0
+          },
+          {
+            "id": "West Market",
+            "demand": 4500.0
+          },
+          {
+            "id": "Central Market",
+            "demand": 1000.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Sunny Fields",
+            "destination": "South Market",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Sunny Fields",
+            "destination": "North Market",
+            "cost": 28.0,
+            "capacity": null
+          },
+          {
+            "source": "Sunny Fields",
+            "destination": "West Market",
+            "cost": 26.0,
+            "capacity": null
+          },
+          {
+            "source": "Sunny Fields",
+            "destination": "Central Market",
+            "cost": 27.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "South Market",
+            "cost": 11.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "North Market",
+            "cost": 4.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "West Market",
+            "cost": 27.0,
+            "capacity": 2250.0
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "Central Market",
+            "cost": 27.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "South Market",
+            "cost": 14.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "North Market",
+            "cost": 17.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "West Market",
+            "cost": 13.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "Central Market",
+            "cost": 13.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T04",
+      "kind": "transportation",
+      "style": "list",
+      "features": [
+        "route_capacity",
+        "at_least_demand",
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 5473.0,
+      "expected_objective": 5473.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 92494.45229999947,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Bank 4",
+            "supply": 419.0
+          },
+          {
+            "id": "Bank 2",
+            "supply": 218.0
+          },
+          {
+            "id": "Bank 1",
+            "supply": 363.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Riverside",
+            "demand": 400.0
+          },
+          {
+            "id": "Northgate",
+            "demand": 150.0
+          },
+          {
+            "id": "City General",
+            "demand": 250.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Bank 4",
+            "destination": "Riverside",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 4",
+            "destination": "Northgate",
+            "cost": 6.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 4",
+            "destination": "City General",
+            "cost": 29.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "Riverside",
+            "cost": 13.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "Northgate",
+            "cost": 12.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "City General",
+            "cost": 10.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 1",
+            "destination": "Riverside",
+            "cost": 17.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 1",
+            "destination": "Northgate",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 1",
+            "destination": "City General",
+            "cost": 25.0,
+            "capacity": 125.0
+          }
+        ],
+        "demand_constraint": "at_least"
+      }
+    },
+    {
+      "id": "T05",
+      "kind": "transportation",
+      "style": "narrative",
+      "features": [
+        "blocked_route",
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 154122.0,
+      "expected_objective": 154122.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 40570.22770000003,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Depot Y",
+            "supply": 3313.0
+          },
+          {
+            "id": "Depot W",
+            "supply": 4687.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Initech",
+            "demand": 2500.0
+          },
+          {
+            "id": "Globex",
+            "demand": 3500.0
+          },
+          {
+            "id": "Acme",
+            "demand": 1500.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Depot Y",
+            "destination": "Initech",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot Y",
+            "destination": "Globex",
+            "cost": 21.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Initech",
+            "cost": 25.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Globex",
+            "cost": 27.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Acme",
+            "cost": 28.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T06",
+      "kind": "transportation",
+      "style": "table",
+      "features": [
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 2106.0,
+      "expected_objective": 2106.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 24791.952800000217,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Kolkata",
+            "supply": 184.0
+          },
+          {
+            "id": "Delhi",
+            "supply": 266.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Lucknow",
+            "demand": 300.0
+          },
+          {
+            "id": "Pune",
+            "demand": 100.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Kolkata",
+            "destination": "Lucknow",
+            "cost": 14.0,
+            "capacity": null
+          },
+          {
+            "source": "Kolkata",
+            "destination": "Pune",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Lucknow",
+            "cost": 5.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Pune",
+            "cost": 16.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T07",
+      "kind": "transportation",
+      "style": "list",
+      "features": [
+        "blocked_route"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 5825.0,
+      "expected_objective": 5825.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 27436.641400001463,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Plant D",
+            "supply": 275.0
+          },
+          {
+            "id": "Plant A",
+            "supply": 275.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Miami",
+            "demand": 250.0
+          },
+          {
+            "id": "Boston",
+            "demand": 300.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Plant D",
+            "destination": "Boston",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant A",
+            "destination": "Miami",
+            "cost": 18.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant A",
+            "destination": "Boston",
+            "cost": 20.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T08",
+      "kind": "transportation",
+      "style": "narrative",
+      "features": [
+        "blocked_route",
+        "at_least_demand",
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 530.0,
+      "expected_objective": 530.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 42741.42109999957,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Green Acres",
+            "supply": 56.0
+          },
+          {
+            "id": "Hill Farm",
+            "supply": 41.0
+          },
+          {
+            "id": "River Farm",
+            "supply": 13.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "West Market",
+            "demand": 20.0
+          },
+          {
+            "id": "North Market",
+            "demand": 35.0
+          },
+          {
+            "id": "East Market",
+            "demand": 35.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Green Acres",
+            "destination": "West Market",
+            "cost": 7.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "North Market",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Green Acres",
+            "destination": "East Market",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "West Market",
+            "cost": 2.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "North Market",
+            "cost": 14.0,
+            "capacity": null
+          },
+          {
+            "source": "Hill Farm",
+            "destination": "East Market",
+            "cost": 23.0,
+            "capacity": null
+          },
+          {
+            "source": "River Farm",
+            "destination": "West Market",
+            "cost": 16.0,
+            "capacity": null
+          },
+          {
+            "source": "River Farm",
+            "destination": "North Market",
+            "cost": 16.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "at_least"
+      }
+    },
+    {
+      "id": "T09",
+      "kind": "transportation",
+      "style": "table",
+      "features": [
+        "route_capacity"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 77424.0,
+      "expected_objective": 77424.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 3,
+      "latency_ms": 85739.70510000072,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Bank 1",
+            "supply": 2334.0
+          },
+          {
+            "id": "Bank 4",
+            "supply": 2333.0
+          },
+          {
+            "id": "Bank 2",
+            "supply": 2333.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "City General",
+            "demand": 4500.0
+          },
+          {
+            "id": "Riverside",
+            "demand": 1500.0
+          },
+          {
+            "id": "St Mary",
+            "demand": 1000.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Bank 1",
+            "destination": "City General",
+            "cost": 7.0,
+            "capacity": 2250.0
+          },
+          {
+            "source": "Bank 1",
+            "destination": "Riverside",
+            "cost": 20.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 1",
+            "destination": "St Mary",
+            "cost": 17.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 4",
+            "destination": "City General",
+            "cost": 16.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 4",
+            "destination": "Riverside",
+            "cost": 13.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 4",
+            "destination": "St Mary",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "City General",
+            "cost": 22.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "Riverside",
+            "cost": 11.0,
+            "capacity": null
+          },
+          {
+            "source": "Bank 2",
+            "destination": "St Mary",
+            "cost": 10.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T10",
+      "kind": "transportation",
+      "style": "list",
+      "features": [],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 578.0,
+      "expected_objective": 578.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 3,
+      "latency_ms": 86878.64880000052,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Depot X",
+            "supply": 23.0
+          },
+          {
+            "id": "Depot W",
+            "supply": 45.0
+          },
+          {
+            "id": "Depot Y",
+            "supply": 22.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Globex",
+            "demand": 10.0
+          },
+          {
+            "id": "Initech",
+            "demand": 40.0
+          },
+          {
+            "id": "Hooli",
+            "demand": 40.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Depot X",
+            "destination": "Globex",
+            "cost": 16.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot X",
+            "destination": "Initech",
+            "cost": 7.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot X",
+            "destination": "Hooli",
+            "cost": 3.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Globex",
+            "cost": 20.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Initech",
+            "cost": 2.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot W",
+            "destination": "Hooli",
+            "cost": 30.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot Y",
+            "destination": "Globex",
+            "cost": 26.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot Y",
+            "destination": "Initech",
+            "cost": 30.0,
+            "capacity": null
+          },
+          {
+            "source": "Depot Y",
+            "destination": "Hooli",
+            "cost": 12.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "T11",
+      "kind": "transportation",
+      "style": "narrative",
+      "features": [
+        "at_least_demand",
+        "excess_supply"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 946.0,
+      "expected_objective": 946.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 43678.73359999976,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Delhi",
+            "supply": 42.0
+          },
+          {
+            "id": "Mumbai",
+            "supply": 53.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Hyderabad",
+            "demand": 25.0
+          },
+          {
+            "id": "Bengaluru",
+            "demand": 25.0
+          },
+          {
+            "id": "Lucknow",
+            "demand": 25.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Delhi",
+            "destination": "Hyderabad",
+            "cost": 15.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Bengaluru",
+            "cost": 5.0,
+            "capacity": null
+          },
+          {
+            "source": "Delhi",
+            "destination": "Lucknow",
+            "cost": 6.0,
+            "capacity": null
+          },
+          {
+            "source": "Mumbai",
+            "destination": "Hyderabad",
+            "cost": 23.0,
+            "capacity": null
+          },
+          {
+            "source": "Mumbai",
+            "destination": "Bengaluru",
+            "cost": 17.0,
+            "capacity": null
+          },
+          {
+            "source": "Mumbai",
+            "destination": "Lucknow",
+            "cost": 18.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "at_least"
+      }
+    },
+    {
+      "id": "T12",
+      "kind": "transportation",
+      "style": "table",
+      "features": [
+        "route_capacity"
+      ],
+      "predicted_kind": "transportation",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 12036.0,
+      "expected_objective": 12036.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 49476.737399998456,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "transportation",
+        "name": "Transportation problem",
+        "sense": "minimize",
+        "sources": [
+          {
+            "id": "Plant A",
+            "supply": 328.0
+          },
+          {
+            "id": "Plant D",
+            "supply": 130.0
+          },
+          {
+            "id": "Plant C",
+            "supply": 392.0
+          }
+        ],
+        "destinations": [
+          {
+            "id": "Denver",
+            "demand": 300.0
+          },
+          {
+            "id": "Seattle",
+            "demand": 300.0
+          },
+          {
+            "id": "Boston",
+            "demand": 150.0
+          },
+          {
+            "id": "Austin",
+            "demand": 100.0
+          }
+        ],
+        "routes": [
+          {
+            "source": "Plant A",
+            "destination": "Denver",
+            "cost": 24.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant A",
+            "destination": "Seattle",
+            "cost": 27.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant A",
+            "destination": "Boston",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant A",
+            "destination": "Austin",
+            "cost": 28.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant D",
+            "destination": "Denver",
+            "cost": 21.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant D",
+            "destination": "Seattle",
+            "cost": 15.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant D",
+            "destination": "Boston",
+            "cost": 2.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant D",
+            "destination": "Austin",
+            "cost": 9.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant C",
+            "destination": "Denver",
+            "cost": 9.0,
+            "capacity": 150.0
+          },
+          {
+            "source": "Plant C",
+            "destination": "Seattle",
+            "cost": 15.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant C",
+            "destination": "Boston",
+            "cost": 29.0,
+            "capacity": null
+          },
+          {
+            "source": "Plant C",
+            "destination": "Austin",
+            "cost": 26.0,
+            "capacity": null
+          }
+        ],
+        "demand_constraint": "equal"
+      }
+    },
+    {
+      "id": "A01",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 46.0,
+      "expected_objective": 46.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 79775.3133999995,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Dina",
+            "capacity": 1
+          },
+          {
+            "id": "Eli",
+            "capacity": 1
+          },
+          {
+            "id": "Asha",
+            "capacity": 1
+          },
+          {
+            "id": "Chen",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Testing",
+            "required": 1
+          },
+          {
+            "id": "Assembly",
+            "required": 1
+          },
+          {
+            "id": "Painting",
+            "required": 1
+          },
+          {
+            "id": "Welding",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Dina",
+            "task": "Testing",
+            "value": 2.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Assembly",
+            "value": 49.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Painting",
+            "value": 19.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Welding",
+            "value": 58.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Testing",
+            "value": 53.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Assembly",
+            "value": 58.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Painting",
+            "value": 23.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Welding",
+            "value": 46.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Testing",
+            "value": 42.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Assembly",
+            "value": 7.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Painting",
+            "value": 60.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Welding",
+            "value": 9.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Testing",
+            "value": 29.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Assembly",
+            "value": 34.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Painting",
+            "value": 17.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Welding",
+            "value": 14.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A02",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "task_needs_two"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 39.0,
+      "expected_objective": 39.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 67628.48639999902,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "maximize",
+        "agents": [
+          {
+            "id": "Ravi",
+            "capacity": 1
+          },
+          {
+            "id": "Omar",
+            "capacity": 1
+          },
+          {
+            "id": "Lena",
+            "capacity": 1
+          },
+          {
+            "id": "Meera",
+            "capacity": 1
+          },
+          {
+            "id": "Tom",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "L2",
+            "required": 2
+          },
+          {
+            "id": "L1",
+            "required": 1
+          },
+          {
+            "id": "L4",
+            "required": 1
+          },
+          {
+            "id": "L3",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Ravi",
+            "task": "L2",
+            "value": 2.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L1",
+            "value": 8.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L4",
+            "value": 2.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L3",
+            "value": 8.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L2",
+            "value": 10.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L1",
+            "value": 8.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L4",
+            "value": 4.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L3",
+            "value": 4.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L2",
+            "value": 8.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L1",
+            "value": 5.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L4",
+            "value": 9.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L3",
+            "value": 9.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L2",
+            "value": 7.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L1",
+            "value": 4.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L4",
+            "value": 4.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L3",
+            "value": 5.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L2",
+            "value": 2.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L1",
+            "value": 5.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L4",
+            "value": 3.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L3",
+            "value": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A03",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 109.0,
+      "expected_objective": 109.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 83132.73500000105,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Nurse Brown",
+            "capacity": 1
+          },
+          {
+            "id": "Nurse Kim",
+            "capacity": 1
+          },
+          {
+            "id": "Nurse Lopez",
+            "capacity": 1
+          },
+          {
+            "id": "Nurse Patel",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Evening",
+            "required": 1
+          },
+          {
+            "id": "Morning",
+            "required": 1
+          },
+          {
+            "id": "Weekend",
+            "required": 1
+          },
+          {
+            "id": "Night",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Nurse Brown",
+            "task": "Evening",
+            "value": 56.0
+          },
+          {
+            "agent": "Nurse Brown",
+            "task": "Morning",
+            "value": 56.0
+          },
+          {
+            "agent": "Nurse Brown",
+            "task": "Weekend",
+            "value": 31.0
+          },
+          {
+            "agent": "Nurse Brown",
+            "task": "Night",
+            "value": 17.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Evening",
+            "value": 50.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Morning",
+            "value": 43.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Weekend",
+            "value": 13.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Night",
+            "value": 38.0
+          },
+          {
+            "agent": "Nurse Lopez",
+            "task": "Evening",
+            "value": 42.0
+          },
+          {
+            "agent": "Nurse Lopez",
+            "task": "Morning",
+            "value": 53.0
+          },
+          {
+            "agent": "Nurse Lopez",
+            "task": "Weekend",
+            "value": 35.0
+          },
+          {
+            "agent": "Nurse Lopez",
+            "task": "Night",
+            "value": 7.0
+          },
+          {
+            "agent": "Nurse Patel",
+            "task": "Evening",
+            "value": 33.0
+          },
+          {
+            "agent": "Nurse Patel",
+            "task": "Morning",
+            "value": 45.0
+          },
+          {
+            "agent": "Nurse Patel",
+            "task": "Weekend",
+            "value": 24.0
+          },
+          {
+            "agent": "Nurse Patel",
+            "task": "Night",
+            "value": 34.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A04",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "agent_takes_two",
+        "forbidden_pair"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 69.0,
+      "expected_objective": 69.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 36425.28919999859,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Driver 4",
+            "capacity": 2
+          },
+          {
+            "id": "Driver 3",
+            "capacity": 1
+          },
+          {
+            "id": "Driver 1",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Route North",
+            "required": 1
+          },
+          {
+            "id": "Route East",
+            "required": 1
+          },
+          {
+            "id": "Route West",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Driver 4",
+            "task": "Route North",
+            "value": 39.0
+          },
+          {
+            "agent": "Driver 4",
+            "task": "Route East",
+            "value": 49.0
+          },
+          {
+            "agent": "Driver 4",
+            "task": "Route West",
+            "value": 13.0
+          },
+          {
+            "agent": "Driver 3",
+            "task": "Route North",
+            "value": 21.0
+          },
+          {
+            "agent": "Driver 3",
+            "task": "Route East",
+            "value": 17.0
+          },
+          {
+            "agent": "Driver 1",
+            "task": "Route North",
+            "value": 52.0
+          },
+          {
+            "agent": "Driver 1",
+            "task": "Route East",
+            "value": 52.0
+          },
+          {
+            "agent": "Driver 1",
+            "task": "Route West",
+            "value": 54.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A05",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [
+        "spare_agent"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 33.0,
+      "expected_objective": 33.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 61855.533100000684,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "maximize",
+        "agents": [
+          {
+            "id": "Ana",
+            "capacity": 1
+          },
+          {
+            "id": "Bo",
+            "capacity": 1
+          },
+          {
+            "id": "Eva",
+            "capacity": 1
+          },
+          {
+            "id": "Dev",
+            "capacity": 1
+          },
+          {
+            "id": "Cy",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Client Alpha",
+            "required": 1
+          },
+          {
+            "id": "Client Beta",
+            "required": 1
+          },
+          {
+            "id": "Client Delta",
+            "required": 1
+          },
+          {
+            "id": "Client Gamma",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Ana",
+            "task": "Client Alpha",
+            "value": 9.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Beta",
+            "value": 5.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Delta",
+            "value": 7.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Gamma",
+            "value": 7.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Alpha",
+            "value": 3.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Beta",
+            "value": 2.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Delta",
+            "value": 7.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Gamma",
+            "value": 10.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Alpha",
+            "value": 5.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Beta",
+            "value": 2.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Delta",
+            "value": 10.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Gamma",
+            "value": 1.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Alpha",
+            "value": 5.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Beta",
+            "value": 1.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Delta",
+            "value": 4.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Gamma",
+            "value": 8.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Alpha",
+            "value": 4.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Beta",
+            "value": 4.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Delta",
+            "value": 8.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Gamma",
+            "value": 8.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A06",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "forbidden_pair",
+        "spare_agent"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 39.0,
+      "expected_objective": 39.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 63087.10680000149,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Ben",
+            "capacity": 1
+          },
+          {
+            "id": "Asha",
+            "capacity": 1
+          },
+          {
+            "id": "Dina",
+            "capacity": 1
+          },
+          {
+            "id": "Eli",
+            "capacity": 1
+          },
+          {
+            "id": "Chen",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Painting",
+            "required": 1
+          },
+          {
+            "id": "Welding",
+            "required": 1
+          },
+          {
+            "id": "Assembly",
+            "required": 1
+          },
+          {
+            "id": "Testing",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Ben",
+            "task": "Painting",
+            "value": 26.0
+          },
+          {
+            "agent": "Ben",
+            "task": "Welding",
+            "value": 59.0
+          },
+          {
+            "agent": "Ben",
+            "task": "Testing",
+            "value": 35.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Painting",
+            "value": 30.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Welding",
+            "value": 49.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Assembly",
+            "value": 13.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Testing",
+            "value": 51.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Painting",
+            "value": 6.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Welding",
+            "value": 2.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Assembly",
+            "value": 4.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Testing",
+            "value": 18.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Painting",
+            "value": 51.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Welding",
+            "value": 1.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Assembly",
+            "value": 60.0
+          },
+          {
+            "agent": "Eli",
+            "task": "Testing",
+            "value": 49.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Painting",
+            "value": 54.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Welding",
+            "value": 28.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Assembly",
+            "value": 15.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Testing",
+            "value": 19.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A07",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [
+        "spare_agent"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 33.0,
+      "expected_objective": 33.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 72125.56080000104,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "maximize",
+        "agents": [
+          {
+            "id": "Meera",
+            "capacity": 1
+          },
+          {
+            "id": "Omar",
+            "capacity": 1
+          },
+          {
+            "id": "Ravi",
+            "capacity": 1
+          },
+          {
+            "id": "Lena",
+            "capacity": 1
+          },
+          {
+            "id": "Tom",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "L1",
+            "required": 1
+          },
+          {
+            "id": "L2",
+            "required": 1
+          },
+          {
+            "id": "L3",
+            "required": 1
+          },
+          {
+            "id": "L4",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Meera",
+            "task": "L1",
+            "value": 1.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L2",
+            "value": 6.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L3",
+            "value": 3.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L4",
+            "value": 7.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L1",
+            "value": 9.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L2",
+            "value": 6.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L3",
+            "value": 8.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L4",
+            "value": 8.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L1",
+            "value": 8.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L2",
+            "value": 2.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L3",
+            "value": 1.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L4",
+            "value": 5.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L1",
+            "value": 2.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L2",
+            "value": 9.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L3",
+            "value": 1.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L4",
+            "value": 4.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L1",
+            "value": 4.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L2",
+            "value": 10.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L3",
+            "value": 1.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L4",
+            "value": 8.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A08",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "forbidden_pair"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 67.0,
+      "expected_objective": 67.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 36601.53480000008,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Nurse Ali",
+            "capacity": 1
+          },
+          {
+            "id": "Nurse Kim",
+            "capacity": 1
+          },
+          {
+            "id": "Nurse Brown",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Weekend",
+            "required": 1
+          },
+          {
+            "id": "Night",
+            "required": 1
+          },
+          {
+            "id": "Evening",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Nurse Ali",
+            "task": "Weekend",
+            "value": 7.0
+          },
+          {
+            "agent": "Nurse Ali",
+            "task": "Night",
+            "value": 58.0
+          },
+          {
+            "agent": "Nurse Ali",
+            "task": "Evening",
+            "value": 27.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Weekend",
+            "value": 34.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Night",
+            "value": 8.0
+          },
+          {
+            "agent": "Nurse Kim",
+            "task": "Evening",
+            "value": 32.0
+          },
+          {
+            "agent": "Nurse Brown",
+            "task": "Weekend",
+            "value": 32.0
+          },
+          {
+            "agent": "Nurse Brown",
+            "task": "Night",
+            "value": 31.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A09",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [
+        "task_needs_two",
+        "forbidden_pair",
+        "spare_agent"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 47.0,
+      "expected_objective": 47.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 64683.370300001116,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Driver 1",
+            "capacity": 1
+          },
+          {
+            "id": "Driver 2",
+            "capacity": 1
+          },
+          {
+            "id": "Driver 3",
+            "capacity": 1
+          },
+          {
+            "id": "Driver 4",
+            "capacity": 1
+          },
+          {
+            "id": "Driver 5",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Route South",
+            "required": 2
+          },
+          {
+            "id": "Route West",
+            "required": 1
+          },
+          {
+            "id": "Route North",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Driver 1",
+            "task": "Route South",
+            "value": 40.0
+          },
+          {
+            "agent": "Driver 1",
+            "task": "Route West",
+            "value": 43.0
+          },
+          {
+            "agent": "Driver 1",
+            "task": "Route North",
+            "value": 2.0
+          },
+          {
+            "agent": "Driver 2",
+            "task": "Route South",
+            "value": 34.0
+          },
+          {
+            "agent": "Driver 2",
+            "task": "Route West",
+            "value": 12.0
+          },
+          {
+            "agent": "Driver 2",
+            "task": "Route North",
+            "value": 52.0
+          },
+          {
+            "agent": "Driver 3",
+            "task": "Route South",
+            "value": 15.0
+          },
+          {
+            "agent": "Driver 3",
+            "task": "Route West",
+            "value": 37.0
+          },
+          {
+            "agent": "Driver 3",
+            "task": "Route North",
+            "value": 17.0
+          },
+          {
+            "agent": "Driver 4",
+            "task": "Route South",
+            "value": 18.0
+          },
+          {
+            "agent": "Driver 4",
+            "task": "Route West",
+            "value": 13.0
+          },
+          {
+            "agent": "Driver 4",
+            "task": "Route North",
+            "value": 48.0
+          },
+          {
+            "agent": "Driver 5",
+            "task": "Route South",
+            "value": 54.0
+          },
+          {
+            "agent": "Driver 5",
+            "task": "Route West",
+            "value": 58.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A10",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "task_needs_two",
+        "forbidden_pair"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 42.0,
+      "expected_objective": 42.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 63135.13819999935,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "maximize",
+        "agents": [
+          {
+            "id": "Cy",
+            "capacity": 1
+          },
+          {
+            "id": "Dev",
+            "capacity": 1
+          },
+          {
+            "id": "Eva",
+            "capacity": 1
+          },
+          {
+            "id": "Bo",
+            "capacity": 1
+          },
+          {
+            "id": "Ana",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Client Alpha",
+            "required": 2
+          },
+          {
+            "id": "Client Gamma",
+            "required": 1
+          },
+          {
+            "id": "Client Delta",
+            "required": 1
+          },
+          {
+            "id": "Client Beta",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Cy",
+            "task": "Client Alpha",
+            "value": 7.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Gamma",
+            "value": 6.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Delta",
+            "value": 4.0
+          },
+          {
+            "agent": "Cy",
+            "task": "Client Beta",
+            "value": 8.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Alpha",
+            "value": 9.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Gamma",
+            "value": 1.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Delta",
+            "value": 8.0
+          },
+          {
+            "agent": "Dev",
+            "task": "Client Beta",
+            "value": 4.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Alpha",
+            "value": 3.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Gamma",
+            "value": 10.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Delta",
+            "value": 5.0
+          },
+          {
+            "agent": "Eva",
+            "task": "Client Beta",
+            "value": 6.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Alpha",
+            "value": 2.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Gamma",
+            "value": 8.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Delta",
+            "value": 7.0
+          },
+          {
+            "agent": "Bo",
+            "task": "Client Beta",
+            "value": 7.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Gamma",
+            "value": 2.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Delta",
+            "value": 9.0
+          },
+          {
+            "agent": "Ana",
+            "task": "Client Beta",
+            "value": 3.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A11",
+      "kind": "assignment",
+      "style": "sentences",
+      "features": [
+        "forbidden_pair"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 63.0,
+      "expected_objective": 63.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 49052.89389999962,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "minimize",
+        "agents": [
+          {
+            "id": "Chen",
+            "capacity": 1
+          },
+          {
+            "id": "Asha",
+            "capacity": 1
+          },
+          {
+            "id": "Dina",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "Welding",
+            "required": 1
+          },
+          {
+            "id": "Painting",
+            "required": 1
+          },
+          {
+            "id": "Testing",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Chen",
+            "task": "Welding",
+            "value": 40.0
+          },
+          {
+            "agent": "Chen",
+            "task": "Painting",
+            "value": 32.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Testing",
+            "value": 19.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Welding",
+            "value": 14.0
+          },
+          {
+            "agent": "Asha",
+            "task": "Painting",
+            "value": 55.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Testing",
+            "value": 53.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Welding",
+            "value": 32.0
+          },
+          {
+            "agent": "Dina",
+            "task": "Painting",
+            "value": 4.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "A12",
+      "kind": "assignment",
+      "style": "table",
+      "features": [
+        "spare_agent"
+      ],
+      "predicted_kind": "assignment",
+      "questions": [],
+      "extracted": true,
+      "executed": true,
+      "status": "optimal",
+      "objective": 31.0,
+      "expected_objective": 31.0,
+      "correct": true,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 2,
+      "latency_ms": 68354.08990000178,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": {
+        "kind": "assignment",
+        "name": "Assignment problem",
+        "sense": "maximize",
+        "agents": [
+          {
+            "id": "Meera",
+            "capacity": 1
+          },
+          {
+            "id": "Ravi",
+            "capacity": 1
+          },
+          {
+            "id": "Lena",
+            "capacity": 1
+          },
+          {
+            "id": "Omar",
+            "capacity": 1
+          },
+          {
+            "id": "Tom",
+            "capacity": 1
+          }
+        ],
+        "tasks": [
+          {
+            "id": "L1",
+            "required": 1
+          },
+          {
+            "id": "L2",
+            "required": 1
+          },
+          {
+            "id": "L4",
+            "required": 1
+          },
+          {
+            "id": "L3",
+            "required": 1
+          }
+        ],
+        "pairings": [
+          {
+            "agent": "Meera",
+            "task": "L1",
+            "value": 3.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L2",
+            "value": 2.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L4",
+            "value": 7.0
+          },
+          {
+            "agent": "Meera",
+            "task": "L3",
+            "value": 10.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L1",
+            "value": 2.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L2",
+            "value": 4.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L4",
+            "value": 8.0
+          },
+          {
+            "agent": "Ravi",
+            "task": "L3",
+            "value": 5.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L1",
+            "value": 5.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L2",
+            "value": 9.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L4",
+            "value": 10.0
+          },
+          {
+            "agent": "Lena",
+            "task": "L3",
+            "value": 5.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L1",
+            "value": 1.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L2",
+            "value": 2.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L4",
+            "value": 3.0
+          },
+          {
+            "agent": "Omar",
+            "task": "L3",
+            "value": 7.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L1",
+            "value": 3.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L2",
+            "value": 8.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L4",
+            "value": 6.0
+          },
+          {
+            "agent": "Tom",
+            "task": "L3",
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "U01",
+      "kind": "unsupported",
+      "style": "prose",
+      "features": [],
+      "predicted_kind": "unsupported",
+      "questions": [
+        "What is the distance between each pair of locations (depot and customers)?"
+      ],
+      "extracted": false,
+      "executed": false,
+      "status": null,
+      "objective": null,
+      "expected_objective": null,
+      "correct": false,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 1,
+      "latency_ms": 27163.058599999204,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": null
+    },
+    {
+      "id": "U02",
+      "kind": "unsupported",
+      "style": "prose",
+      "features": [],
+      "predicted_kind": "unsupported",
+      "questions": [],
+      "extracted": false,
+      "executed": false,
+      "status": null,
+      "objective": null,
+      "expected_objective": null,
+      "correct": false,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 1,
+      "latency_ms": 9566.385599999194,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": null
+    },
+    {
+      "id": "U03",
+      "kind": "unsupported",
+      "style": "prose",
+      "features": [],
+      "predicted_kind": "unsupported",
+      "questions": [],
+      "extracted": false,
+      "executed": false,
+      "status": null,
+      "objective": null,
+      "expected_objective": null,
+      "correct": false,
+      "ungrounded": 0,
+      "diffs": [],
+      "llm_calls": 1,
+      "latency_ms": 7013.418299999103,
+      "error": null,
+      "audit_flags": [],
+      "extracted_problem": null
+    }
+  ]
+}

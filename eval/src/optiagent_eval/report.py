@@ -60,9 +60,19 @@ class Summary(BaseModel):
     notes: list[str]
 
 
-def _latest(mode: str) -> Path | None:
-    files = sorted(RESULTS_DIR.glob(f"nl_v1__{mode}__*.json"))
-    return files[-1] if files else None
+def _latest_runs() -> list[tuple[str, Path]]:
+    """The most recent run for each (mode, model), ordered by mode then model."""
+    latest: dict[tuple[str, str], Path] = {}
+    for path in sorted(RESULTS_DIR.glob("nl_v1__*__*__*.json")):
+        _, mode, model, _stamp = path.stem.split("__")
+        latest[(mode, model)] = path  # later timestamps overwrite earlier ones
+    order = {"direct": 0, "no-verify": 1, "full": 2}
+    return [
+        (mode, path)
+        for (mode, _), path in sorted(
+            latest.items(), key=lambda kv: (kv[0][1], order.get(kv[0][0], 9))
+        )
+    ]
 
 
 def _rescore(run: Run) -> Run:
@@ -157,11 +167,11 @@ def markdown(summary: Summary) -> str:
         "- **Silent errors**: problems that end with a wrong answer and no warning shown to the user.",
         "",
     ]
-    full = next((m for m in summary.modes if m.mode == "full"), None)
-    if full and full.diff_categories:
-        lines += ["### Error distribution (full mode, structural differences)", ""]
-        lines += [f"- `{k}`: {v}" for k, v in full.diff_categories.items()]
-        lines.append("")
+    for m in summary.modes:
+        if m.mode != "direct" and m.diff_categories:
+            lines += [f"### Model errors: {m.model}, {m.mode} (structural differences)", ""]
+            lines += [f"- `{k}`: {v}" for k, v in m.diff_categories.items()]
+            lines.append("")
     lines += [
         "## Formulation audit: injected modelling errors",
         "",
@@ -194,7 +204,7 @@ NOTES = [
 
 
 def build() -> Summary:
-    modes = [_mode_row(m, p) for m in ("direct", "no-verify", "full") if (p := _latest(m))]
+    modes = [_mode_row(m, p) for m, p in _latest_runs()]
     audits = [
         _audit_row("generated (nl_v1)", evaluate()),
         _audit_row("hand-written (handwritten_v1)", evaluate(items=handwritten_items())),

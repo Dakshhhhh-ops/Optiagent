@@ -25,7 +25,7 @@ function Bars({
   return (
     <figure className="space-y-3" aria-label={label}>
       {rows.map((r) => (
-        <div key={r.name} className="grid grid-cols-[12rem_1fr_3rem] items-center gap-3 text-sm">
+        <div key={r.name} className="grid grid-cols-[16rem_1fr_3rem] items-center gap-3 text-sm">
           <span className={r.highlight ? "font-medium" : "text-muted-foreground"}>{r.name}</span>
           <div className="h-3 overflow-hidden rounded-full bg-primary/10">
             <div
@@ -41,7 +41,8 @@ function Bars({
 }
 
 function Results({ s }: { s: BenchmarkSummary }) {
-  const full = s.modes.find((m) => m.mode === "full");
+  const label = (m: { mode: string; model: string }) =>
+    `${MODE_LABEL[m.mode] ?? m.mode} · ${m.model}`;
   return (
     <div className="space-y-6">
       {s.modes.length > 0 ? (
@@ -57,7 +58,7 @@ function Results({ s }: { s: BenchmarkSummary }) {
               <Bars
                 label="Silent error rate by approach"
                 rows={s.modes.map((m) => ({
-                  name: MODE_LABEL[m.mode] ?? m.mode,
+                  name: label(m),
                   value: m.silent_error_rate,
                   highlight: m.mode === "full",
                 }))}
@@ -73,7 +74,7 @@ function Results({ s }: { s: BenchmarkSummary }) {
               <Bars
                 label="Objective accuracy by approach"
                 rows={s.modes.map((m) => ({
-                  name: MODE_LABEL[m.mode] ?? m.mode,
+                  name: label(m),
                   value: m.objective_accuracy,
                   highlight: m.mode === "full",
                 }))}
@@ -116,8 +117,8 @@ function Results({ s }: { s: BenchmarkSummary }) {
                 {s.modes.map((m) => {
                   const direct = m.mode === "direct";
                   return (
-                    <tr key={m.mode}>
-                      <td className="py-2">{MODE_LABEL[m.mode] ?? m.mode}</td>
+                    <tr key={m.file}>
+                      <td className="py-2">{label(m)}</td>
                       <td className="py-2 text-right font-mono tabular-nums">{pct(m.objective_accuracy)}</td>
                       <td className="py-2 text-right font-mono tabular-nums">{direct ? "—" : pct(m.structure_exact_rate)}</td>
                       <td className="py-2 text-right font-mono tabular-nums">{direct ? "—" : m.wrong_models}</td>
@@ -131,18 +132,20 @@ function Results({ s }: { s: BenchmarkSummary }) {
                 })}
               </tbody>
             </table>
-            {full && Object.keys(full.diff_categories).length > 0 && (
-              <div className="mt-4 text-sm">
-                <p className="font-medium">Where the verified pipeline still got the model wrong</p>
-                <ul className="mt-1 flex flex-wrap gap-2">
-                  {Object.entries(full.diff_categories).map(([k, v]) => (
-                    <li key={k} className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs">
-                      {k.replaceAll("_", " ")}: {v}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {s.modes
+              .filter((m) => m.mode !== "direct" && Object.keys(m.diff_categories).length > 0)
+              .map((m) => (
+                <div key={m.file} className="mt-4 text-sm">
+                  <p className="font-medium">Model errors made by {label(m)}</p>
+                  <ul className="mt-1 flex flex-wrap gap-2">
+                    {Object.entries(m.diff_categories).map(([k, v]) => (
+                      <li key={k} className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs">
+                        {k.replaceAll("_", " ")}: {v}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
           </CardContent>
         </Card>
       )}
