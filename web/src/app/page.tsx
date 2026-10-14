@@ -1,69 +1,130 @@
-import Image from "next/image";
+import {
+  BarChart3,
+  CheckCircle2,
+  Circle,
+  FileSpreadsheet,
+  MessageSquareText,
+  ShieldCheck,
+  Sigma,
+  UserCheck,
+} from "lucide-react";
 
-export default function Home() {
+import { AppHeader } from "@/components/app-header";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const PIPELINE = [
+  {
+    icon: MessageSquareText,
+    title: "Describe",
+    body: "Plain-English problem plus clarifying questions for anything missing.",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Ground in data",
+    body: "Upload CSV or Excel. Columns are mapped, values loaded by code — never copied by the LLM.",
+  },
+  {
+    icon: UserCheck,
+    title: "Confirm",
+    body: "Review the formulation in plain English and math before anything is solved.",
+  },
+  {
+    icon: Sigma,
+    title: "Solve",
+    body: "Deterministic model builder and OR-Tools solver.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Audit",
+    body: "Solution checks plus a formulation audit that targets real LLM modelling errors.",
+  },
+  {
+    icon: BarChart3,
+    title: "Explain",
+    body: "Shadow prices, sensitivity ranges and what-ifs — every number traced to the solver.",
+  },
+];
+
+const PHASES = [
+  { n: 0, title: "Foundations", done: "docker compose up runs everything; CI green" },
+  { n: 1, title: "Solver engine", done: "5 hand-written instances solve correctly" },
+  { n: 2, title: "Data ingestion & first UI", done: "Upload → map → solve → flow diagram" },
+  { n: 3, title: "LLM extraction & confirmation", done: "20 problems run end to end" },
+  { n: 4, title: "Formulation audit", done: "Catches most injected errors" },
+  { n: 5, title: "Analysis & explanation", done: "Duals match a manual calculation" },
+  { n: 6, title: "Evaluation", done: "Results table and error distribution" },
+  { n: 7, title: "Product hardening", done: "A real user runs it on their own data" },
+];
+
+const CURRENT_PHASE = 0;
+
+export default function OverviewPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <AppHeader title="Overview" />
+      <main className="mx-auto w-full max-w-6xl space-y-10 p-6 md:p-10">
+        <section className="space-y-3">
+          <Badge variant="secondary">Transportation &amp; assignment · v1</Badge>
+          <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Natural language to <span className="text-primary">verified</span> optimization
+          </h2>
+          <p className="max-w-2xl text-muted-foreground">
+            OptiAgent turns a planning problem and your tabular data into a linear or mixed-integer
+            program, solves it, audits the formulation, and explains the result in business
+            language. The LLM never produces the final numbers.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Pipeline</h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PIPELINE.map((step, i) => (
+              <Card key={step.title}>
+                <CardHeader>
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <step.icon className="size-4" />
+                    </div>
+                    <span className="font-mono text-xs text-muted-foreground">0{i + 1}</span>
+                  </div>
+                  <CardTitle>{step.title}</CardTitle>
+                  <CardDescription>{step.body}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h3 className="text-sm font-medium text-muted-foreground">Roadmap</h3>
+          <Card>
+            <CardContent className="divide-y p-0">
+              {PHASES.map((phase) => {
+                const complete = phase.n < CURRENT_PHASE;
+                const active = phase.n === CURRENT_PHASE;
+                return (
+                  <div key={phase.n} className="flex items-center gap-4 px-6 py-3">
+                    {complete ? (
+                      <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                    ) : (
+                      <Circle
+                        className={`size-4 shrink-0 ${active ? "text-primary" : "text-muted-foreground/50"}`}
+                      />
+                    )}
+                    <span className="w-8 font-mono text-xs text-muted-foreground">P{phase.n}</span>
+                    <span className="flex-1 text-sm font-medium">{phase.title}</span>
+                    <span className="hidden text-sm text-muted-foreground md:block">
+                      {phase.done}
+                    </span>
+                    {active && <Badge>In progress</Badge>}
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </section>
       </main>
-    </div>
+    </>
   );
 }
