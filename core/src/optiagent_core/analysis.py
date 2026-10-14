@@ -13,7 +13,11 @@ from __future__ import annotations
 import math
 from typing import Literal
 
-import highspy
+# OR-Tools bundles its own HiGHS. On Linux, if highspy's HiGHS is loaded first, libortools
+# binds to the wrong symbols and fails to import. Load OR-Tools first.
+from ortools.linear_solver import pywraplp  # noqa: F401  # isort: skip
+
+import highspy  # isort: skip
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
