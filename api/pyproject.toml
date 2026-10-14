@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
     "optiagent-core",
     "optiagent-agent",
+    "optiagent-eval",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     "pydantic-settings>=2.6",
@@ -16,6 +17,7 @@ dependencies = [
 [tool.uv.sources]
 optiagent-core = { workspace = true }
 optiagent-agent = { workspace = true }
+optiagent-eval = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

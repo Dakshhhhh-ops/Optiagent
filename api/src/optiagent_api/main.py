@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import optiagent_api
-from optiagent_api.routers import agent, datasets, solve, system
+from optiagent_api.routers import agent, benchmarks, datasets, solve, system
 from optiagent_api.settings import get_settings
 
 
@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
     app.include_router(solve.router)
     app.include_router(datasets.router)
     app.include_router(agent.router)
+    app.include_router(benchmarks.router)
     return app
 
 

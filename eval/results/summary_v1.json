@@ -1,0 +1,158 @@
+{
+  "generated_at": "2026-10-14T11:39:39.312592Z",
+  "modes": [],
+  "audit": [
+    {
+      "dataset": "generated (nl_v1)",
+      "problems": 24,
+      "false_alarms": 0,
+      "injected": 204,
+      "detected": 204,
+      "categories": {
+        "extra_capacity": [
+          12,
+          12
+        ],
+        "extra_pair": [
+          6,
+          6
+        ],
+        "extra_route": [
+          4,
+          4
+        ],
+        "flipped_demand_direction": [
+          12,
+          12
+        ],
+        "flipped_sense": [
+          24,
+          24
+        ],
+        "missing_capacity": [
+          4,
+          4
+        ],
+        "missing_pair": [
+          12,
+          12
+        ],
+        "missing_route": [
+          12,
+          12
+        ],
+        "swapped_values": [
+          22,
+          22
+        ],
+        "unit_scale": [
+          24,
+          24
+        ],
+        "wrong_capacity": [
+          12,
+          12
+        ],
+        "wrong_cost": [
+          12,
+          12
+        ],
+        "wrong_demand": [
+          12,
+          12
+        ],
+        "wrong_required": [
+          12,
+          12
+        ],
+        "wrong_supply": [
+          12,
+          12
+        ],
+        "wrong_value": [
+          12,
+          12
+        ]
+      }
+    },
+    {
+      "dataset": "hand-written (handwritten_v1)",
+      "problems": 8,
+      "false_alarms": 0,
+      "injected": 68,
+      "detected": 62,
+      "categories": {
+        "extra_capacity": [
+          4,
+          4
+        ],
+        "extra_pair": [
+          1,
+          1
+        ],
+        "extra_route": [
+          1,
+          1
+        ],
+        "flipped_demand_direction": [
+          4,
+          4
+        ],
+        "flipped_sense": [
+          8,
+          8
+        ],
+        "missing_capacity": [
+          2,
+          2
+        ],
+        "missing_pair": [
+          4,
+          4
+        ],
+        "missing_route": [
+          4,
+          4
+        ],
+        "swapped_values": [
+          7,
+          8
+        ],
+        "unit_scale": [
+          8,
+          8
+        ],
+        "wrong_capacity": [
+          1,
+          4
+        ],
+        "wrong_cost": [
+          4,
+          4
+        ],
+        "wrong_demand": [
+          4,
+          4
+        ],
+        "wrong_required": [
+          2,
+          4
+        ],
+        "wrong_supply": [
+          4,
+          4
+        ],
+        "wrong_value": [
+          4,
+          4
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "The generated set is template-based; the audit's text patterns reach 100% detection there but are partly tuned to those phrasings.",
+    "The hand-written set exposed overfitting (8/8 false alarms before the fix). It was then used to fix the parser, so it is no longer held out. An independent set written by someone else is needed for an unbiased estimate.",
+    "Runs used a laptop GPU (RTX 4050, 6 GB) shared with another local app, so latency includes model reloads and is not a speed benchmark.",
+    "Small samples: 24 generated and 8 hand-written problems. Treat rates as indicative."
+  ]
+}

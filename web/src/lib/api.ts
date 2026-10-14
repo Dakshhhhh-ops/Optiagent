@@ -81,3 +81,4 @@ export type RequirementCheck = Schemas["RequirementCheck"];
 export type Insight = Schemas["Insight"];
 export type Diagnosis = Schemas["Diagnosis"];
 export type Sensitivity = Schemas["Sensitivity"];
+export type BenchmarkSummary = Schemas["Summary"];

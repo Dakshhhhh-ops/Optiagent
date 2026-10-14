@@ -11,12 +11,13 @@ COPY core/pyproject.toml core/pyproject.toml
 COPY agent/pyproject.toml agent/pyproject.toml
 COPY api/pyproject.toml api/pyproject.toml
 COPY eval/pyproject.toml eval/pyproject.toml
-RUN mkdir -p core/src/optiagent_core agent/src/optiagent_agent api/src/optiagent_api \
+RUN mkdir -p core/src/optiagent_core agent/src/optiagent_agent api/src/optiagent_api eval/src/optiagent_eval \
     && uv sync --frozen --no-dev --package optiagent-api --no-install-workspace
 
 COPY core core
 COPY agent agent
 COPY api api
+COPY eval eval
 RUN uv sync --frozen --no-dev --package optiagent-api
 
 ENV PATH="/app/.venv/bin:$PATH"

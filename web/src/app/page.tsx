@@ -61,7 +61,7 @@ const PHASES = [
   { n: 7, title: "Product hardening", done: "A real user runs it on their own data" },
 ];
 
-const CURRENT_PHASE = 3;
+const CURRENT_PHASE = 6;
 
 export default function OverviewPage() {
   return (

@@ -46,7 +46,7 @@ const NAV: { label: string; items: NavItem[] }[] = [
   },
   {
     label: "Research",
-    items: [{ title: "Benchmarks", href: "/benchmarks", icon: FlaskConical, comingIn: 6 }],
+    items: [{ title: "Benchmarks", href: "/benchmarks", icon: FlaskConical }],
   },
   {
     label: "System",
@@ -119,7 +119,7 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          v0.1.0 · Phase 3
+          v0.1.0 · Phase 6
         </p>
       </SidebarFooter>
       <SidebarRail />

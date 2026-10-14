@@ -72,3 +72,10 @@ def test_infeasible_solve_includes_diagnosis() -> None:
     body = client.post("/api/v1/solve", json=problem).json()
     assert body["diagnosis"]["total_shortfall"] == 10
     assert body["insights"] == []
+
+
+def test_benchmarks_endpoint() -> None:
+    response = client.get("/api/v1/benchmarks")
+    assert response.status_code in (200, 404)
+    if response.status_code == 200:
+        assert {a["dataset"] for a in response.json()["audit"]} >= {"generated (nl_v1)"}

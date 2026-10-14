@@ -276,6 +276,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/benchmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Benchmarks */
+        get: operations["benchmarks_api_v1_benchmarks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -424,6 +441,23 @@ export interface components {
             problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
             /** Text */
             text?: string | null;
+        };
+        /** AuditRow */
+        AuditRow: {
+            /** Dataset */
+            dataset: string;
+            /** Problems */
+            problems: number;
+            /** False Alarms */
+            false_alarms: number;
+            /** Injected */
+            injected: number;
+            /** Detected */
+            detected: number;
+            /** Categories */
+            categories: {
+                [key: string]: number[];
+            };
         };
         /** Body_upload_api_v1_datasets_post */
         Body_upload_api_v1_datasets_post: {
@@ -804,6 +838,43 @@ export interface components {
             /** Ignore Columns */
             ignore_columns?: string[];
         };
+        /** ModeRow */
+        ModeRow: {
+            /** Mode */
+            mode: string;
+            /** Model */
+            model: string;
+            /** File */
+            file: string;
+            /** Supported */
+            supported: number;
+            /** Classification Accuracy */
+            classification_accuracy: number;
+            /** Execution Rate */
+            execution_rate: number;
+            /** Objective Accuracy */
+            objective_accuracy: number;
+            /** Structure Exact Rate */
+            structure_exact_rate: number;
+            /** Wrong Models */
+            wrong_models: number;
+            /** Audit Caught */
+            audit_caught: number;
+            /** Audit False Alarms */
+            audit_false_alarms: number;
+            /** Silent Error Rate */
+            silent_error_rate: number;
+            /** Mean Llm Calls */
+            mean_llm_calls: number;
+            /** Mean Latency S */
+            mean_latency_s: number;
+            /** Unnecessary Question Rate */
+            unnecessary_question_rate: number;
+            /** Diff Categories */
+            diff_categories: {
+                [key: string]: number;
+            };
+        };
         /** ModelStats */
         ModelStats: {
             /** Variables */
@@ -1073,6 +1144,20 @@ export interface components {
         Suggestion: {
             /** Mapping */
             mapping: components["schemas"]["TransportationMapping"] | components["schemas"]["AssignmentMapping"] | null;
+            /** Notes */
+            notes: string[];
+        };
+        /** Summary */
+        Summary: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Modes */
+            modes: components["schemas"]["ModeRow"][];
+            /** Audit */
+            audit: components["schemas"]["AuditRow"][];
             /** Notes */
             notes: string[];
         };
@@ -1743,6 +1828,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    benchmarks_api_v1_benchmarks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summary"];
                 };
             };
         };
