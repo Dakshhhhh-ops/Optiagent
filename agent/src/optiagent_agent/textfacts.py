@@ -8,8 +8,8 @@ Missing a fact costs nothing; a wrong fact would cause a false alarm in the audi
 from __future__ import annotations
 
 import re
-from itertools import pairwise
 from collections.abc import Iterator
+from itertools import pairwise
 
 from pydantic import BaseModel, Field
 
