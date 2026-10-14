@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Body, HTTPException
 
 from optiagent_core.examples import Example, list_examples
+from optiagent_core.formulation import Formulation, describe_problem
 from optiagent_core.pipeline import SolveReport, solve_problem
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 
@@ -28,3 +29,10 @@ def example(example_id: str) -> Example:
         if e.id == example_id:
             return e
     raise HTTPException(status_code=404, detail=f"unknown example {example_id!r}")
+
+
+@router.post("/formulation", response_model=Formulation)
+def formulation(
+    problem: Annotated[TransportationProblem | AssignmentProblem, Body(discriminator="kind")],
+) -> Formulation:
+    return describe_problem(problem)

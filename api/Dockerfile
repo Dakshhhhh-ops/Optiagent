@@ -10,13 +10,14 @@ COPY pyproject.toml uv.lock .python-version ./
 COPY core/pyproject.toml core/pyproject.toml
 COPY agent/pyproject.toml agent/pyproject.toml
 COPY api/pyproject.toml api/pyproject.toml
+COPY eval/pyproject.toml eval/pyproject.toml
 RUN mkdir -p core/src/optiagent_core agent/src/optiagent_agent api/src/optiagent_api \
-    && uv sync --frozen --no-dev --no-install-workspace
+    && uv sync --frozen --no-dev --package optiagent-api --no-install-workspace
 
 COPY core core
 COPY agent agent
 COPY api api
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --package optiagent-api
 
 ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000
