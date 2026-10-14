@@ -33,3 +33,11 @@ def test_compare_finds_categorised_differences() -> None:
     )
     categories = sorted(d.category for d in compare(truth, wrong))
     assert categories == ["missing_route", "wrong_route_value", "wrong_sense"]
+
+
+def test_audit_catches_injected_errors_without_false_alarms() -> None:
+    from optiagent_eval.mutations import evaluate
+
+    result = evaluate()
+    assert result.false_alarms == 0
+    assert result.detected / result.injected >= 0.95, result.missed

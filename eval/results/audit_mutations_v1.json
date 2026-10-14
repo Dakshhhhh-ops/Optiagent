@@ -1,0 +1,89 @@
+{
+  "problems": 24,
+  "false_alarms": 0,
+  "injected": 204,
+  "detected": 204,
+  "categories": [
+    {
+      "category": "extra_capacity",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "extra_pair",
+      "injected": 6,
+      "detected": 6
+    },
+    {
+      "category": "extra_route",
+      "injected": 4,
+      "detected": 4
+    },
+    {
+      "category": "flipped_demand_direction",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "flipped_sense",
+      "injected": 24,
+      "detected": 24
+    },
+    {
+      "category": "missing_capacity",
+      "injected": 4,
+      "detected": 4
+    },
+    {
+      "category": "missing_pair",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "missing_route",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "swapped_values",
+      "injected": 22,
+      "detected": 22
+    },
+    {
+      "category": "unit_scale",
+      "injected": 24,
+      "detected": 24
+    },
+    {
+      "category": "wrong_capacity",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "wrong_cost",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "wrong_demand",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "wrong_required",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "wrong_supply",
+      "injected": 12,
+      "detected": 12
+    },
+    {
+      "category": "wrong_value",
+      "injected": 12,
+      "detected": 12
+    }
+  ],
+  "missed": []
+}
