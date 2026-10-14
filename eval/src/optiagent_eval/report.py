@@ -192,6 +192,14 @@ def markdown(summary: Summary) -> str:
 
 
 NOTES = [
+    "A 'wrong model' differs structurally from the true model or gives the wrong optimum. Some "
+    "wrong models still reach the right optimum (for example an invented route limit that never "
+    "binds); they are counted because the model no longer matches the problem.",
+    "qwen3-vl:2b, full mode: the one wrong model the audit did not flag (T10) only shortened ids "
+    "('Depot X' to 'X'); it is otherwise equivalent and its optimum is correct, so all 11 real "
+    "modelling errors were flagged.",
+    "qwen3:8b made no modelling errors on the generated set, so audit detection on real errors "
+    "is measured with the smaller qwen3-vl:2b model.",
     "The generated set is template-based; the audit's text patterns reach 100% detection there "
     "but are partly tuned to those phrasings.",
     "The hand-written set exposed overfitting (8/8 false alarms before the fix). It was then used "
