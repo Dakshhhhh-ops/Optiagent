@@ -4,14 +4,17 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, Field, computed_field
 
+from optiagent_core.analysis import Sensitivity, analyze_sensitivity
 from optiagent_core.builders import assign_var, build_model, flow_var
 from optiagent_core.checks import Check, CheckReport, verify_solution
+from optiagent_core.diagnose import Diagnosis, diagnose
+from optiagent_core.explain import Insight, explain
 from optiagent_core.model import LinearModel
 from optiagent_core.prechecks import precheck
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
-from optiagent_core.solver import SolveResult, solve
+from optiagent_core.solver import SolveResult, SolveStatus, solve
 
 ZERO_TOL = 1e-9
 
@@ -70,6 +73,9 @@ class SolveReport(BaseModel):
     result: SolveResult
     verification: CheckReport
     solution: TransportationSolution | AssignmentSolution | None
+    sensitivity: Sensitivity | None = None
+    insights: list[Insight] = Field(default_factory=list)
+    diagnosis: Diagnosis | None = None
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -136,13 +142,32 @@ def interpret(
     return _interpret_assignment(problem, values)
 
 
-def solve_problem(problem: TransportationProblem | AssignmentProblem) -> SolveReport:
+def solve_problem(
+    problem: TransportationProblem | AssignmentProblem, *, analyze: bool = False
+) -> SolveReport:
+    """Solve and verify. With `analyze`, also add sensitivity insights or an infeasibility
+    diagnosis (extra solves, so it is off by default for internal callers)."""
     prechecks = precheck(problem)
     model = build_model(problem)
     result = solve(model)
     verification = verify_solution(model, result)
     solution = interpret(problem, result.values) if result.has_solution else None
+    sensitivity: Sensitivity | None = None
+    insights: list[Insight] = []
+    diagnosis: Diagnosis | None = None
+    if analyze and result.status == SolveStatus.OPTIMAL:
+        sensitivity = analyze_sensitivity(model)
+        insights = explain(
+            sensitivity,
+            minimize=problem.sense == "minimize",
+            transport=isinstance(problem, TransportationProblem),
+        )
+    elif analyze and result.status == SolveStatus.INFEASIBLE:
+        diagnosis = diagnose(model)
     return SolveReport(
+        sensitivity=sensitivity,
+        insights=insights,
+        diagnosis=diagnosis,
         prechecks=prechecks,
         stats=ModelStats(
             variables=len(model.variables),

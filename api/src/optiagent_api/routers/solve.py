@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api/v1", tags=["solve"])
 def solve(
     problem: Annotated[TransportationProblem | AssignmentProblem, Body(discriminator="kind")],
 ) -> SolveReport:
-    return solve_problem(problem)
+    return solve_problem(problem, analyze=True)
 
 
 @router.get("/examples", response_model=list[Example])

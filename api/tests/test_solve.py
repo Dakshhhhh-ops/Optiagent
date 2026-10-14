@@ -57,3 +57,18 @@ def test_examples_list() -> None:
     examples = client.get("/api/v1/examples").json()
     assert len(examples) >= 6
     assert client.get("/api/v1/examples/nope").status_code == 404
+
+
+def test_solve_includes_insights() -> None:
+    problem = client.get("/api/v1/examples/t3_excess_supply_with_route_cap").json()["problem"]
+    body = client.post("/api/v1/solve", json=problem).json()
+    assert body["sensitivity"]["available"] is True
+    assert body["insights"][0]["text"].startswith("One more unit of demand at D1")
+    assert body["diagnosis"] is None
+
+
+def test_infeasible_solve_includes_diagnosis() -> None:
+    problem = client.get("/api/v1/examples/x1_infeasible_short_supply").json()["problem"]
+    body = client.post("/api/v1/solve", json=problem).json()
+    assert body["diagnosis"]["total_shortfall"] == 10
+    assert body["insights"] == []

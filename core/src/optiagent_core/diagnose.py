@@ -66,7 +66,7 @@ def diagnose(model: LinearModel) -> Diagnosis:
         slack_name = slack_of.get(c.name)
         if slack_name is None:
             continue
-        amount = result.values.get(slack_name, 0.0)
+        amount = round(result.values.get(slack_name, 0.0), 9)  # drop solver float noise
         if amount > 1e-7:
             shortfalls.append(
                 Shortfall(
@@ -78,7 +78,7 @@ def diagnose(model: LinearModel) -> Diagnosis:
                     shortfall=amount,
                 )
             )
-    total = sum(s.shortfall for s in shortfalls)
+    total = round(sum(s.shortfall for s in shortfalls), 9)
     unit = "position(s)" if any(s.kind == "task_requirement" for s in shortfalls) else "unit(s)"
     parts = ", ".join(f"{s.id} short by {s.shortfall:g}" for s in shortfalls)
     return Diagnosis(
