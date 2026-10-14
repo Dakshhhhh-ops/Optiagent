@@ -1,13 +1,13 @@
 "use client";
 
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   CheckCircle2,
   Info,
   Loader2,
-  Play,
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
@@ -27,7 +27,6 @@ import {
   type Mapping,
   type Problem,
   type ProblemKind,
-  type SolveReport,
   type TransportationMapping,
   unwrap,
 } from "@/lib/api";
@@ -309,14 +308,14 @@ export function MappingStep({
   mapping,
   onMappingChange,
   onBack,
-  onSolved,
+  onReview,
 }: {
   kind: ProblemKind;
   dataset: DatasetDetail;
   mapping: Mapping | null;
   onMappingChange: (m: Mapping) => void;
   onBack: () => void;
-  onSolved: (report: SolveReport) => void;
+  onReview: (problem: Problem, issues: DataIssue[]) => void;
 }) {
   const suggestion = useQuery({
     queryKey: ["suggest", dataset.meta.id, kind],
@@ -345,11 +344,6 @@ export function MappingStep({
       ),
     enabled: effective !== null,
     placeholderData: keepPreviousData,
-  });
-
-  const solve = useMutation({
-    mutationFn: (problem: Problem) => unwrap(client.POST("/api/v1/solve", { body: problem })),
-    onSuccess: onSolved,
   });
 
   if (!effective) {
@@ -414,23 +408,16 @@ export function MappingStep({
           </CardContent>
         </Card>
 
-        {solve.error && (
-          <Alert variant="destructive">
-            <AlertTitle>Solve failed</AlertTitle>
-            <AlertDescription>{solve.error.message}</AlertDescription>
-          </Alert>
-        )}
-
         <div className="flex gap-2">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft /> Data
           </Button>
           <Button
             className="flex-1"
-            disabled={!problem || build.isFetching || solve.isPending}
-            onClick={() => problem && solve.mutate(problem)}
+            disabled={!problem || build.isFetching}
+            onClick={() => problem && onReview(problem, issues)}
           >
-            {solve.isPending ? <Loader2 className="animate-spin" /> : <Play />} Solve
+            Review model <ArrowRight />
           </Button>
         </div>
       </div>

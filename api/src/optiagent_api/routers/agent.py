@@ -3,7 +3,7 @@
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from optiagent_agent.grounding import Ungrounded
 from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace
@@ -57,6 +57,8 @@ class ExtractRequest(BaseModel):
 
 
 class ExtractResponse(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     problem: TransportationProblem | AssignmentProblem | None
     mapping: TransportationMapping | AssignmentMapping | None = None
     formulation: Formulation | None = None

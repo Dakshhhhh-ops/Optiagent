@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowRight, FileSpreadsheet, Loader2, Network, Upload, Users } from "lucide-react";
+import { Columns3, FileSpreadsheet, Loader2, Network, Sparkles, Upload, Users } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { client, type DatasetDetail, type ProblemKind, unwrap } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -31,18 +32,45 @@ const KINDS: { value: ProblemKind; title: string; body: string; icon: typeof Net
 
 const ACCEPT = ".csv,.tsv,.xlsx";
 
+const EXAMPLES = [
+  {
+    label: "Factories → cities",
+    text: "The factory in Plant C can send up to 40 tons, shipping to Austin at $3 per ton and Seattle at $8 per ton. The factory in Plant B can send up to 30 tons, shipping to Austin at $11 per ton, Seattle at $18 per ton and Denver at $19 per ton. Austin requires 20 tons, Seattle 20 tons and Denver 30 tons. Plant C cannot ship to Denver. Find the shipping plan with the lowest total cost.",
+  },
+  {
+    label: "TAs → lab sections",
+    text: "Four TAs rank lab sections from 1 to 10. Ravi: L1 8, L2 2, L3 8. Omar: L1 8, L2 10, L3 4. Lena: L1 5, L2 8, L3 9. Meera: L1 4, L2 7, L3 5. L2 needs two TAs; L1 and L3 need one each. Each TA takes at most one section. Maximize the total preference score.",
+  },
+  {
+    label: "With uploaded data",
+    text: "Ship grain from our silos to the mills at the lowest total cost. Every mill must get exactly what it needs. The numbers are in the uploaded files.",
+  },
+];
+
 export function DataStep({
+  text,
+  onTextChange,
   kind,
   onKindChange,
   dataset,
   onDataset,
-  onNext,
+  onAnalyze,
+  analyzing,
+  analyzeError,
+  aiPanel,
+  onManual,
 }: {
+  text: string;
+  onTextChange: (text: string) => void;
   kind: ProblemKind;
   onKindChange: (kind: ProblemKind) => void;
   dataset: DatasetDetail | null;
   onDataset: (dataset: DatasetDetail) => void;
-  onNext: () => void;
+  onAnalyze: () => void;
+  analyzing: boolean;
+  analyzeError: Error | null;
+  aiPanel: React.ReactNode;
+  onManual: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -87,7 +115,37 @@ export function DataStep({
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <h3 className="text-sm font-medium">1. What kind of problem is it?</h3>
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h3 className="text-sm font-medium">1. Describe the problem</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {EXAMPLES.map((e) => (
+              <Button
+                key={e.label}
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => onTextChange(e.text)}
+              >
+                {e.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <Textarea
+          value={text}
+          onChange={(e) => onTextChange(e.target.value)}
+          placeholder="For example: Three warehouses supply five stores. Mumbai can ship 400 units… Minimize total shipping cost."
+          className="min-h-32"
+        />
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-sm font-medium">
+          2. Problem type{" "}
+          <span className="font-normal text-muted-foreground">
+            (detected for you when you analyze with AI)
+          </span>
+        </h3>
         <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Problem type">
           {KINDS.map((k) => (
             <button
@@ -114,7 +172,12 @@ export function DataStep({
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-medium">2. Add your data</h3>
+        <h3 className="text-sm font-medium">
+          3. Add data{" "}
+          <span className="font-normal text-muted-foreground">
+            (optional if the description has all the numbers)
+          </span>
+        </h3>
         <div className="grid gap-4 lg:grid-cols-5">
           <div
             onDragOver={(e) => {
@@ -213,20 +276,39 @@ export function DataStep({
 
       {dataset && (
         <section className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
-            <h3 className="text-sm font-medium">
-              3. Check the tables{" "}
-              <span className="font-normal text-muted-foreground">
-                ({dataset.tables.length} found)
-              </span>
-            </h3>
-            <Button onClick={onNext}>
-              Map columns <ArrowRight />
-            </Button>
-          </div>
+          <h3 className="text-sm font-medium">
+            Your tables{" "}
+            <span className="font-normal text-muted-foreground">
+              ({dataset.tables.length} found)
+            </span>
+          </h3>
           <TablePreview tables={dataset.tables} />
         </section>
       )}
+
+      {analyzeError && (
+        <Alert variant="destructive">
+          <AlertTitle>Analysis failed</AlertTitle>
+          <AlertDescription>{analyzeError.message}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t pt-6">
+        {!text.trim() && !dataset && (
+          <span className="text-sm text-muted-foreground">
+            Describe the problem, add data, or both.
+          </span>
+        )}
+        <Button variant="outline" disabled={!dataset} onClick={onManual}>
+          <Columns3 /> Map columns manually
+        </Button>
+        <Button disabled={!text.trim() || analyzing} onClick={onAnalyze}>
+          {analyzing ? <Loader2 className="animate-spin" /> : <Sparkles />}
+          {analyzing ? "Analyzing…" : "Analyze with AI"}
+        </Button>
+      </div>
+
+      {aiPanel}
     </div>
   );
 }

@@ -89,6 +89,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/formulation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Formulation */
+        post: operations["formulation_api_v1_formulation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/datasets/samples": {
         parameters: {
             query?: never;
@@ -191,6 +208,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/agent/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Analyze Endpoint */
+        post: operations["analyze_endpoint_api_v1_agent_analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent/extract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extract Endpoint */
+        post: operations["extract_endpoint_api_v1_agent_extract_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -204,6 +255,49 @@ export interface components {
              * @default 1
              */
             capacity: number;
+        };
+        /** Analysis */
+        Analysis: {
+            /**
+             * Kind
+             * @description Which supported problem type this is, or unsupported.
+             * @enum {string}
+             */
+            kind: "transportation" | "assignment" | "unsupported";
+            /**
+             * Summary
+             * @description One plain sentence restating the problem.
+             */
+            summary: string;
+            /**
+             * Requirements
+             * @description Every objective and constraint the user states, one short item each.
+             */
+            requirements: string[];
+            /**
+             * Questions
+             * @description Only required information that is missing. Empty if nothing is missing.
+             */
+            questions: string[];
+        };
+        /** AnalyzeRequest */
+        AnalyzeRequest: {
+            /** Text */
+            text: string;
+            /** Dataset Id */
+            dataset_id?: string | null;
+        };
+        /** AnalyzeResponse */
+        AnalyzeResponse: {
+            analysis: components["schemas"]["Analysis"];
+            trace: components["schemas"]["Trace"];
+        };
+        /** Answer */
+        Answer: {
+            /** Question */
+            question: string;
+            /** Answer */
+            answer: string;
         };
         /** Assignment */
         Assignment: {
@@ -358,6 +452,17 @@ export interface components {
              */
             description: string;
         };
+        /** ConstraintGroup */
+        ConstraintGroup: {
+            /** Name */
+            name: string;
+            /** English */
+            english: string;
+            /** Latex */
+            latex: string;
+            /** Items */
+            items: string[];
+        };
         /** DataIssue */
         DataIssue: {
             /**
@@ -430,6 +535,50 @@ export interface components {
             /** Problem */
             problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
         };
+        /** ExtractRequest */
+        ExtractRequest: {
+            /** Text */
+            text: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "transportation" | "assignment";
+            /** Answers */
+            answers?: components["schemas"]["Answer"][];
+            /** Dataset Id */
+            dataset_id?: string | null;
+        };
+        /** ExtractResponse */
+        ExtractResponse: {
+            /** Problem */
+            problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"] | null;
+            /** Mapping */
+            mapping: components["schemas"]["TransportationMapping"] | components["schemas"]["AssignmentMapping"] | null;
+            formulation: components["schemas"]["Formulation"] | null;
+            /** Ungrounded */
+            ungrounded: components["schemas"]["Ungrounded"][];
+            /** Issues */
+            issues: components["schemas"]["DataIssue"][];
+            trace: components["schemas"]["Trace"];
+        };
+        /** Formulation */
+        Formulation: {
+            /** Title */
+            title: string;
+            /** Objective English */
+            objective_english: string;
+            /** Objective Latex */
+            objective_latex: string;
+            /** Sets */
+            sets: components["schemas"]["SetDef"][];
+            /** Constraints */
+            constraints: components["schemas"]["ConstraintGroup"][];
+            /** Domain Latex */
+            domain_latex: string;
+            /** Notes */
+            notes: string[];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -446,6 +595,31 @@ export interface components {
             id_column: string;
             /** Value Column */
             value_column: string;
+        };
+        /** LLMCall */
+        LLMCall: {
+            /** Step */
+            step: string;
+            /** Attempt */
+            attempt: number;
+            /** Model */
+            model: string;
+            /** Latency Ms */
+            latency_ms: number;
+            /**
+             * Prompt Tokens
+             * @default 0
+             */
+            prompt_tokens: number;
+            /**
+             * Completion Tokens
+             * @default 0
+             */
+            completion_tokens: number;
+            /** Ok */
+            ok: boolean;
+            /** Errors */
+            errors: string[];
         };
         /** LinearModel */
         LinearModel: {
@@ -590,6 +764,15 @@ export interface components {
             /** Detail */
             detail?: string | null;
         };
+        /** SetDef */
+        SetDef: {
+            /** Symbol */
+            symbol: string;
+            /** Name */
+            name: string;
+            /** Members */
+            members: string[];
+        };
         /** Shipment */
         Shipment: {
             /** Source */
@@ -717,6 +900,11 @@ export interface components {
              */
             required: number;
         };
+        /** Trace */
+        Trace: {
+            /** Calls */
+            calls: components["schemas"]["LLMCall"][];
+        };
         /** TransportationMapping */
         TransportationMapping: {
             /**
@@ -796,6 +984,13 @@ export interface components {
             sources: components["schemas"]["SourceUsage"][];
             /** Destinations */
             destinations: components["schemas"]["DestinationUsage"][];
+        };
+        /** Ungrounded */
+        Ungrounded: {
+            /** Field */
+            field: string;
+            /** Value */
+            value: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -960,6 +1155,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Example"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    formulation_api_v1_formulation_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Formulation"];
                 };
             };
             /** @description Validation Error */
@@ -1145,6 +1373,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BuildResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analyze_endpoint_api_v1_agent_analyze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalyzeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyzeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    extract_endpoint_api_v1_agent_extract_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtractRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExtractResponse"];
                 };
             };
             /** @description Validation Error */

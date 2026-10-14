@@ -12,7 +12,7 @@ from collections.abc import Callable
 from typing import Any, Protocol
 
 import httpx
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 Message = dict[str, str]
 
@@ -32,6 +32,8 @@ class LLM(Protocol):
 
 
 class LLMCall(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     step: str
     attempt: int
     model: str
@@ -43,6 +45,8 @@ class LLMCall(BaseModel):
 
 
 class Trace(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     calls: list[LLMCall] = Field(default_factory=list)
 
     @property

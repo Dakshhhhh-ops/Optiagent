@@ -109,7 +109,7 @@ export function ResultsStep({ report, onBack }: { report: SolveReport; onBack: (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="outline" onClick={onBack}>
-          <ArrowLeft /> Mapping
+          <ArrowLeft /> Model
         </Button>
         {report.verified ? (
           <Badge className="gap-1.5 px-3 py-1 text-sm">

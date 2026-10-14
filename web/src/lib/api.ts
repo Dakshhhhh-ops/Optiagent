@@ -66,3 +66,11 @@ export async function unwrap<T>(
   }
   return result.data;
 }
+
+export type Analysis = Schemas["Analysis"];
+export type AnalyzeResponse = Schemas["AnalyzeResponse"];
+export type ExtractResponse = Schemas["ExtractResponse"];
+export type Answer = Schemas["Answer"];
+export type Formulation = Schemas["Formulation"];
+export type Ungrounded = Schemas["Ungrounded"];
+export type Trace = Schemas["Trace"];
