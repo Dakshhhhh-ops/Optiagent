@@ -7,11 +7,12 @@ from typing import Any
 import pytest
 from pydantic import TypeAdapter
 
+from optiagent_core.examples import EXAMPLES_DIR
 from optiagent_core.pipeline import solve_problem
 from optiagent_core.schema import ProblemSpec
 from optiagent_core.solver import SolveStatus
 
-INSTANCES = sorted((Path(__file__).parent / "instances").glob("*.json"))
+INSTANCES = sorted(EXAMPLES_DIR.glob("*.json"))
 spec_adapter: TypeAdapter[Any] = TypeAdapter(ProblemSpec)
 
 

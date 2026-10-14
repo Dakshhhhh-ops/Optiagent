@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 from optiagent_core.model import LinearModel
 from optiagent_core.solver import SolveResult, SolveStatus
@@ -27,6 +27,7 @@ class Check(BaseModel):
 class CheckReport(BaseModel):
     checks: list[Check]
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def passed(self) -> bool:
         return all(c.passed for c in self.checks if c.severity == "error")

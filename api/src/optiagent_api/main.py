@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import optiagent_api
-from optiagent_api.routers import system
+from optiagent_api.routers import solve, system
 from optiagent_api.settings import get_settings
 
 
@@ -17,6 +17,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(system.router)
+    app.include_router(solve.router)
     return app
 
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 from optiagent_core.builders import assign_var, build_model, flow_var
 from optiagent_core.checks import Check, CheckReport, verify_solution
@@ -69,6 +69,7 @@ class SolveReport(BaseModel):
     verification: CheckReport
     solution: TransportationSolution | AssignmentSolution | None
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def verified(self) -> bool:
         return self.verification.passed
