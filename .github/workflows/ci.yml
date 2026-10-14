@@ -17,7 +17,14 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
-      - run: uv run pytest -q
+      - name: pytest
+        run: |
+          set -o pipefail
+          uv run pytest -q 2>&1 | tee pytest.log
+      - name: Report pytest failure
+        if: failure()
+        # Surface the end of the log as an annotation so it is visible without opening the logs.
+        run: echo "::error title=pytest::$(tail -c 3000 pytest.log | tr '\n' '|' )"
 
   web:
     runs-on: ubuntu-latest
@@ -27,6 +34,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: 24
