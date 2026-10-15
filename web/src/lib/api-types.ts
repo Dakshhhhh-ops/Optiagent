@@ -1602,6 +1602,10 @@ export interface components {
             /** Requirements */
             requirements?: string[];
             review?: components["schemas"]["Review-Input"] | null;
+            /** Dataset Id */
+            dataset_id?: string | null;
+            /** Mapping */
+            mapping?: (components["schemas"]["TransportationMapping"] | components["schemas"]["AssignmentMapping"]) | null;
         };
         /** TransportationMapping */
         TransportationMapping: {

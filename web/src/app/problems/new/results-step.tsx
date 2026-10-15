@@ -30,6 +30,7 @@ const CHECK_LABELS: Record<string, string> = {
   plan_agent_capacity: "No agent is over capacity",
   plan_task_staffing: "Every task is staffed exactly",
   plan_objective_from_data: "Objective recomputed from your data",
+  plan_optimality_certificate: "Proven optimal from your data (duality certificate)",
   solver_status: "Solver reached an optimal solution",
   all_variables_reported: "Every variable has a value",
   variable_bounds: "All quantities within their bounds",

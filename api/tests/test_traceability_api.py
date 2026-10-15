@@ -92,3 +92,18 @@ def test_review_can_only_flag() -> None:
     review = {"checks": [{"requirement": "x", "status": "missing", "where": "", "reason": ""}]}
     project = _create(problem=PROBLEM, description=TEXT, requirements=["x"], review=review)
     assert project["formulation_status"] == "needs_review"
+
+
+def test_traceability_preview_rechecks_the_upload() -> None:
+    dataset_id = client.post("/api/v1/datasets/samples/sunray").json()["meta"]["id"]
+    mapping = client.post(
+        f"/api/v1/datasets/{dataset_id}/suggest", json={"kind": "transportation"}
+    ).json()["mapping"]
+    problem = client.post(f"/api/v1/datasets/{dataset_id}/build", json=mapping).json()["problem"]
+    body = {"problem": problem, "dataset_id": dataset_id, "mapping": mapping}
+    report = client.post("/api/v1/traceability", json=body).json()
+    assert {p["source"] for p in report["provenance"]} == {"file"}
+
+    edited = {**problem, "sense": "maximize"}
+    report = client.post("/api/v1/traceability", json={**body, "problem": edited}).json()
+    assert report["status"] == "needs_review"

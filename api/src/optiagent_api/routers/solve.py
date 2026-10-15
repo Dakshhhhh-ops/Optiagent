@@ -5,9 +5,13 @@ from pydantic import BaseModel, Field
 
 from optiagent_agent.audit import AuditReport, audit
 from optiagent_agent.review import Review
-from optiagent_agent.traceability import TraceabilityReport, trace
+from optiagent_agent.traceability import TraceabilityReport
+from optiagent_api.auth import CurrentUser
+from optiagent_api.routers.datasets import StoreDep
+from optiagent_api.tracing import trace_on_server
 from optiagent_core.examples import Example, list_examples
 from optiagent_core.formulation import Formulation, describe_problem
+from optiagent_core.ingest import AssignmentMapping, TransportationMapping
 from optiagent_core.pipeline import SolveReport, solve_problem
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 
@@ -59,11 +63,25 @@ class TraceabilityRequest(BaseModel):
         default_factory=list, max_length=50
     )
     review: Review | None = None
+    dataset_id: str | None = None
+    mapping: TransportationMapping | AssignmentMapping | None = Field(
+        default=None, discriminator="kind"
+    )
+    """With dataset_id: how the problem was read from the upload (re-checked on the server)."""
 
 
 @router.post("/traceability", response_model=TraceabilityReport)
-def traceability_endpoint(request: TraceabilityRequest) -> TraceabilityReport:
+def traceability_endpoint(
+    request: TraceabilityRequest, datasets: StoreDep, user: CurrentUser
+) -> TraceabilityReport:
     """Deterministic requirement traceability and provenance (no AI call)."""
-    return trace(
-        request.problem, request.text, requirements=request.requirements, review=request.review
+    return trace_on_server(
+        request.problem,
+        request.text,
+        dataset_id=request.dataset_id,
+        mapping=request.mapping,
+        requirements=request.requirements,
+        review=request.review,
+        datasets=datasets,
+        user=user,
     )

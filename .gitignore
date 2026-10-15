@@ -32,3 +32,7 @@ uploads/
 
 # Generated from the API; types are committed in web/src/lib/api-types.ts
 web/openapi.json
+
+# Playwright
+web/playwright-report/
+web/test-results/

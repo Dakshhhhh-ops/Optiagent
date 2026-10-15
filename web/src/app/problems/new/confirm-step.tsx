@@ -102,6 +102,8 @@ export function ConfirmStep({
     text: text?.trim() || null,
     requirements,
     review: aiReview,
+    dataset_id: candidate.datasetId ?? null,
+    mapping: candidate.mapping ?? null,
   };
   const traceability = useQuery({
     queryKey: ["traceability", traceBody],
