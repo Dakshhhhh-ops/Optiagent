@@ -4,6 +4,8 @@ from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel, Field
 
 from optiagent_agent.audit import AuditReport, audit
+from optiagent_agent.review import Review
+from optiagent_agent.traceability import TraceabilityReport, trace
 from optiagent_core.examples import Example, list_examples
 from optiagent_core.formulation import Formulation, describe_problem
 from optiagent_core.pipeline import SolveReport, solve_problem
@@ -48,3 +50,20 @@ class AuditRequest(BaseModel):
 @router.post("/audit", response_model=AuditReport)
 def audit_endpoint(request: AuditRequest) -> AuditReport:
     return audit(request.problem, request.text)
+
+
+class TraceabilityRequest(BaseModel):
+    problem: TransportationProblem | AssignmentProblem = Field(discriminator="kind")
+    text: str | None = Field(default=None, max_length=20_000)
+    requirements: list[Annotated[str, Field(max_length=2_000)]] = Field(
+        default_factory=list, max_length=50
+    )
+    review: Review | None = None
+
+
+@router.post("/traceability", response_model=TraceabilityReport)
+def traceability_endpoint(request: TraceabilityRequest) -> TraceabilityReport:
+    """Deterministic requirement traceability and provenance (no AI call)."""
+    return trace(
+        request.problem, request.text, requirements=request.requirements, review=request.review
+    )

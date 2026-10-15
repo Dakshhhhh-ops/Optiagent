@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
+from optiagent_agent.traceability import TraceabilityReport
 from optiagent_api.db import ProjectRow, session_factory, utcnow
 from optiagent_core.pipeline import SolveReport
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
@@ -25,6 +26,9 @@ class ProjectSummary(BaseModel):
     objective: float | None
     status: str
     verified: bool
+    """The plan is proven optimal and satisfies the problem data (not: the model is right)."""
+    formulation_status: Literal["checked", "needs_review", "unsupported"] | None = None
+    """Requirement traceability: does the model match the description? None = not traced."""
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +38,7 @@ class Project(ProjectSummary):
     dataset_id: str | None
     problem: TransportationProblem | AssignmentProblem
     report: SolveReport
+    traceability: TraceabilityReport | None = None
 
 
 def _summary(row: ProjectRow) -> ProjectSummary:
@@ -49,6 +54,7 @@ def _project(row: ProjectRow) -> Project:
             "dataset_id": row.dataset_id,
             "problem": row.problem,
             "report": row.report,
+            "traceability": row.traceability,
         }
     )
 
@@ -64,6 +70,7 @@ class ProjectStore:
         source: Literal["ai", "manual"],
         problem: Problem,
         report: SolveReport,
+        traceability: TraceabilityReport | None = None,
         description: str | None,
         dataset_id: str | None,
         owner_id: str | None = None,
@@ -82,6 +89,8 @@ class ProjectStore:
             objective=report.result.objective,
             status=report.result.status,
             verified=report.verified,
+            traceability=traceability.model_dump(mode="json") if traceability else None,
+            formulation_status=traceability.status if traceability else None,
             created_at=now,
             updated_at=now,
         )

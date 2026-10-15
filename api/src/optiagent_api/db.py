@@ -61,6 +61,9 @@ class ProjectRow(Base):
     objective: Mapped[float | None] = mapped_column(Float)
     status: Mapped[str] = mapped_column(String(32))
     verified: Mapped[bool] = mapped_column(Boolean)
+    traceability: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    formulation_status: Mapped[str | None] = mapped_column(String(32))
+    """checked | needs_review | unsupported; None for projects saved before tracing existed."""
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, index=True

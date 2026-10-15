@@ -18,6 +18,8 @@ from optiagent_agent.pipeline import (
 )
 from optiagent_agent.providers import make_llm
 from optiagent_agent.review import Review, review_requirements
+from optiagent_agent.traceability import TraceabilityReport
+from optiagent_agent.traceability import trace as trace_requirements
 from optiagent_api.auth import CurrentUser, current_user
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.routers.datasets import StoreDep
@@ -74,6 +76,7 @@ class ExtractResponse(BaseModel):
     ungrounded: list[Ungrounded] = Field(default_factory=list)
     issues: list[DataIssue] = Field(default_factory=list)
     audit: AuditReport | None = None
+    traceability: TraceabilityReport | None = None
     trace: Trace
 
 
@@ -125,6 +128,7 @@ async def extract_endpoint(
     if response.problem is not None:
         response.formulation = describe_problem(response.problem)
         response.audit = audit(response.problem, text)
+        response.traceability = trace_requirements(response.problem, text, mapping=response.mapping)
     return response
 
 

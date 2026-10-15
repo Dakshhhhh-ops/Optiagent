@@ -41,6 +41,7 @@ allowed-confusables = ["–", "×", "→"]
 "eval/src/optiagent_eval/report.py" = ["E501"]
 # One-line user-facing messages and regexes read better unwrapped.
 "agent/src/optiagent_agent/audit.py" = ["E501"]
+"agent/src/optiagent_agent/traceability.py" = ["E501"]
 "agent/src/optiagent_agent/textfacts.py" = ["E501"]
 "core/src/optiagent_core/explain.py" = ["E501"]
 
