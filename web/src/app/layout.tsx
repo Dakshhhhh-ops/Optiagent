@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 import { AppSidebar } from "@/components/app-sidebar";
+import { AuthBridge } from "@/components/auth-bridge";
 import { Providers } from "@/components/providers";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { CLERK_ENABLED } from "@/lib/auth-config";
 
 import "./globals.css";
 
@@ -22,6 +26,20 @@ export const metadata: Metadata = {
   description: "Natural language to verified optimization models",
 };
 
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <Providers>
+      <SidebarProvider>
+        {/* Hidden when printing so reports print without the app chrome. */}
+        <div className="contents print:hidden">
+          <AppSidebar />
+        </div>
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </Providers>
+  );
+}
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -30,15 +48,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <Providers>
-          <SidebarProvider>
-            {/* Hidden when printing so reports print without the app chrome. */}
-            <div className="contents print:hidden">
-              <AppSidebar />
-            </div>
-            <SidebarInset>{children}</SidebarInset>
-          </SidebarProvider>
-        </Providers>
+        {CLERK_ENABLED ? (
+          <ClerkProvider>
+            <AuthBridge />
+            <Shell>{children}</Shell>
+          </ClerkProvider>
+        ) : (
+          <Shell>{children}</Shell>
+        )}
       </body>
     </html>
   );

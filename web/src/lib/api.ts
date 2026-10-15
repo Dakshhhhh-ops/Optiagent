@@ -6,6 +6,21 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000
 
 export const client = createClient<paths>({ baseUrl: API_URL });
 
+// Signed-in users: attach the Clerk session token (set by <AuthBridge /> when Clerk is on).
+let tokenGetter: (() => Promise<string | null>) | null = null;
+
+export function setTokenGetter(getter: (() => Promise<string | null>) | null) {
+  tokenGetter = getter;
+}
+
+client.use({
+  async onRequest({ request }) {
+    const token = tokenGetter ? await tokenGetter() : null;
+    if (token) request.headers.set("Authorization", `Bearer ${token}`);
+    return request;
+  },
+});
+
 type Schemas = components["schemas"];
 export type SystemStatus = Schemas["SystemStatus"];
 export type SampleDataset = Schemas["SampleDataset"];
