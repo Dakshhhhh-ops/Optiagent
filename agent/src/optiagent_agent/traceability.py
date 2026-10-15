@@ -93,11 +93,13 @@ class TraceabilityReport(BaseModel):
 # on the user's own text; a hit means "ask or reject", never "silently simplify".
 _UNSUPPORTED: list[tuple[str, re.Pattern[str]]] = [
     (
-        "Fixed or setup costs (paying once for using a route or opening a site) need yes/no "
+        "Fixed or setup costs (paying once for using a route, a vehicle or a site) need yes/no "
         "decisions, which this model does not have.",
         re.compile(
             r"\b(fixed (cost|charge|fee)s?|set-?up (cost|fee)s?|opening (cost|fee)s?|"
-            r"cost (of|to) open)\b",
+            r"cost (of|to) (open|keep)|keep (it |them )?open|whether to open|"
+            r"which (\w+ ){0,2}to (open|keep|close|rent)|(rental|rent) fee|"
+            r"(decide|choose) how many \w+ to (rent|open|use|buy))\b",
             re.I,
         ),
     ),
@@ -105,35 +107,42 @@ _UNSUPPORTED: list[tuple[str, re.Pattern[str]]] = [
         "Several time periods, inventory or carrying stock between periods are not modelled.",
         re.compile(
             r"\b(inventory|holding cost|carr(y|ied|ies) over|next \d+ (weeks|months|days)|"
-            r"each (week|month|day|period)|per (week|month) for)\b",
+            r"each (week|month|day|period)|per (week|month) for|stored for the following|"
+            r"between (months|weeks|periods))\b",
             re.I,
         ),
     ),
     (
-        "A total budget cap is a constraint on the objective, which this model does not support.",
+        "A cap on total spend, emissions or capital is a side constraint this model does not "
+        "support.",
         re.compile(
-            r"\b(budget|total (cost|spend(ing)?) (must|should|cannot|can't|may not) "
-            r"(not )?(exceed|be (more|over|above)))\b",
+            r"\b((budget|spend(ing)?|capital) (limit|cap|ceiling)|budget of \d|"
+            r"within (a|our|the) budget|total (cost|spend(ing)?) (must|should|cannot|can't|may) "
+            r"(not )?(exceed|be (more|over|above))|(emissions?|co2|carbon)\b[^.]{0,30}"
+            r"\b(below|under|at most|cap|limit))",
             re.I,
         ),
     ),
     (
-        "Limits on how many routes, suppliers or sources are used (or 'single sourcing') need "
-        "yes/no decisions.",
+        "Limits on how many routes, suppliers or sites are used (or single sourcing) need yes/no "
+        "decisions.",
         re.compile(
-            r"\b(single[- ]sourc\w*|only one (supplier|source|plant|warehouse) (per|for each)|"
-            r"at most \w+ (suppliers|sources|routes|plants|warehouses) (are |may be )?(used|open)|"
-            r"must not be split|cannot be split|in full truck)\b",
+            r"\b(single[- ]sourc\w*|only one (supplier|source|plant|warehouse|depot) (per|for each)|"
+            r"(at most|no more than|only) \w+ of the (\w+ )?(plants|suppliers|sources|warehouses|"
+            r"depots|sites|routes)|at most \w+ (suppliers|sources|routes|plants|warehouses) "
+            r"(are |may be )?(used|open)|(must not|cannot|can't) be (split|divided)|"
+            r"(entirely|all of its \w+) from one|in full truck)\b",
             re.I,
         ),
     ),
     (
-        "Whole-number lots (full trucks, pallets, batches, minimum order sizes) are not modelled; "
-        "shipments are continuous.",
+        "Whole-number lots (trucks, containers, pallets, batches, minimum order sizes) are not "
+        "modelled; shipments are continuous.",
         re.compile(
             r"\b(full truck ?loads?|truckloads?|whole (trucks|pallets|containers)|"
-            r"batches of|lots? of \d+|minimum (order|shipment|lot)( size)?|"
-            r"multiples of)\b",
+            r"batches of|lots? of \d+|minimum (order|shipment|lot)( size)?|multiples of|"
+            r"pay per (truck|container|vehicle|van|trip)|(trucks?|containers?|vans?) "
+            r"(carry|carries|hold|holds) (exactly )?\d+)\b",
             re.I,
         ),
     ),
@@ -141,40 +150,62 @@ _UNSUPPORTED: list[tuple[str, re.Pattern[str]]] = [
         "Shipping through intermediate hubs (transshipment) is not modelled; routes go directly "
         "from a source to a destination.",
         re.compile(
-            r"\b(trans-?shipment|via (a|the) (hub|depot|warehouse|cross-?dock)|"
-            r"through (a|the) (hub|cross-?dock))\b",
+            r"\b(trans-?shipment|(via|through) (\w+ ){0,3}(hubs?|cross-?docks?)|"
+            r"to (\w+ )?hubs? and then|regional hubs?)\b",
             re.I,
         ),
     ),
     (
-        "Rules linking two agents or two tasks (work together, never together, sequence, "
-        "precedence) are not modelled.",
+        "Rules linking two agents, two tasks or consecutive periods (work together, never "
+        "together, sequence, precedence) are not modelled.",
         re.compile(
             r"\b((must|should) work together|(cannot|can't|must not) work (together|with)|"
-            r"not on the same (task|team|shift)|precedence|must (be done|finish) before)\b",
+            r"not on the same (task|team|shift)|precedence|(finished|completed|done|finish) "
+            r"before|in a row|consecutive|(order|sequence) in which)\b",
             re.I,
         ),
     ),
     (
-        "Fairness or balancing goals (even workload, spread evenly) are a different objective.",
+        "Fairness or balancing goals (even workload, same number each) are a different objective.",
         re.compile(
-            r"\b(balance (the )?work ?loads?|evenly|fair(ly|ness)|equal (share|number) of)\b", re.I
+            r"\b(balance (the )?work ?loads?|evenly|fair(ly|ness)|equal (share|number) of|"
+            r"(roughly|about) the same (number|amount)|overloaded)\b",
+            re.I,
         ),
     ),
     (
         "Routing (visiting stops in order, tours, shortest round trip) is a different problem.",
         re.compile(
-            r"\b(visit (each|every|all)|exactly once and return|round trip|tour|route the van)\b",
+            r"\b(visit (each|every|all)|visits each|exactly once and return|round trip|tour|"
+            r"route the van)\b",
             re.I,
         ),
     ),
     (
         "Prices or demand that depend on decisions (non-linear revenue) are not modelled.",
         re.compile(
-            r"\b(price (times|x|\*) demand|demand (falls|drops|decreases) as|elastic(ity)?)\b", re.I
+            r"\b(price (times|x|\*) demand|demand (falls|drops|decreases) as|elastic(ity)?|"
+            r"(choose|set) (the )?price)\b",
+            re.I,
         ),
     ),
+    (
+        "Choosing which projects or items to fund (selection, portfolios) is a different problem.",
+        re.compile(r"\b(portfolio|which projects to fund|projects to fund)\b", re.I),
+    ),
 ]
+
+# "Spreading evenly is not required": a pattern inside a negated clause is not a requirement.
+_NEGATED = re.compile(
+    r"\b(not (required|needed|necessary|a requirement)|no need|don't need)\b", re.I
+)
+
+
+def _clause_around(text: str, start: int, end: int) -> str:
+    lo = max(text.rfind(".", 0, start), text.rfind(";", 0, start)) + 1
+    hi = min((i for i in (text.find(".", end), text.find(";", end)) if i != -1), default=len(text))
+    return text[lo:hi]
+
 
 _PERCENT = re.compile(r"\b\d+(\.\d+)?\s*(%|per ?cent)", re.I)
 
@@ -182,7 +213,11 @@ _PERCENT = re.compile(r"\b\d+(\.\d+)?\s*(%|per ?cent)", re.I)
 def unsupported_statements(text: str) -> list[TraceRow]:
     rows = []
     for meaning, pattern in _UNSUPPORTED:
-        m = pattern.search(text)
+        m = next(
+            (m for m in pattern.finditer(text)
+             if not _NEGATED.search(_clause_around(text, m.start(), m.end()))),
+            None,
+        )  # fmt: skip
         if m:
             rows.append(
                 TraceRow(

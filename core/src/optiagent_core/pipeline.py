@@ -186,7 +186,9 @@ def solve_problem(
     verification = verify_solution(model, result)
     if result.has_solution:
         # Independent of the model builder: recompute everything from the problem data.
-        verification.checks += check_plan(problem, result.values, result.objective)
+        verification.checks += check_plan(
+            problem, result.values, result.objective, duals=result.duals
+        )
     # Never present a business plan that failed verification; the raw values stay in `result`.
     solution = interpret(problem, result.values) if verification.passed else None
     sensitivity: Sensitivity | None = None

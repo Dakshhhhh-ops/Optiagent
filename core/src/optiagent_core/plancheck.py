@@ -13,6 +13,9 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from typing import Literal
+
+from pydantic import BaseModel
 
 from optiagent_core.builders import assign_var, flow_var
 from optiagent_core.checks import Check
@@ -164,11 +167,109 @@ def check_assignment_plan(
     return checks
 
 
+# --------------------------------------------------------------------------- optimality certificate
+
+
+class _Row(BaseModel):
+    name: str
+    sense: Literal["<=", ">=", "=="]
+    rhs: float
+
+
+class _Col(BaseModel):
+    name: str
+    cost: float
+    ub: float | None
+    rows: tuple[str, str]
+
+
+def _structure(problem: TransportationProblem | AssignmentProblem) -> tuple[list[_Row], list[_Col]]:
+    """The LP written directly from the problem data (not from the model builder's output)."""
+    if isinstance(problem, TransportationProblem):
+        demand: Literal["==", ">="] = "==" if problem.demand_constraint == "equal" else ">="
+        rows = [_Row(name=f"supply[{s.id}]", sense="<=", rhs=s.supply) for s in problem.sources]
+        rows += [_Row(name=f"demand[{d.id}]", sense=demand, rhs=d.demand) for d in problem.destinations]  # fmt: skip
+        cols = [
+            _Col(name=flow_var(r.source, r.destination), cost=r.cost, ub=r.capacity,
+                 rows=(f"supply[{r.source}]", f"demand[{r.destination}]"))
+            for r in problem.routes
+        ]  # fmt: skip
+        return rows, cols
+    rows = [_Row(name=f"capacity[{a.id}]", sense="<=", rhs=a.capacity) for a in problem.agents]
+    rows += [_Row(name=f"cover[{t.id}]", sense="==", rhs=t.required) for t in problem.tasks]
+    cols = [
+        _Col(name=assign_var(p.agent, p.task), cost=p.value, ub=1.0,
+             rows=(f"capacity[{p.agent}]", f"cover[{p.task}]"))
+        for p in problem.pairings
+    ]  # fmt: skip
+    return rows, cols
+
+
+def _dual_bound(rows: list[_Row], cols: list[_Col], prices: dict[str, float], sign: float) -> float:
+    """Lagrangian lower bound for min c'x (weak duality). Valid for ANY prices once their signs
+    are clipped to the row type, so the solver's duals are only a hint, never trusted."""
+    y: dict[str, float] = {}
+    for r in rows:
+        p = sign * prices.get(r.name, 0.0)
+        y[r.name] = min(p, 0.0) if r.sense == "<=" else max(p, 0.0) if r.sense == ">=" else p
+    bound = sum(y[r.name] * r.rhs for r in rows)
+    for c in cols:
+        reduced = c.cost - y[c.rows[0]] - y[c.rows[1]]
+        if reduced < 0:
+            if c.ub is None:
+                return -math.inf
+            bound += reduced * c.ub
+    return bound
+
+
+def check_optimality(
+    problem: TransportationProblem | AssignmentProblem,
+    values: dict[str, float],
+    duals: dict[str, float],
+) -> Check:
+    """Prove the plan optimal from the problem data alone: its cost must equal a dual bound.
+
+    Weak duality: no feasible plan costs less than the bound, whatever prices produced it. So
+    a plan whose cost meets the bound is optimal for the data, even if the model builder or the
+    solver were wrong. The check fails when no such bound is found (the plan may be suboptimal).
+    """
+    rows, cols = _structure(problem)
+    flip = -1.0 if problem.sense == "maximize" else 1.0  # work with minimize c'x
+    rows_min = rows
+    cols_min = [c.model_copy(update={"cost": flip * c.cost}) for c in cols]
+    plan = sum(c.cost * values.get(c.name, 0.0) for c in cols_min)
+    if not duals:
+        return Check(
+            name="plan_optimality_certificate", passed=False, severity="warning", scope="problem",
+            detail="no dual prices available, optimality not certified from the data",
+        )  # fmt: skip
+    bound = max(_dual_bound(rows_min, cols_min, duals, s) for s in (1.0, -1.0))
+    gap = plan - bound
+    word = "cost" if problem.sense == "minimize" else "value"
+    if gap <= _tol(plan):
+        detail = f"no plan can do better: the plan's {word} equals a bound proven from the data"
+        return Check(
+            name="plan_optimality_certificate", passed=True, scope="problem", detail=detail
+        )
+    shown = "unbounded" if math.isinf(bound) else f"{flip * bound:.9g}"
+    return Check(
+        name="plan_optimality_certificate", passed=False, scope="problem",
+        detail=f"not proven optimal: the plan's {word} is {flip * plan:.9g}, the best bound from the data is {shown}",
+    )  # fmt: skip
+
+
 def check_plan(
     problem: TransportationProblem | AssignmentProblem,
     values: dict[str, float],
     objective: float | None,
+    duals: dict[str, float] | None = None,
 ) -> list[Check]:
-    if isinstance(problem, TransportationProblem):
-        return check_transportation_plan(problem, values, objective)
-    return check_assignment_plan(problem, values, objective)
+    """Feasibility and objective against the data; with `duals`, also certify optimality."""
+    checks = (
+        check_transportation_plan(problem, values, objective)
+        if isinstance(problem, TransportationProblem)
+        else check_assignment_plan(problem, values, objective)
+    )
+    if duals is not None:
+        checks.append(check_optimality(problem, values, duals))
+    return checks

@@ -1,0 +1,24 @@
+{"id": "S01", "label": "supported", "text": "Three solar panel warehouses (Chennai 400, Kochi 250, Madurai 300) serve four installers needing 200, 250, 300 and 150 panels. Freight per panel is in the table. Find the cheapest shipping plan."}
+{"id": "S02", "label": "supported", "text": "Pair six mentors with six mentees. Compatibility scores are below; higher is better. One mentee per mentor."}
+{"id": "S03", "label": "supported", "text": "Before the monsoon we need to move sandbags from 2 depots to 5 wards; each ward needs a fixed number of bags listed below and depots hold 800 and 600. Per-bag haulage costs are given. Minimize the haulage bill."}
+{"id": "S04", "label": "supported", "text": "Allocate exam invigilators to 8 exam halls; every hall needs 2 invigilators and each invigilator covers at most one hall. Minimize total travel distance from their departments."}
+{"id": "S05", "label": "supported", "text": "Our two dairies produce 1,000 and 1,400 litres per day. Five shops order 400, 500, 450, 600 and 350 litres. Cost per litre shipped is in the matrix; the Dairy 2 to Shop 4 road is closed. Minimize cost."}
+{"id": "S06", "label": "supported", "text": "Assign 4 cranes to 4 berths for the next ship arrival; each crane-berth pair has a setup time; minimize the total setup time. Crane C2 cannot reach berth B1."}
+{"id": "S07", "label": "supported", "text": "Ship potatoes from 3 cold storages to 3 chip factories at minimum cost. Each factory must receive at least what it ordered; storages cannot ship more than they hold. The route from Agra to Factory 2 carries at most 120 tonnes."}
+{"id": "S08", "label": "supported", "text": "We want the plan with the lowest total transport cost. Plant capacities, customer demands and per-unit rates are in the uploaded spreadsheet."}
+{"id": "S09", "label": "supported", "text": "Give each of the 5 delivery vans one of the 5 morning routes so that the total fuel cost is as small as possible."}
+{"id": "S10", "label": "supported", "text": "Each of 3 schools needs exactly 40 laptops; the two suppliers can deliver 70 and 60. Delivery charges per laptop differ by supplier and school. Choose quantities to minimize total delivery charges."}
+{"id": "S11", "label": "supported", "text": "Distribute blood units from two banks (35 and 25 units) to three hospitals (20, 20, 15 units) with the least total transfer time; the time per unit is known for each pair."}
+{"id": "S12", "label": "supported", "text": "Staff 4 weekend events with volunteers: each event needs 3 volunteers, each volunteer can do up to 2 events, and preference scores are given. Maximize total preference."}
+{"id": "U01", "label": "unsupported", "text": "Each delivery van has a daily rental fee of 3,000 whether it carries 1 parcel or 100; decide how many vans to rent and what each carries."}
+{"id": "U02", "label": "unsupported", "text": "We produce in January, February and March and can hold extra stock in the warehouse between months; plan production and shipments for the quarter."}
+{"id": "U03", "label": "unsupported", "text": "Ship from the plants to the stores at least cost while keeping total CO2 emissions below 12 tonnes."}
+{"id": "U04", "label": "unsupported", "text": "A customer must be served entirely by one depot; we cannot divide a customer's order among depots."}
+{"id": "U05", "label": "unsupported", "text": "Containers hold 40 boxes and we pay per container used. Plan shipments in whole containers."}
+{"id": "U06", "label": "unsupported", "text": "All goods pass through either the Nagpur or the Bhopal cross-dock before going to the retailers; plan inbound and outbound flows."}
+{"id": "U07", "label": "unsupported", "text": "Assign engineers to on-call weeks so that no engineer is on call two weeks in a row."}
+{"id": "U08", "label": "unsupported", "text": "Distribute overtime hours fairly among the team while covering all shifts."}
+{"id": "U09", "label": "unsupported", "text": "Plan the order in which the drone visits the 12 survey points so that the total flight distance is minimal."}
+{"id": "U10", "label": "unsupported", "text": "Choose how much to discount each product; the bigger the discount the more units sell, following a curve. Maximize profit."}
+{"id": "U11", "label": "unsupported", "text": "Use no more than three of the five suppliers; minimize total purchase cost."}
+{"id": "U12", "label": "unsupported", "text": "Decide which of the 6 candidate sites to open (each has an opening cost) and assign customers to open sites."}

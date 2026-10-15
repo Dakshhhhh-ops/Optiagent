@@ -588,6 +588,11 @@ export interface components {
              * @enum {string}
              */
             dtype: "number" | "text" | "empty";
+            /**
+             * Invalid
+             * @default 0
+             */
+            invalid: number;
             /** Non Empty */
             non_empty: number;
             /** Distinct */
@@ -705,6 +710,20 @@ export interface components {
             /** Column */
             column?: string | null;
         };
+        /** DataResult */
+        DataResult: {
+            /** Datasets */
+            datasets: number;
+            /** Corruptions */
+            corruptions: number;
+            detected: components["schemas"]["Rate"];
+            /** By Fault */
+            by_fault: {
+                [key: string]: components["schemas"]["Rate"];
+            };
+            clean_false_alarms: components["schemas"]["Rate"];
+            duplicate_ids: components["schemas"]["Rate"];
+        };
         /** DatasetDetail */
         DatasetDetail: {
             meta: components["schemas"]["DatasetMeta"];
@@ -743,6 +762,18 @@ export interface components {
             demand: number;
             /** Received */
             received: number;
+        };
+        /** DetectorScore */
+        DetectorScore: {
+            /** Detector */
+            detector: string;
+            recall: components["schemas"]["Rate"];
+            false_positive_rate: components["schemas"]["Rate"];
+            precision: components["schemas"]["Rate"];
+            /** By Category */
+            by_category: {
+                [key: string]: components["schemas"]["Rate"];
+            };
         };
         /** Diagnosis */
         Diagnosis: {
@@ -811,6 +842,25 @@ export interface components {
             traceability: components["schemas"]["TraceabilityReport"] | null;
             trace: components["schemas"]["Trace"];
         };
+        /** FaultResult */
+        FaultResult: {
+            /** Problems */
+            problems: number;
+            /** Faults */
+            faults: number;
+            /** Harmful */
+            harmful: number;
+            model_checks: components["schemas"]["Rate"];
+            problem_checks: components["schemas"]["Rate"];
+            either: components["schemas"]["Rate"];
+            false_alarms_on_correct: components["schemas"]["Rate"];
+            /** By Fault */
+            by_fault: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+        };
         /** Finding */
         Finding: {
             /** Check */
@@ -841,6 +891,19 @@ export interface components {
             domain_latex: string;
             /** Notes */
             notes: string[];
+        };
+        /** FormulationResult */
+        FormulationResult: {
+            /** Dataset */
+            dataset: string;
+            /** Problems */
+            problems: number;
+            /** Mutants */
+            mutants: number;
+            /** Scores */
+            scores: components["schemas"]["DetectorScore"][];
+            /** Missed By All */
+            missed_by_all: string[];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1140,6 +1203,17 @@ export interface components {
              */
             status: "verified" | "represented" | "unresolved" | "unsupported";
         };
+        /** Rate */
+        Rate: {
+            /** K */
+            k: number;
+            /** N */
+            n: number;
+            /** Low */
+            low: number;
+            /** High */
+            high: number;
+        };
         /** Rename */
         Rename: {
             /** Name */
@@ -1236,6 +1310,21 @@ export interface components {
             files: string[];
             /** Expected Objective */
             expected_objective?: number | null;
+        };
+        /** ScopeResult */
+        ScopeResult: {
+            /** Dataset */
+            dataset: string;
+            /** Supported */
+            supported: number;
+            /** Unsupported */
+            unsupported: number;
+            recall: components["schemas"]["Rate"];
+            false_positive_rate: components["schemas"]["Rate"];
+            /** Missed */
+            missed: string[];
+            /** False Alarms */
+            false_alarms: string[];
         };
         /** Sensitivity */
         Sensitivity: {
@@ -1422,6 +1511,7 @@ export interface components {
             modes: components["schemas"]["ModeRow"][];
             /** Audit */
             audit: components["schemas"]["AuditRow"][];
+            verification?: components["schemas"]["VerificationBenchmark"] | null;
             /** Notes */
             notes: string[];
         };
@@ -1668,6 +1758,15 @@ export interface components {
             change_if_limit_raised?: number | null;
             /** Alternative Use */
             alternative_use?: number | null;
+        };
+        /** VerificationBenchmark */
+        VerificationBenchmark: {
+            /** Formulation */
+            formulation: components["schemas"]["FormulationResult"][];
+            builder_faults: components["schemas"]["FaultResult"];
+            malformed_data: components["schemas"]["DataResult"];
+            scope_tuning: components["schemas"]["ScopeResult"];
+            scope_held_out: components["schemas"]["ScopeResult"];
         };
     };
     responses: never;

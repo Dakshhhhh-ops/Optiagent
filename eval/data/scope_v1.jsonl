@@ -1,0 +1,30 @@
+{"id": "S01", "label": "supported", "text": "Two bakeries supply three cafés. Bakery North can bake 120 loaves a day and Bakery South 80. Café A wants 70, Café B 60 and Café C 70. Delivery costs per loaf are listed in the attached table. Keep total delivery cost as low as possible."}
+{"id": "S02", "label": "supported", "text": "Our finance team set the per-unit freight rates below; please find the cheapest way to move 500 tonnes of cement from our two kilns to four depots without exceeding kiln output."}
+{"id": "S03", "label": "supported", "text": "Assign five interns to five projects. Each intern rated each project from 1 to 10. Every project gets one intern and every intern gets one project. Make the total rating as high as possible."}
+{"id": "S04", "label": "supported", "text": "Hospital A has 40 spare beds and Hospital B has 25. Three districts need 20, 25 and 15 beds for patient transfers. The ambulance travel time per patient is given for each hospital-district pair. Minimize total travel time."}
+{"id": "S05", "label": "supported", "text": "We have 3 translators and 4 documents. Ana can take two documents, the others one each. Each document needs exactly one translator. Ana cannot translate the legal contract. Minimize total hours using the hour estimates below."}
+{"id": "S06", "label": "supported", "text": "Ship at least the ordered amount to every retailer: R1 ordered 30, R2 45. Warehouse W1 holds 50 and W2 holds 40. The W2 to R1 lane can carry at most 20 units. Costs are 4, 6, 5 and 3 per unit."}
+{"id": "S07", "label": "supported", "text": "Allocate the weekly vaccine supply from 2 cold stores to 5 clinics; each clinic must receive exactly its quota and each store cannot send more than it holds. Transport cost per box is in the sheet."}
+{"id": "S08", "label": "supported", "text": "Match 6 drivers to 6 delivery zones so the sum of distances from each driver's home to their zone is minimal. Driver D3 does not drive in zone Z5."}
+{"id": "S09", "label": "supported", "text": "The budget review asked us to cut logistics spend, so: find the lowest-cost plan to ship from our 3 plants to 5 distributors given these supplies, demands and per-unit costs."}
+{"id": "S10", "label": "supported", "text": "Assign referees to matches. Each match needs two referees and each referee can work at most three matches. Preference scores are given; maximize the total preference."}
+{"id": "S11", "label": "supported", "text": "Supply points P1 (200 units) and P2 (300 units) feed demand points Q1 (150), Q2 (175) and Q3 (175). Unit costs: P1-Q1 8, P1-Q2 6, P1-Q3 10, P2-Q1 9, P2-Q2 12, P2-Q3 13. Minimize cost."}
+{"id": "S12", "label": "supported", "text": "Each of our four machines can run one job. There are three jobs with setup times per machine given below. Choose which machine runs each job to minimize the total setup time."}
+{"id": "S13", "label": "supported", "text": "Distribute relief kits from 2 depots to 4 villages. Village needs: 100, 80, 60, 90. Depot stocks: 200 and 150. Prices per kit-km are below. We want the cheapest distribution that meets every need exactly."}
+{"id": "S14", "label": "supported", "text": "Assign 4 teaching assistants to 4 lab sections, one each, using the preference matrix below, so that total preference is maximized. Ravi is not available for Lab 2."}
+{"id": "S15", "label": "supported", "text": "Spread the order evenly is not required; just ship the 90 units from Mill A and 60 from Mill B to the three stores (50, 50, 50) at the least total freight cost."}
+{"id": "U01", "label": "unsupported", "text": "Each warehouse we use costs 5,000 a month to keep open, plus shipping per unit. Decide which warehouses to keep and how to supply the six stores at minimum total cost."}
+{"id": "U02", "label": "unsupported", "text": "Plan shipments for the next 3 months. Unsold stock at a depot can be stored for the following month at 2 per unit."}
+{"id": "U03", "label": "unsupported", "text": "Minimize shipping cost, but the total spend must not exceed 40,000."}
+{"id": "U04", "label": "unsupported", "text": "Every store must get all of its goods from one single warehouse; orders cannot be split between warehouses."}
+{"id": "U05", "label": "unsupported", "text": "Trucks carry exactly 18 pallets and we pay per truck, not per pallet. Plan trucks from plants to customers."}
+{"id": "U06", "label": "unsupported", "text": "Goods go from factories to regional hubs and then from hubs to shops; plan both legs at least cost."}
+{"id": "U07", "label": "unsupported", "text": "Assign nurses to shifts. Priya and Sam must work together, and nobody works two consecutive night shifts."}
+{"id": "U08", "label": "unsupported", "text": "Give each support agent roughly the same number of tickets so that nobody is overloaded, while keeping response time low."}
+{"id": "U09", "label": "unsupported", "text": "Find the shortest round trip for our sales rep that visits each of the 8 client offices once."}
+{"id": "U10", "label": "unsupported", "text": "Set the price for each product; at a higher price fewer customers buy, demand falls as price rises linearly. Maximize revenue."}
+{"id": "U11", "label": "unsupported", "text": "Each job must be finished before the next one can start on the same machine; minimize the time until all jobs are done."}
+{"id": "U12", "label": "unsupported", "text": "Ship from 3 plants to 4 stores at minimum cost, using at most two of the plants."}
+{"id": "U13", "label": "unsupported", "text": "Choose a portfolio of projects to fund that maximizes expected return given our capital limit of 2 million."}
+{"id": "U14", "label": "unsupported", "text": "Shipments must be in multiples of 50 units because of pallet sizes; minimize cost from 2 mills to 3 markets."}
+{"id": "U15", "label": "unsupported", "text": "Opening a new distribution centre in Pune would cost 1.2 crore; decide whether to open it and how to route goods."}

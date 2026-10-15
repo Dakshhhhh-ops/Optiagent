@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T12:34:41.342651Z",
+  "generated_at": "2026-10-15T06:10:34.711286Z",
   "modes": [
     {
       "mode": "direct",
@@ -260,6 +260,1378 @@
       }
     }
   ],
+  "verification": {
+    "formulation": [
+      {
+        "dataset": "generated (nl_v1)",
+        "problems": 24,
+        "mutants": 204,
+        "scores": [
+          {
+            "detector": "no verification (baseline)",
+            "recall": {
+              "k": 0,
+              "n": 204,
+              "low": 0.0,
+              "high": 0.0185
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 24,
+              "low": 0.0,
+              "high": 0.138
+            },
+            "precision": {
+              "k": 0,
+              "n": 0,
+              "low": 0.0,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "extra_pair": {
+                "k": 0,
+                "n": 6,
+                "low": 0.0,
+                "high": 0.3903
+              },
+              "extra_route": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "flipped_demand_direction": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "flipped_sense": {
+                "k": 0,
+                "n": 24,
+                "low": 0.0,
+                "high": 0.138
+              },
+              "missing_capacity": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "missing_pair": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "missing_route": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "swapped_values": {
+                "k": 0,
+                "n": 22,
+                "low": 0.0,
+                "high": 0.1487
+              },
+              "unit_scale": {
+                "k": 0,
+                "n": 24,
+                "low": 0.0,
+                "high": 0.138
+              },
+              "wrong_capacity": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "wrong_cost": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "wrong_demand": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "wrong_required": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "wrong_supply": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "wrong_value": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              }
+            }
+          },
+          {
+            "detector": "flag everything (baseline)",
+            "recall": {
+              "k": 204,
+              "n": 204,
+              "low": 0.9815,
+              "high": 1.0
+            },
+            "false_positive_rate": {
+              "k": 24,
+              "n": 24,
+              "low": 0.862,
+              "high": 1.0
+            },
+            "precision": {
+              "k": 204,
+              "n": 228,
+              "low": 0.8482,
+              "high": 0.9282
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 6,
+                "n": 6,
+                "low": 0.6097,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 22,
+                "n": 22,
+                "low": 0.8513,
+                "high": 1.0
+              },
+              "unit_scale": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_cost": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_supply": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "audit",
+            "recall": {
+              "k": 204,
+              "n": 204,
+              "low": 0.9815,
+              "high": 1.0
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 24,
+              "low": 0.0,
+              "high": 0.138
+            },
+            "precision": {
+              "k": 204,
+              "n": 204,
+              "low": 0.9815,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 6,
+                "n": 6,
+                "low": 0.6097,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 22,
+                "n": 22,
+                "low": 0.8513,
+                "high": 1.0
+              },
+              "unit_scale": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_cost": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_supply": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "traceability",
+            "recall": {
+              "k": 158,
+              "n": 204,
+              "low": 0.7124,
+              "high": 0.8265
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 24,
+              "low": 0.0,
+              "high": 0.138
+            },
+            "precision": {
+              "k": 158,
+              "n": 158,
+              "low": 0.9763,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 6,
+                "n": 6,
+                "low": 0.6097,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "missing_pair": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "missing_route": {
+                "k": 0,
+                "n": 12,
+                "low": 0.0,
+                "high": 0.2425
+              },
+              "swapped_values": {
+                "k": 22,
+                "n": 22,
+                "low": 0.8513,
+                "high": 1.0
+              },
+              "unit_scale": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 3,
+                "n": 12,
+                "low": 0.0889,
+                "high": 0.5323
+              },
+              "wrong_cost": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 3,
+                "n": 12,
+                "low": 0.0889,
+                "high": 0.5323
+              },
+              "wrong_supply": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "audit + traceability",
+            "recall": {
+              "k": 204,
+              "n": 204,
+              "low": 0.9815,
+              "high": 1.0
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 24,
+              "low": 0.0,
+              "high": 0.138
+            },
+            "precision": {
+              "k": 204,
+              "n": 204,
+              "low": 0.9815,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 6,
+                "n": 6,
+                "low": 0.6097,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 22,
+                "n": 22,
+                "low": 0.8513,
+                "high": 1.0
+              },
+              "unit_scale": {
+                "k": 24,
+                "n": 24,
+                "low": 0.862,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_cost": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_supply": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 12,
+                "n": 12,
+                "low": 0.7575,
+                "high": 1.0
+              }
+            }
+          }
+        ],
+        "missed_by_all": []
+      },
+      {
+        "dataset": "hand-written (handwritten_v1)",
+        "problems": 8,
+        "mutants": 68,
+        "scores": [
+          {
+            "detector": "no verification (baseline)",
+            "recall": {
+              "k": 0,
+              "n": 68,
+              "low": 0.0,
+              "high": 0.0535
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 8,
+              "low": 0.0,
+              "high": 0.3244
+            },
+            "precision": {
+              "k": 0,
+              "n": 0,
+              "low": 0.0,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "extra_pair": {
+                "k": 0,
+                "n": 1,
+                "low": 0.0,
+                "high": 0.7935
+              },
+              "extra_route": {
+                "k": 0,
+                "n": 1,
+                "low": 0.0,
+                "high": 0.7935
+              },
+              "flipped_demand_direction": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "flipped_sense": {
+                "k": 0,
+                "n": 8,
+                "low": 0.0,
+                "high": 0.3244
+              },
+              "missing_capacity": {
+                "k": 0,
+                "n": 2,
+                "low": 0.0,
+                "high": 0.6576
+              },
+              "missing_pair": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "missing_route": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "swapped_values": {
+                "k": 0,
+                "n": 8,
+                "low": 0.0,
+                "high": 0.3244
+              },
+              "unit_scale": {
+                "k": 0,
+                "n": 8,
+                "low": 0.0,
+                "high": 0.3244
+              },
+              "wrong_capacity": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "wrong_cost": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "wrong_demand": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "wrong_required": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "wrong_supply": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "wrong_value": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              }
+            }
+          },
+          {
+            "detector": "flag everything (baseline)",
+            "recall": {
+              "k": 68,
+              "n": 68,
+              "low": 0.9465,
+              "high": 1.0
+            },
+            "false_positive_rate": {
+              "k": 8,
+              "n": 8,
+              "low": 0.6756,
+              "high": 1.0
+            },
+            "precision": {
+              "k": 68,
+              "n": 76,
+              "low": 0.8058,
+              "high": 0.9457
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 2,
+                "n": 2,
+                "low": 0.3424,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "unit_scale": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_cost": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_supply": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "audit",
+            "recall": {
+              "k": 62,
+              "n": 68,
+              "low": 0.8206,
+              "high": 0.9589
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 8,
+              "low": 0.0,
+              "high": 0.3244
+            },
+            "precision": {
+              "k": 62,
+              "n": 62,
+              "low": 0.9417,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 2,
+                "n": 2,
+                "low": 0.3424,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 7,
+                "n": 8,
+                "low": 0.5291,
+                "high": 0.9776
+              },
+              "unit_scale": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 1,
+                "n": 4,
+                "low": 0.0456,
+                "high": 0.6994
+              },
+              "wrong_cost": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 2,
+                "n": 4,
+                "low": 0.15,
+                "high": 0.85
+              },
+              "wrong_supply": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "traceability",
+            "recall": {
+              "k": 53,
+              "n": 68,
+              "low": 0.6674,
+              "high": 0.8615
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 8,
+              "low": 0.0,
+              "high": 0.3244
+            },
+            "precision": {
+              "k": 53,
+              "n": 53,
+              "low": 0.9324,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 0,
+                "n": 2,
+                "low": 0.0,
+                "high": 0.6576
+              },
+              "missing_pair": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "missing_route": {
+                "k": 0,
+                "n": 4,
+                "low": 0.0,
+                "high": 0.4899
+              },
+              "swapped_values": {
+                "k": 7,
+                "n": 8,
+                "low": 0.5291,
+                "high": 0.9776
+              },
+              "unit_scale": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 1,
+                "n": 4,
+                "low": 0.0456,
+                "high": 0.6994
+              },
+              "wrong_cost": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 3,
+                "n": 4,
+                "low": 0.3006,
+                "high": 0.9544
+              },
+              "wrong_supply": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              }
+            }
+          },
+          {
+            "detector": "audit + traceability",
+            "recall": {
+              "k": 64,
+              "n": 68,
+              "low": 0.8583,
+              "high": 0.9769
+            },
+            "false_positive_rate": {
+              "k": 0,
+              "n": 8,
+              "low": 0.0,
+              "high": 0.3244
+            },
+            "precision": {
+              "k": 64,
+              "n": 64,
+              "low": 0.9434,
+              "high": 1.0
+            },
+            "by_category": {
+              "extra_capacity": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "extra_pair": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "extra_route": {
+                "k": 1,
+                "n": 1,
+                "low": 0.2065,
+                "high": 1.0
+              },
+              "flipped_demand_direction": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "flipped_sense": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "missing_capacity": {
+                "k": 2,
+                "n": 2,
+                "low": 0.3424,
+                "high": 1.0
+              },
+              "missing_pair": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "missing_route": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "swapped_values": {
+                "k": 7,
+                "n": 8,
+                "low": 0.5291,
+                "high": 0.9776
+              },
+              "unit_scale": {
+                "k": 8,
+                "n": 8,
+                "low": 0.6756,
+                "high": 1.0
+              },
+              "wrong_capacity": {
+                "k": 2,
+                "n": 4,
+                "low": 0.15,
+                "high": 0.85
+              },
+              "wrong_cost": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_demand": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_required": {
+                "k": 3,
+                "n": 4,
+                "low": 0.3006,
+                "high": 0.9544
+              },
+              "wrong_supply": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              },
+              "wrong_value": {
+                "k": 4,
+                "n": 4,
+                "low": 0.5101,
+                "high": 1.0
+              }
+            }
+          }
+        ],
+        "missed_by_all": [
+          "H03:swapped_values",
+          "H03:wrong_required",
+          "H03:wrong_capacity",
+          "H04:wrong_capacity"
+        ]
+      }
+    ],
+    "builder_faults": {
+      "problems": 32,
+      "faults": 182,
+      "harmful": 107,
+      "model_checks": {
+        "k": 0,
+        "n": 107,
+        "low": 0.0,
+        "high": 0.0347
+      },
+      "problem_checks": {
+        "k": 107,
+        "n": 107,
+        "low": 0.9653,
+        "high": 1.0
+      },
+      "either": {
+        "k": 107,
+        "n": 107,
+        "low": 0.9653,
+        "high": 1.0
+      },
+      "false_alarms_on_correct": {
+        "k": 0,
+        "n": 32,
+        "low": 0.0,
+        "high": 0.1072
+      },
+      "by_fault": {
+        "dropped_bound": {
+          "harmful": 4,
+          "model_checks": 0,
+          "problem_checks": 4
+        },
+        "dropped_constraint": {
+          "harmful": 23,
+          "model_checks": 0,
+          "problem_checks": 23
+        },
+        "flipped_inequality": {
+          "harmful": 23,
+          "model_checks": 0,
+          "problem_checks": 23
+        },
+        "flipped_objective": {
+          "harmful": 30,
+          "model_checks": 0,
+          "problem_checks": 30
+        },
+        "wrong_cost_coefficient": {
+          "harmful": 21,
+          "model_checks": 0,
+          "problem_checks": 21
+        },
+        "wrong_rhs": {
+          "harmful": 6,
+          "model_checks": 0,
+          "problem_checks": 6
+        }
+      }
+    },
+    "malformed_data": {
+      "datasets": 3,
+      "corruptions": 15,
+      "detected": {
+        "k": 15,
+        "n": 15,
+        "low": 0.7961,
+        "high": 1.0
+      },
+      "by_fault": {
+        "text_in_number": {
+          "k": 3,
+          "n": 3,
+          "low": 0.4385,
+          "high": 1.0
+        },
+        "nan_cell": {
+          "k": 3,
+          "n": 3,
+          "low": 0.4385,
+          "high": 1.0
+        },
+        "infinite_cell": {
+          "k": 3,
+          "n": 3,
+          "low": 0.4385,
+          "high": 1.0
+        },
+        "negative_quantity": {
+          "k": 3,
+          "n": 3,
+          "low": 0.4385,
+          "high": 1.0
+        },
+        "blank_quantity": {
+          "k": 3,
+          "n": 3,
+          "low": 0.4385,
+          "high": 1.0
+        }
+      },
+      "clean_false_alarms": {
+        "k": 0,
+        "n": 3,
+        "low": 0.0,
+        "high": 0.5615
+      },
+      "duplicate_ids": {
+        "k": 3,
+        "n": 3,
+        "low": 0.4385,
+        "high": 1.0
+      }
+    },
+    "scope_tuning": {
+      "dataset": "scope_v1",
+      "supported": 15,
+      "unsupported": 15,
+      "recall": {
+        "k": 15,
+        "n": 15,
+        "low": 0.7961,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 15,
+        "low": 0.0,
+        "high": 0.2039
+      },
+      "missed": [],
+      "false_alarms": []
+    },
+    "scope_held_out": {
+      "dataset": "scope_v2",
+      "supported": 12,
+      "unsupported": 12,
+      "recall": {
+        "k": 9,
+        "n": 12,
+        "low": 0.4677,
+        "high": 0.9111
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 12,
+        "low": 0.0,
+        "high": 0.2425
+      },
+      "missed": [
+        "U04",
+        "U06",
+        "U10"
+      ],
+      "false_alarms": []
+    }
+  },
   "notes": [
     "A 'wrong model' differs structurally from the true model or gives the wrong optimum. Some wrong models still reach the right optimum (for example an invented route limit that never binds); they are counted because the model no longer matches the problem.",
     "qwen3-vl:2b, full mode: the one wrong model the audit did not flag (T10) only shortened ids ('Depot X' to 'X'); it is otherwise equivalent and its optimum is correct, so all 11 real modelling errors were flagged.",
@@ -267,6 +1639,10 @@
     "The generated set is template-based; the audit's text patterns reach 100% detection there but are partly tuned to those phrasings.",
     "The hand-written set exposed overfitting (8/8 false alarms before the fix). It was then used to fix the parser, so it is no longer held out. An independent set written by someone else is needed for an unbiased estimate.",
     "Runs used a laptop GPU (RTX 4050, 6 GB) shared with another local app, so latency includes model reloads and is not a speed benchmark.",
-    "Small samples: 24 generated and 8 hand-written problems. Treat rates as indicative."
+    "Small samples: 24 generated and 8 hand-written problems. Treat rates as indicative.",
+    "'Caught' in full mode counts what the app now shows before approval: audit findings plus unresolved or unsupported traceability items, re-scored on the stored extractions.",
+    "Both scope sets were written by the same author as the unsupported-semantics patterns. scope_v2 was written before tuning and never used for tuning, but it is not independent; a set written by someone else is still needed.",
+    "Builder faults are synthetic corruptions of correct models. They show that the problem-level checks do not depend on the model builder; they do not estimate how often real builder bugs occur.",
+    "Traceability alone misses errors whose wrong value also appears elsewhere in the text (it then only shows as 'represented'): string presence is not semantic verification."
   ]
 }

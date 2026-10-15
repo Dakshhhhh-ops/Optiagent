@@ -150,3 +150,11 @@ def test_assignment_defaults_are_marked() -> None:
     assert need.source == "default" and need.status == "verified"  # type: ignore[attr-defined]
     cap = _provenance(report, "capacity of Ravi")
     assert cap.status == "represented"  # nothing in the text says one task per TA
+
+
+def test_a_fair_as_a_place_is_not_a_fairness_goal() -> None:
+    assert unsupported_statements("Three volunteers staff two stalls at the fair.") == []
+
+
+def test_negated_requirements_are_not_flagged() -> None:
+    assert unsupported_statements("Spreading the load evenly is not required.") == []

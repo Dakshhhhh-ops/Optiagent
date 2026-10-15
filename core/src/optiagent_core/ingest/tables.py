@@ -50,6 +50,8 @@ class Table(BaseModel):
 class ColumnProfile(BaseModel):
     name: str
     dtype: Literal["number", "text", "empty"]
+    invalid: int = 0
+    """Cells in a number column that are not finite numbers."""
     non_empty: int
     distinct: int
     min: float | None = None
@@ -209,7 +211,10 @@ def profile_table(table: Table, preview_rows: int = 50) -> TableProfile:
         numbers = [n for n in (parse_number(v) for v in values) if n is not None]
         if not values:
             dtype: Literal["number", "text", "empty"] = "empty"
-        elif len(numbers) == len(values):
+        elif numbers and 2 * len(numbers) >= len(values):
+            # Mostly numbers: a numeric column with some bad cells. Calling it text would hide
+            # the whole column (and e.g. silently fall back to defaults); as a number column the
+            # loader reports each bad cell instead.
             dtype = "number"
         else:
             dtype = "text"
@@ -218,6 +223,7 @@ def profile_table(table: Table, preview_rows: int = 50) -> TableProfile:
                 name=column,
                 dtype=dtype,
                 non_empty=len(values),
+                invalid=len(values) - len(numbers) if dtype == "number" else 0,
                 distinct=len({as_text(v) for v in values}),
                 min=min(numbers) if dtype == "number" else None,
                 max=max(numbers) if dtype == "number" else None,

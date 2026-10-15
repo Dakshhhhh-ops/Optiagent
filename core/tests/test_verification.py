@@ -292,3 +292,44 @@ def test_route_limit_effect_is_an_exact_resolve() -> None:
     v = next(v for v in report.sensitivity.variables if v.name == flow_var("A", "X"))
     assert v.status == "at_upper"
     assert v.change_if_limit_raised == pytest.approx(-2)
+
+
+# --------------------------------------------------------------------------- optimality certificate
+
+
+def test_certificate_proves_optimal_plans() -> None:
+    report = solve_problem(_transport())
+    cert = next(c for c in report.verification.checks if c.name == "plan_optimality_certificate")
+    assert cert.passed and cert.scope == "problem"
+
+
+def test_certificate_catches_a_feasible_but_suboptimal_plan() -> None:
+    """A builder that flips the objective returns a plan that satisfies every limit in the
+    data. Only an optimality proof from the data can tell it is the worst plan, not the best."""
+    problem = _transport()
+    model = build_model(problem)
+    model.sense = "maximize"
+    result = solve(model)
+    checks = {c.name: c for c in check_plan(problem, result.values, result.objective, result.duals)}
+    assert checks["plan_demand_met"].passed and checks["plan_supply_respected"].passed
+    assert not checks["plan_optimality_certificate"].passed
+
+
+def test_certificate_cannot_be_fooled_by_made_up_prices() -> None:
+    problem = _transport()
+    report = solve_problem(problem)
+    worse = dict(report.result.values)
+    worse[flow_var("A", "X")] -= 1
+    worse[flow_var("B", "X")] += 1  # still feasible, one unit dearer
+    for prices in ({}, {"demand[X]": 100.0, "demand[Y]": 100.0}, report.result.duals):
+        cert = check_plan(problem, worse, None, duals=prices)[-1]
+        assert cert.name == "plan_optimality_certificate" and not cert.passed
+
+
+def test_assignment_certificate() -> None:
+    problem = _random_assignment(random.Random(3))
+    report = solve_problem(problem)
+    if report.outcome == "verified_optimal":
+        assert any(
+            c.name == "plan_optimality_certificate" and c.passed for c in report.verification.checks
+        )

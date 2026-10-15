@@ -16,12 +16,16 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from optiagent_agent.audit import audit
+from optiagent_agent.traceability import trace
 from optiagent_eval.generate import DEFAULT_PATH, load
 from optiagent_eval.handwritten import items as handwritten_items
 from optiagent_eval.mutations import AuditEval, evaluate
 from optiagent_eval.run import RESULTS_DIR, Run
+from optiagent_eval.verification import Rate, VerificationBenchmark
+from optiagent_eval.verification import run as run_verification
 
 SUMMARY = RESULTS_DIR / "summary_v1.json"
+OPEN = {"unresolved", "unsupported"}
 REPORT = RESULTS_DIR.parent / "REPORT.md"
 
 
@@ -57,6 +61,7 @@ class Summary(BaseModel):
     generated_at: datetime
     modes: list[ModeRow]
     audit: list[AuditRow]
+    verification: VerificationBenchmark | None = None
     notes: list[str]
 
 
@@ -76,15 +81,20 @@ def _latest_runs() -> list[tuple[str, Path]]:
 
 
 def _rescore(run: Run) -> Run:
-    """Recompute audit flags on stored extractions with the current audit code."""
+    """Recompute the warnings the app would show on stored extractions, with the current code:
+    audit findings plus open (unresolved or unsupported) traceability items."""
     texts = {i.id: i.text for i in load(DEFAULT_PATH)}
     for r in run.results:
         if r.extracted_problem is not None:
+            text = texts[r.id]
+            traced = trace(r.extracted_problem, text)
             r.audit_flags = [
-                f.message
-                for f in audit(r.extracted_problem, texts[r.id]).findings
-                if f.severity != "info"
+                f.message for f in audit(r.extracted_problem, text).findings if f.severity != "info"
             ]
+            r.audit_flags += [
+                f"{x.parameter}: {x.evidence}" for x in traced.provenance if x.status in OPEN
+            ]
+            r.audit_flags += [x.interpretation for x in traced.requirements if x.status in OPEN]
     return run
 
 
@@ -135,6 +145,75 @@ def _pct(x: float) -> str:
     return f"{x:.0%}"
 
 
+def _rate(r: Rate) -> str:
+    return f"{r.value:.0%} ({r.k}/{r.n}; 95% CI {r.low:.0%}–{r.high:.0%})"
+
+
+def _verification_markdown(v: VerificationBenchmark) -> list[str]:
+    lines = [
+        "",
+        "## Deterministic verification benchmark",
+        "",
+        "No LLM involved; `python -m optiagent_eval.verification`. Recall = injected errors "
+        "flagged; FPR = correct models flagged; precision = flagged models that were really "
+        "wrong. The two baselines bound the metrics: flagging everything gets full recall and "
+        "is useless. Most samples are mutants, so even 'flag everything' has high precision; "
+        "the false-positive rate is the number to read for false alarms.",
+        "",
+        "### Formulation errors (mutated correct models)",
+        "",
+        "| Dataset | Detector | Recall | False-positive rate | Precision |",
+        "|---|---|---|---|---|",
+    ]
+    for f in v.formulation:
+        for d in f.scores:
+            lines.append(
+                f"| {f.dataset} | {d.detector} | {_rate(d.recall)} | "
+                f"{_rate(d.false_positive_rate)} | {_rate(d.precision)} |"
+            )
+    lines += ["", "Recall by error category (audit + traceability):", ""]
+    for f in v.formulation:
+        combined = next(d for d in f.scores if d.detector == "audit + traceability")
+        cats = ", ".join(f"`{c}` {r.k}/{r.n}" for c, r in combined.by_category.items())
+        lines.append(f"- {f.dataset}: {cats}")
+        if f.missed_by_all:
+            lines.append(f"  - missed by every detector: {', '.join(f.missed_by_all)}")
+    b = v.builder_faults
+    lines += [
+        "",
+        "### Model-builder faults",
+        "",
+        f"The built model is corrupted the way a buggy builder would; {b.harmful} of {b.faults} "
+        "faults change the plan into one that breaks the data or is not optimal for it.",
+        "",
+        "| Check | Harmful faults caught |",
+        "|---|---|",
+        f"| Layer 1 (plan vs the corrupted model) | {_rate(b.model_checks)} |",
+        f"| Problem-level (plan vs the data, incl. duality certificate) | {_rate(b.problem_checks)} |",
+        "",
+        f"False alarms on correct plans: {_rate(b.false_alarms_on_correct)}.",
+        "",
+        "### Malformed data",
+        "",
+        f"One corrupted cell per sample dataset (text, NaN, infinity, negative, blank): "
+        f"{_rate(v.malformed_data.detected)} rejected with an error naming the cell; duplicate "
+        f"ids {_rate(v.malformed_data.duplicate_ids)}; clean datasets flagged "
+        f"{_rate(v.malformed_data.clean_false_alarms)}.",
+        "",
+        "### Out-of-scope requests (unsupported-semantics detector)",
+        "",
+        "| Set | Recall (unsupported flagged) | False-positive rate (supported flagged) |",
+        "|---|---|---|",
+    ]
+    for sc in (v.scope_tuning, v.scope_held_out):
+        role = "tuning set" if sc is v.scope_tuning else "held out"
+        lines.append(
+            f"| {sc.dataset} ({role}) | {_rate(sc.recall)} | {_rate(sc.false_positive_rate)} |"
+        )
+    lines.append("")
+    return lines
+
+
 def markdown(summary: Summary) -> str:
     lines = [
         "# OptiAgent evaluation report",
@@ -146,7 +225,7 @@ def markdown(summary: Summary) -> str:
         "24 generated transportation/assignment word problems plus 3 out-of-scope problems "
         "(dataset `nl_v1`). Ground truth is known by construction.",
         "",
-        "| Mode | Model | Correct optimum | Exact model | Executes | Wrong models | Caught by audit | Audit false alarms | **Silent errors** | LLM calls | Latency / problem |",
+        "| Mode | Model | Correct optimum | Exact model | Executes | Wrong models | Caught before approval | False alarms | **Silent errors** | LLM calls | Latency / problem |",
         "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for m in summary.modes:
@@ -186,6 +265,8 @@ def markdown(summary: Summary) -> str:
             f"| {a.dataset} | {a.problems} | {a.false_alarms}/{a.problems} | "
             f"{a.detected}/{a.injected} ({_pct(a.detected / max(a.injected, 1))}) |"
         )
+    if summary.verification is not None:
+        lines += _verification_markdown(summary.verification)
     lines += ["", "## Notes and limitations", ""]
     lines += [f"- {n}" for n in summary.notes]
     return "\n".join(lines) + "\n"
@@ -208,6 +289,16 @@ NOTES = [
     "Runs used a laptop GPU (RTX 4050, 6 GB) shared with another local app, so latency includes "
     "model reloads and is not a speed benchmark.",
     "Small samples: 24 generated and 8 hand-written problems. Treat rates as indicative.",
+    "'Caught' in full mode counts what the app now shows before approval: audit findings plus "
+    "unresolved or unsupported traceability items, re-scored on the stored extractions.",
+    "Both scope sets were written by the same author as the unsupported-semantics patterns. "
+    "scope_v2 was written before tuning and never used for tuning, but it is not independent; "
+    "a set written by someone else is still needed.",
+    "Builder faults are synthetic corruptions of correct models. They show that the problem-level "
+    "checks do not depend on the model builder; they do not estimate how often real builder "
+    "bugs occur.",
+    "Traceability alone misses errors whose wrong value also appears elsewhere in the text "
+    "(it then only shows as 'represented'): string presence is not semantic verification.",
 ]
 
 
@@ -217,7 +308,13 @@ def build() -> Summary:
         _audit_row("generated (nl_v1)", evaluate()),
         _audit_row("hand-written (handwritten_v1)", evaluate(items=handwritten_items())),
     ]
-    return Summary(generated_at=datetime.now(UTC), modes=modes, audit=audits, notes=NOTES)
+    return Summary(
+        generated_at=datetime.now(UTC),
+        modes=modes,
+        audit=audits,
+        verification=run_verification(),
+        notes=NOTES,
+    )
 
 
 if __name__ == "__main__":
