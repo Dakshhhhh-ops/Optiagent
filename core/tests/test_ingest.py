@@ -304,3 +304,52 @@ def test_rejects_too_many_rows(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_rejects_corrupt_xlsx() -> None:
     with pytest.raises(ValueError, match=r"not a valid \.xlsx"):
         read_file("x.xlsx", b"not a zip at all")
+
+
+def _mixed_currency_tables(costs: str) -> list[Table]:
+    return [
+        csv("routes.csv", costs),
+        csv("plants.csv", "plant,supply\nA,10\nB,10"),
+        csv("stores.csv", "store,demand\nX,8\nY,7"),
+    ]
+
+
+def _transport_mapping() -> TransportationMapping:
+    return TransportationMapping(
+        costs=LongLayout(
+            table="routes.csv", from_column="from", to_column="to", value_column="cost"
+        ),
+        supply=KeyValue(table="plants.csv", id_column="plant", value_column="supply"),
+        demand=KeyValue(table="stores.csv", id_column="store", value_column="demand"),
+    )
+
+
+def test_mixed_currencies_are_an_error_not_silently_merged() -> None:
+    tables = _mixed_currency_tables("from,to,cost\nA,X,₹40\nA,Y,$3\nB,X,₹55\nB,Y,₹20")
+    loaded = load_problem(tables, _transport_mapping())
+    errors = [i.message for i in loaded.issues if i.severity == "error"]
+    assert loaded.problem is None
+    assert any("mix currencies" in e and "₹" in e and "$" in e for e in errors)
+
+
+def test_one_currency_is_fine() -> None:
+    tables = _mixed_currency_tables("from,to,cost\nA,X,₹40\nA,Y,₹3\nB,X,55\nB,Y,₹20")
+    loaded = load_problem(tables, _transport_mapping())
+    assert loaded.problem is not None
+
+
+def test_bad_cell_in_optional_table_is_reported_not_defaulted() -> None:
+    """Regression: one bad cell used to make the requirements table invisible to the
+    suggestion, so every task silently fell back to needing one agent."""
+    tables = [
+        csv(
+            "prefs.csv",
+            "ta,lab,score\nRavi,L1,5\nRavi,L2,3\nMeena,L1,4\nMeena,L2,2\nAnu,L1,1\nAnu,L2,5",
+        ),
+        csv("labs.csv", "lab,tas_required\nL1,two\nL2,1"),
+    ]
+    mapping = suggest_mapping(tables, "assignment").mapping
+    assert isinstance(mapping, AssignmentMapping) and mapping.task_required is not None
+    loaded = load_problem(tables, mapping)
+    assert loaded.problem is None
+    assert any(i.severity == "error" and "'two'" in i.message for i in loaded.issues)

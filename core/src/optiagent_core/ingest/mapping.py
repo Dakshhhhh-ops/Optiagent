@@ -11,7 +11,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, ValidationError
 
-from optiagent_core.ingest.tables import Cell, Table, as_text, is_missing, parse_number
+from optiagent_core.ingest.tables import Cell, Table, as_text, currency_of, is_missing, parse_number
 from optiagent_core.schema import (
     Agent,
     AssignmentProblem,
@@ -168,6 +168,7 @@ def _read_pairs(
     table = _table(tables, layout.table)
     pairs: list[_Pair] = []
     seen: dict[tuple[str, str], int] = {}
+    currencies: dict[str, int] = {}
 
     def add(pair: _Pair, row: int, column: str | None) -> None:
         key = (pair.frm, pair.to)
@@ -182,6 +183,21 @@ def _read_pairs(
             return
         seen[key] = row
         pairs.append(pair)
+
+    def note_currency(raw: Cell, row: int) -> None:
+        symbol = currency_of(raw)
+        if symbol is not None:
+            currencies.setdefault(symbol, row)
+
+    def check_currencies() -> None:
+        if len(currencies) > 1:
+            listed = ", ".join(f"{c} (first in row {r})" for c, r in sorted(currencies.items()))
+            issues.add(
+                "error",
+                f"values mix currencies: {listed}. Convert them to one currency first; "
+                "the symbols are not converted automatically.",
+                table.name,
+            )
 
     if isinstance(layout, LongLayout):
         fi, ti, vi = (
@@ -203,6 +219,7 @@ def _read_pairs(
                     layout.value_column,
                 )
                 continue
+            note_currency(raw, row)
             value = parse_number(raw)
             if value is None:
                 issues.add(
@@ -222,6 +239,7 @@ def _read_pairs(
                     )
                     continue
             add(_Pair(frm=frm, to=to, value=value, capacity=capacity), row, layout.value_column)
+        check_currencies()
         return pairs
 
     ri = _col(table, layout.row_id_column)
@@ -240,11 +258,13 @@ def _read_pairs(
             if _is_blocked(raw):
                 blocked += 1
                 continue
+            note_currency(raw, row)
             value = parse_number(raw)
             if value is None:
                 issues.add("error", f"value {raw!r} is not a number", table.name, row, to)
                 continue
             add(_Pair(frm=frm, to=to, value=value), row, to)
+    check_currencies()
     if blocked:
         issues.add("info", f"{blocked} empty or blocked cell(s) treated as not allowed", table.name)
     return pairs

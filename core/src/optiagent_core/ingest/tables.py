@@ -69,6 +69,17 @@ def is_missing(value: Cell) -> bool:
     return value is None or (isinstance(value, str) and value.strip().lower() in MISSING_TOKENS)
 
 
+_SYMBOLS = re.compile(r"[$€£₹¥]")
+
+
+def currency_of(value: Cell) -> str | None:
+    """The currency symbol written in a cell, if any ("₹1,200" -> "₹")."""
+    if not isinstance(value, str):
+        return None
+    found = _SYMBOLS.search(value)
+    return found.group() if found else None
+
+
 def parse_number(value: Cell) -> float | None:
     """Parse a cell as a number. Returns None if it is missing or not numeric.
 
