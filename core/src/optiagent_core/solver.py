@@ -16,6 +16,10 @@ class SolveStatus(StrEnum):
     FEASIBLE = "feasible"
     INFEASIBLE = "infeasible"
     UNBOUNDED = "unbounded"
+    TIME_LIMIT = "time_limit"
+    """Stopped before proving anything: neither optimal nor infeasible."""
+    INVALID = "invalid"
+    """The solver rejected the model (e.g. a non-finite coefficient)."""
     ERROR = "error"
 
 
@@ -24,7 +28,10 @@ _STATUS = {
     pywraplp.Solver.FEASIBLE: SolveStatus.FEASIBLE,
     pywraplp.Solver.INFEASIBLE: SolveStatus.INFEASIBLE,
     pywraplp.Solver.UNBOUNDED: SolveStatus.UNBOUNDED,
+    pywraplp.Solver.MODEL_INVALID: SolveStatus.INVALID,
 }
+
+DEFAULT_TIME_LIMIT_S = 60.0
 
 
 class SolveResult(BaseModel):
@@ -36,18 +43,23 @@ class SolveResult(BaseModel):
     """Constraint name -> dual value (LP only). Rate of change of the objective per unit of rhs."""
     reduced_costs: dict[str, float] = Field(default_factory=dict)
     wall_time_ms: float = 0.0
+    message: str = ""
+    """Why there is no proven answer (time limit, solver error, ...); empty when optimal."""
 
     @property
     def has_solution(self) -> bool:
         return self.status in (SolveStatus.OPTIMAL, SolveStatus.FEASIBLE)
 
 
-def solve(model: LinearModel, backend: str | None = None) -> SolveResult:
+def solve(
+    model: LinearModel, backend: str | None = None, time_limit_s: float = DEFAULT_TIME_LIMIT_S
+) -> SolveResult:
     """Solve with GLOP for LPs and SCIP for MIPs unless a backend is given."""
     backend = backend or ("SCIP" if model.is_mip else "GLOP")
     solver = pywraplp.Solver.CreateSolver(backend)
     if solver is None:
         raise RuntimeError(f"OR-Tools backend {backend!r} is not available")
+    solver.SetTimeLimit(int(time_limit_s * 1000))
 
     inf = solver.infinity()
     variables = {}
@@ -79,7 +91,17 @@ def solve(model: LinearModel, backend: str | None = None) -> SolveResult:
     elapsed = (time.perf_counter() - start) * 1000
 
     status = _STATUS.get(code, SolveStatus.ERROR)
-    result = SolveResult(status=status, solver=backend, wall_time_ms=elapsed)
+    message = ""
+    if code == pywraplp.Solver.NOT_SOLVED and elapsed >= 0.95 * time_limit_s * 1000:
+        status = SolveStatus.TIME_LIMIT
+        message = f"stopped at the {time_limit_s:g} s time limit without a proven answer"
+    elif status == SolveStatus.FEASIBLE:
+        message = "a feasible plan was found but it is not proven optimal"
+    elif status == SolveStatus.ERROR:
+        message = f"the solver stopped abnormally (code {code})"
+    elif status == SolveStatus.INVALID:
+        message = "the solver rejected the model as invalid"
+    result = SolveResult(status=status, solver=backend, wall_time_ms=elapsed, message=message)
     if not result.has_solution:
         return result
 

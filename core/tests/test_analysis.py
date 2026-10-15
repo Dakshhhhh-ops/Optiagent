@@ -144,7 +144,7 @@ def test_insights_use_exact_one_unit_effects() -> None:
     )
     assert any("S1 → D2 is not used" in t and "below 4" in t for t in texts)
     assert any(
-        "Raising the limit by one unit would improve the total cost by about 1" in t for t in texts
+        "Raising the limit by one unit would improve the total cost by 1." in t for t in texts
     )
 
 

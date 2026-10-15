@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import io
+import math
 import re
 import zipfile
 from pathlib import PurePath
@@ -74,7 +75,8 @@ def parse_number(value: Cell) -> float | None:
     if isinstance(value, bool):
         return None
     if isinstance(value, int | float):
-        return float(value)
+        number = float(value)
+        return number if math.isfinite(number) else None
     if value is None or is_missing(value):
         return None
     text = _CURRENCY.sub("", value.strip())
@@ -84,7 +86,7 @@ def parse_number(value: Cell) -> float | None:
         number = float(text)
     except ValueError:
         return None
-    return number if number == number else None  # reject NaN
+    return number if math.isfinite(number) else None  # reject NaN and infinity
 
 
 def as_text(value: Cell) -> str | None:

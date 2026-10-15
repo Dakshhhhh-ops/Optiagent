@@ -25,9 +25,23 @@ class Shortfall(BaseModel):
     shortfall: float
 
 
+METHOD = (
+    "Minimum total shortfall: each demand (or task staffing) requirement may fall short by a "
+    "non-negative amount, every unit of shortfall counts the same wherever it occurs, and all "
+    "other limits (supply, route limits, agent capacities, forbidden pairs) stay hard. The "
+    "total is the smallest possible; how it is split between destinations is one choice among "
+    "several. A business with priorities (some customers matter more) should weigh shortfalls "
+    "differently, which can give a different split."
+)
+
+
 class Diagnosis(BaseModel):
     model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
+    method: str = METHOD
+    """The exact relaxation that was solved and its assumptions."""
+    relaxed: list[str] = Field(default_factory=list)
+    """Constraints that were allowed to fall short."""
     relaxed_feasible: bool
     total_shortfall: float = 0.0
     shortfalls: list[Shortfall] = Field(default_factory=list)
@@ -82,6 +96,7 @@ def diagnose(model: LinearModel) -> Diagnosis:
     unit = "position(s)" if any(s.kind == "task_requirement" for s in shortfalls) else "unit(s)"
     parts = ", ".join(f"{s.id} short by {s.shortfall:g}" for s in shortfalls)
     return Diagnosis(
+        relaxed=sorted(slack_of),
         relaxed_feasible=True,
         total_shortfall=total,
         shortfalls=shortfalls,

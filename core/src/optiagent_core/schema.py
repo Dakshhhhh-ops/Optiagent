@@ -21,7 +21,8 @@ Identifier = Annotated[str, Field(min_length=1, max_length=128)]
 
 
 class _Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # NaN and infinity are never valid data: they would reach the solver as garbage.
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
 
 def _check_unique(kind: str, ids: list[str]) -> None:

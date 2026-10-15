@@ -7,6 +7,7 @@ as a failed check instead of a silently wrong answer.
 
 from __future__ import annotations
 
+import math
 from typing import Literal
 
 from pydantic import BaseModel, computed_field
@@ -22,6 +23,9 @@ class Check(BaseModel):
     passed: bool
     severity: Literal["error", "warning"] = "error"
     detail: str = ""
+    scope: Literal["status", "model", "problem", "data"] = "model"
+    """What the check reads: the solver status, the LinearModel, the original problem data
+    (independent of the model builder), or the input data before solving."""
 
 
 class CheckReport(BaseModel):
@@ -44,13 +48,24 @@ def verify_solution(
         Check(
             name="solver_status",
             passed=result.status == SolveStatus.OPTIMAL,
-            detail=f"status = {result.status}",
+            detail=f"status = {result.status}" + (f": {result.message}" if result.message else ""),
+            scope="status",
         )
     ]
     if not result.has_solution:
         return CheckReport(checks=checks)
 
     values = result.values
+    not_finite = [name for name, x in values.items() if not math.isfinite(x)]
+    if not_finite:
+        checks.append(
+            Check(
+                name="values_finite",
+                passed=False,
+                detail=f"non-finite values: {', '.join(not_finite[:5])}",
+            )
+        )
+        return CheckReport(checks=checks)
 
     missing = [v.name for v in model.variables if v.name not in values]
     checks.append(

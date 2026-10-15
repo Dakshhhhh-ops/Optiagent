@@ -12,6 +12,7 @@ from optiagent_core.checks import Check, CheckReport, verify_solution
 from optiagent_core.diagnose import Diagnosis, diagnose
 from optiagent_core.explain import Insight, explain
 from optiagent_core.model import LinearModel
+from optiagent_core.plancheck import check_plan
 from optiagent_core.prechecks import precheck
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 from optiagent_core.solver import SolveResult, SolveStatus, solve
@@ -66,6 +67,25 @@ class ModelStats(BaseModel):
     is_mip: bool
 
 
+Outcome = Literal[
+    "verified_optimal",
+    "verification_failed",
+    "infeasible",
+    "unbounded",
+    "time_limit",
+    "invalid_model",
+    "solver_error",
+]
+
+_OUTCOME_OF_STATUS: dict[SolveStatus, Outcome] = {
+    SolveStatus.INFEASIBLE: "infeasible",
+    SolveStatus.UNBOUNDED: "unbounded",
+    SolveStatus.TIME_LIMIT: "time_limit",
+    SolveStatus.INVALID: "invalid_model",
+    SolveStatus.ERROR: "solver_error",
+}
+
+
 class SolveReport(BaseModel):
     model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
@@ -82,7 +102,18 @@ class SolveReport(BaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def verified(self) -> bool:
+        """The plan is proven optimal for the model AND satisfies the original problem data.
+
+        This says nothing about whether the model matches the user's intent; that is the
+        formulation review (requirement traceability), reported separately."""
         return self.verification.passed
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def outcome(self) -> Outcome:
+        if self.result.status in _OUTCOME_OF_STATUS:
+            return _OUTCOME_OF_STATUS[self.result.status]
+        return "verified_optimal" if self.verification.passed else "verification_failed"
 
 
 def _interpret_transportation(
@@ -153,7 +184,11 @@ def solve_problem(
     model = build_model(problem)
     result = solve(model)
     verification = verify_solution(model, result)
-    solution = interpret(problem, result.values) if result.has_solution else None
+    if result.has_solution:
+        # Independent of the model builder: recompute everything from the problem data.
+        verification.checks += check_plan(problem, result.values, result.objective)
+    # Never present a business plan that failed verification; the raw values stay in `result`.
+    solution = interpret(problem, result.values) if verification.passed else None
     sensitivity: Sensitivity | None = None
     insights: list[Insight] = []
     diagnosis: Diagnosis | None = None

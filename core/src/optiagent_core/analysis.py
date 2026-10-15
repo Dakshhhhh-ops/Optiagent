@@ -17,10 +17,13 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from optiagent_core.highs_worker import HighsResult, run_highs
-from optiagent_core.model import LinearModel
+from optiagent_core.model import Constraint, LinearModel, Origin
 from optiagent_core.solver import SolveStatus, solve
 
 ZERO = 1e-9
+
+
+Effect = Literal["changed", "infeasible", "not_applicable", "solver_failed"]
 
 
 class ConstraintInsight(BaseModel):
@@ -41,7 +44,11 @@ class ConstraintInsight(BaseModel):
     """The shadow price holds while the right-hand side stays in [rhs_from, rhs_to]."""
     change_if_increased: float | None = None
     change_if_decreased: float | None = None
-    """Exact objective change for one more / one less unit, by re-solving (None = infeasible)."""
+    """Exact objective change for one more / one less unit, by re-solving (None = no number)."""
+    effect_if_increased: Effect | None = None
+    effect_if_decreased: Effect | None = None
+    """Why there is or is not a number: re-solved, infeasible, or not applicable (the
+    right-hand side cannot go below zero)."""
 
 
 class VariableInsight(BaseModel):
@@ -55,6 +62,11 @@ class VariableInsight(BaseModel):
     cost_from: float | None
     cost_to: float | None
     """The current plan stays optimal while this cost stays in [cost_from, cost_to]."""
+    change_if_limit_raised: float | None = None
+    """For a variable at its upper bound: exact objective change when the bound rises by one."""
+    alternative_use: float | None = None
+    """For an unused variable with zero reduced cost: the most it can carry in another plan with
+    the same optimal objective (proven by re-solving). None = not checked or no such plan."""
 
 
 class Sensitivity(BaseModel):
@@ -64,6 +76,8 @@ class Sensitivity(BaseModel):
     reason: str | None = None
     objective: float | None = None
     degenerate: bool = False
+    alternative_optima: bool = False
+    """Another plan with exactly the same objective exists (proven by re-solving)."""
     constraints: list[ConstraintInsight] = Field(default_factory=list)
     variables: list[VariableInsight] = Field(default_factory=list)
 
@@ -79,16 +93,61 @@ def _highs(model: LinearModel) -> HighsResult:
     return _pool.submit(run_highs, model.model_dump_json()).result(timeout=120)
 
 
-def _one_unit_change(model: LinearModel, row: int, delta: float, base: float) -> float | None:
+MAX_ALTERNATIVE_CHECKS = 10
+
+
+def _one_unit_change(
+    model: LinearModel, row: int, delta: float, base: float
+) -> tuple[Effect, float | None]:
     """Objective change when one constraint's right-hand side moves by `delta`, by re-solving."""
     if model.constraints[row].rhs + delta < 0:
-        return None
+        return "not_applicable", None
     changed = model.model_copy(deep=True)
     changed.constraints[row].rhs += delta
+    return _resolve(changed, base)
+
+
+def _resolve(changed: LinearModel, base: float) -> tuple[Effect, float | None]:
     result = solve(changed)
+    if result.status == SolveStatus.INFEASIBLE:
+        return "infeasible", None
+    if result.status != SolveStatus.OPTIMAL or result.objective is None:
+        return "solver_failed", None
+    return "changed", result.objective - base
+
+
+def _limit_raised(model: LinearModel, col: int, base: float) -> float | None:
+    changed = model.model_copy(deep=True)
+    v = changed.variables[col]
+    if v.ub is None:
+        return None
+    v.ub += 1.0
+    return _resolve(changed, base)[1]
+
+
+def _alternative_use(model: LinearModel, col: int, optimum: float) -> float | None:
+    """Largest value variable `col` can take while the objective stays at its optimum.
+
+    Exact: maximize the variable subject to the original constraints plus "objective equals
+    the optimum". A positive answer proves a different optimal plan exists."""
+    probe = model.model_copy(deep=True)
+    probe.constraints.append(
+        Constraint(
+            name="__keep_optimum",
+            terms={v.name: v.objective for v in model.variables if v.objective},
+            sense="==",
+            rhs=optimum,
+            origin=Origin(kind="probe"),
+        )
+    )
+    probe.sense = "maximize"
+    target = probe.variables[col].name
+    for v in probe.variables:
+        v.objective = 1.0 if v.name == target else 0.0
+    result = solve(probe)
     if result.status != SolveStatus.OPTIMAL or result.objective is None:
         return None
-    return result.objective - base
+    return result.objective if result.objective > 1e-7 else None
 
 
 def analyze_sensitivity(model: LinearModel) -> Sensitivity:
@@ -154,13 +213,29 @@ def analyze_sensitivity(model: LinearModel) -> Sensitivity:
 
     for r, insight in enumerate(constraints):
         if insight.binding:
-            insight.change_if_increased = _one_unit_change(model, r, +1.0, base=objective)
-            insight.change_if_decreased = _one_unit_change(model, r, -1.0, base=objective)
+            insight.effect_if_increased, insight.change_if_increased = _one_unit_change(
+                model, r, +1.0, base=objective
+            )
+            insight.effect_if_decreased, insight.change_if_decreased = _one_unit_change(
+                model, r, -1.0, base=objective
+            )
+
+    alternative = False
+    candidates = 0
+    for i, vi in enumerate(variables):
+        if vi.status == "at_upper" and abs(vi.reduced_cost) > ZERO:
+            vi.change_if_limit_raised = _limit_raised(model, i, base=objective)
+        unused_tie = vi.value <= ZERO and abs(vi.reduced_cost) <= ZERO
+        if unused_tie and candidates < MAX_ALTERNATIVE_CHECKS:
+            candidates += 1
+            vi.alternative_use = _alternative_use(model, i, objective)
+            alternative = alternative or vi.alternative_use is not None
 
     return Sensitivity(
         available=True,
         objective=objective,
         degenerate=degenerate,
+        alternative_optima=alternative,
         constraints=constraints,
         variables=variables,
     )
