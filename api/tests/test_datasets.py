@@ -1,8 +1,8 @@
 from collections.abc import Iterator
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Engine
 
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.main import app
@@ -12,8 +12,8 @@ client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def isolated_store(tmp_path: Path) -> Iterator[DatasetStore]:
-    store = DatasetStore(tmp_path, max_file_bytes=2_000, max_files=3)
+def isolated_store(engine: Engine) -> Iterator[DatasetStore]:
+    store = DatasetStore(engine, max_file_bytes=2_000, max_files=3)
     app.dependency_overrides[get_store] = lambda: store
     yield store
     app.dependency_overrides.clear()
@@ -88,14 +88,13 @@ def test_upload_rejects_bad_files() -> None:
     assert too_many.status_code == 422
 
 
-def test_filenames_cannot_escape_the_store(isolated_store: DatasetStore) -> None:
-    detail = client.post(
-        "/api/v1/datasets", files=[("files", ("../../evil.csv", b"a,b\n1,2", "text/csv"))]
-    ).json()
-    assert detail["meta"]["files"][0]["original"] == "evil.csv"
-    stored = [p.relative_to(isolated_store.root) for p in isolated_store.root.rglob("*")]
-    assert all(".." not in p.parts for p in stored)
-    assert all(not p.name.startswith("evil") for p in stored)
+def test_file_names_are_stripped_of_paths() -> None:
+    for name in ("../../evil.csv", r"..\..\evil.csv", "/etc/evil.csv"):
+        detail = client.post(
+            "/api/v1/datasets", files=[("files", (name, b"a,b\n1,2", "text/csv"))]
+        ).json()
+        assert detail["meta"]["files"][0]["original"] == "evil.csv", name
+        assert [t["name"] for t in detail["tables"]] == ["evil.csv"]
 
 
 def test_unknown_or_malformed_dataset_id() -> None:

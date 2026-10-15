@@ -1,8 +1,8 @@
 from collections.abc import Iterator
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Engine
 
 from optiagent_agent.llm import LLMError, LLMReply, Message
 from optiagent_agent.testing import FakeLLM
@@ -30,8 +30,8 @@ PROBLEM = {
 
 
 @pytest.fixture(autouse=True)
-def isolated_store(tmp_path: Path) -> Iterator[None]:
-    store = DatasetStore(tmp_path, max_file_bytes=100_000, max_files=5)
+def isolated_store(engine: Engine) -> Iterator[None]:
+    store = DatasetStore(engine, max_file_bytes=100_000, max_files=5)
     app.dependency_overrides[get_store] = lambda: store
     yield
     app.dependency_overrides.clear()

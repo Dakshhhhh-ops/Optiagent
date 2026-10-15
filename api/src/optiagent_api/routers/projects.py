@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
+from optiagent_api.db import get_engine
 from optiagent_api.projects import Project, ProjectStore, ProjectSummary
 from optiagent_api.settings import get_settings
 from optiagent_core.pipeline import solve_problem
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 
 
 def get_projects() -> ProjectStore:
-    return ProjectStore(get_settings().database_path)
+    return ProjectStore(get_engine(get_settings().database_url))
 
 
 ProjectsDep = Annotated[ProjectStore, Depends(get_projects)]

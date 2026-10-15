@@ -1,14 +1,24 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import optiagent_api
+from optiagent_api.db import get_engine, migrate
 from optiagent_api.routers import agent, benchmarks, datasets, projects, solve, system
 from optiagent_api.settings import get_settings
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    migrate(get_engine(get_settings().database_url))
+    yield
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title=settings.app_name, version=optiagent_api.__version__)
+    app = FastAPI(title=settings.app_name, version=optiagent_api.__version__, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

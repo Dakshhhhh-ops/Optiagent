@@ -8,6 +8,16 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: optiagent
+          POSTGRES_PASSWORD: optiagent
+          POSTGRES_DB: optiagent_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U optiagent" --health-interval 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -21,6 +31,12 @@ jobs:
         run: |
           set -o pipefail
           uv run pytest -q 2>&1 | tee pytest.log
+      - name: API tests on Postgres
+        env:
+          OPTIAGENT_TEST_DATABASE_URL: postgresql://optiagent:optiagent@localhost:5432/optiagent_test
+        run: |
+          set -o pipefail
+          uv run pytest -q api/tests 2>&1 | tee -a pytest.log
       - name: Report pytest failure
         if: failure()
         # Surface the end of the log as an annotation so it is visible without opening the logs.

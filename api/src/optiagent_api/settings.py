@@ -1,5 +1,4 @@
 from functools import lru_cache
-from pathlib import Path
 from typing import Literal
 
 from pydantic import SecretStr
@@ -31,8 +30,8 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 6379
 
-    upload_dir: Path = Path("uploads")
-    database_path: Path = Path("data/optiagent.db")
+    database_url: str = "sqlite:///data/optiagent.db"
+    """Local SQLite by default. In production a Postgres URL, e.g. from Neon."""
     max_upload_bytes: int = 10_000_000
     max_upload_files: int = 10
 

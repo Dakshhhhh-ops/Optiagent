@@ -6,6 +6,7 @@ from fastapi import APIRouter, Body, Depends, File, HTTPException, Response, Upl
 from pydantic import BaseModel
 
 from optiagent_api.datasets import DatasetError, DatasetMeta, DatasetStore
+from optiagent_api.db import get_engine
 from optiagent_api.settings import get_settings
 from optiagent_core.examples import SampleDataset, list_sample_datasets, sample_dataset_files
 from optiagent_core.ingest import (
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/api/v1/datasets", tags=["datasets"])
 
 def get_store() -> DatasetStore:
     s = get_settings()
-    return DatasetStore(s.upload_dir, s.max_upload_bytes, s.max_upload_files)
+    return DatasetStore(get_engine(s.database_url), s.max_upload_bytes, s.max_upload_files)
 
 
 StoreDep = Annotated[DatasetStore, Depends(get_store)]

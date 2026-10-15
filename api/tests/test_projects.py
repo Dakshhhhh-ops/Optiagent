@@ -1,8 +1,8 @@
 from collections.abc import Iterator
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Engine
 
 from optiagent_api.main import app
 from optiagent_api.projects import ProjectStore
@@ -12,8 +12,8 @@ client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def isolated_db(tmp_path: Path) -> Iterator[None]:
-    store = ProjectStore(tmp_path / "test.db")
+def isolated_db(engine: Engine) -> Iterator[None]:
+    store = ProjectStore(engine)
     app.dependency_overrides[get_projects] = lambda: store
     yield
     app.dependency_overrides.clear()
