@@ -40,10 +40,12 @@ After: 339 tests pass (Python), web lint and typecheck pass, CI green.
 1. **Text facts are pattern-based.** Statements phrased in ways the parser does not know are not
    linked; their numbers fall back to "represented". A wrong value that also appears elsewhere in
    the text is then not flagged (4 of 68 hand-written mutants are missed by every detector).
-2. **The unsupported-semantics detector is a keyword net**, not understanding. It missed
-   "served entirely by one depot", "pass through a cross-dock" and a discount curve in the held-out
-   set. The LLM analysis step also labels unsupported problems, but its accuracy is only measured
-   on 3 examples.
+2. **Out-of-scope detection is two imperfect nets.** The keyword patterns missed "served
+   entirely by one depot", "pass through a cross-dock" and a discount curve in the held-out set.
+   The AI analysis step used to label almost every unsupported request as transportation or
+   assignment (1/12 held-out with the 2B model) because its prompt never listed the model's
+   limits; with the limits spelled out (prompt 2026-10-15.1), qwen3:8b flags 10/12 and the two
+   together 11/12, with 0/12 and 0/32 false rejections. One held-out case is still missed by both.
 3. **Units are not modelled.** Currency mixing in files is an error, and a description that mixes
    units of one kind ("20 tons" and "500 kg") is flagged unresolved, but numbers are never
    converted or unit-checked against each other: a consistent but wrong unit is not detected.

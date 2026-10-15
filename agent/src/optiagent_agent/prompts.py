@@ -2,7 +2,7 @@
 
 from optiagent_core.ingest import TableProfile
 
-PROMPT_VERSION = "2026-10-14.1"
+PROMPT_VERSION = "2026-10-15.1"
 
 _TYPES = """The assistant supports exactly two problem types:
 - transportation: ship quantities from sources (plants, warehouses, farms, depots, ...) to
@@ -11,7 +11,23 @@ _TYPES = """The assistant supports exactly two problem types:
 - assignment: assign agents (people, machines, TAs, drivers, ...) to tasks (jobs, shifts,
   lab sections, routes, ...) with a cost or preference per agent-task pair. Each agent can
   take a number of tasks (default 1) and each task needs a number of agents (default 1).
-Anything else (scheduling over time, vehicle routing, nonlinear goals, ...) is unsupported."""
+Both are single-period linear models. The ONLY rules they can express are: supply limits, demand
+(exact or at least), per-route or per-pair limits, forbidden pairs, agent capacities and task
+staffing, with one total cost or score to minimize or maximize.
+
+Answer unsupported if the problem needs ANY rule beyond that, even when it otherwise looks like
+transportation or assignment. For example:
+- a fixed, setup, opening or rental cost (paying once for using a site, route or vehicle), or
+  deciding which sites to open or how many vehicles to use
+- several time periods, inventory or stock carried between periods
+- a cap on total cost, budget, capital or emissions
+- limits on how many sources, suppliers or sites are used, or each customer served by one source
+- whole trucks, containers, pallets, batches or minimum shipment sizes
+- goods passing through hubs or cross-docks (more than one leg)
+- people who must or must not work together, sequences, precedence, consecutive shifts
+- fairness or balancing goals (equal workloads)
+- visiting stops in order (routing, tours) or prices and demand that depend on each other
+Anything else that is not a single shipment or assignment plan is unsupported too."""
 
 ANALYZE = f"""You read planning problems for an optimization assistant.
 

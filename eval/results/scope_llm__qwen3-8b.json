@@ -1,0 +1,772 @@
+[
+  {
+    "dataset": "scope_v1",
+    "model": "qwen3:8b",
+    "llm": {
+      "recall": {
+        "k": 11,
+        "n": 15,
+        "low": 0.4805,
+        "high": 0.891
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 15,
+        "low": 0.0,
+        "high": 0.2039
+      }
+    },
+    "patterns": {
+      "recall": {
+        "k": 15,
+        "n": 15,
+        "low": 0.7961,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 15,
+        "low": 0.0,
+        "high": 0.2039
+      }
+    },
+    "either": {
+      "recall": {
+        "k": 15,
+        "n": 15,
+        "low": 0.7961,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 15,
+        "low": 0.0,
+        "high": 0.2039
+      }
+    },
+    "llm_failures": 0,
+    "items": [
+      {
+        "id": "S01",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 21.2
+      },
+      {
+        "id": "S02",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 7.4
+      },
+      {
+        "id": "S03",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 4.6
+      },
+      {
+        "id": "S04",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 8.2
+      },
+      {
+        "id": "S05",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 5.8
+      },
+      {
+        "id": "S06",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.2
+      },
+      {
+        "id": "S07",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 7.6
+      },
+      {
+        "id": "S08",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 7.0
+      },
+      {
+        "id": "S09",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 4.8
+      },
+      {
+        "id": "S10",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 5.1
+      },
+      {
+        "id": "S11",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.0
+      },
+      {
+        "id": "S12",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 6.1
+      },
+      {
+        "id": "S13",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 7.3
+      },
+      {
+        "id": "S14",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 6.5
+      },
+      {
+        "id": "S15",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 6.1
+      },
+      {
+        "id": "U01",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 8.0
+      },
+      {
+        "id": "U02",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.6
+      },
+      {
+        "id": "U03",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 4.7
+      },
+      {
+        "id": "U04",
+        "label": "unsupported",
+        "llm_kind": "transportation",
+        "patterns": true,
+        "latency_s": 6.7
+      },
+      {
+        "id": "U05",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.7
+      },
+      {
+        "id": "U06",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 8.2
+      },
+      {
+        "id": "U07",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.4
+      },
+      {
+        "id": "U08",
+        "label": "unsupported",
+        "llm_kind": "assignment",
+        "patterns": true,
+        "latency_s": 5.2
+      },
+      {
+        "id": "U09",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 5.1
+      },
+      {
+        "id": "U10",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 4.1
+      },
+      {
+        "id": "U11",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 4.3
+      },
+      {
+        "id": "U12",
+        "label": "unsupported",
+        "llm_kind": "transportation",
+        "patterns": true,
+        "latency_s": 6.6
+      },
+      {
+        "id": "U13",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 3.7
+      },
+      {
+        "id": "U14",
+        "label": "unsupported",
+        "llm_kind": "transportation",
+        "patterns": true,
+        "latency_s": 6.9
+      },
+      {
+        "id": "U15",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 7.3
+      }
+    ]
+  },
+  {
+    "dataset": "scope_v2",
+    "model": "qwen3:8b",
+    "llm": {
+      "recall": {
+        "k": 10,
+        "n": 12,
+        "low": 0.552,
+        "high": 0.953
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 12,
+        "low": 0.0,
+        "high": 0.2425
+      }
+    },
+    "patterns": {
+      "recall": {
+        "k": 9,
+        "n": 12,
+        "low": 0.4677,
+        "high": 0.9111
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 12,
+        "low": 0.0,
+        "high": 0.2425
+      }
+    },
+    "either": {
+      "recall": {
+        "k": 11,
+        "n": 12,
+        "low": 0.6461,
+        "high": 0.9851
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 12,
+        "low": 0.0,
+        "high": 0.2425
+      }
+    },
+    "llm_failures": 0,
+    "items": [
+      {
+        "id": "S01",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.7
+      },
+      {
+        "id": "S02",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 5.6
+      },
+      {
+        "id": "S03",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 8.1
+      },
+      {
+        "id": "S04",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 6.7
+      },
+      {
+        "id": "S05",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.7
+      },
+      {
+        "id": "S06",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 6.2
+      },
+      {
+        "id": "S07",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 7.9
+      },
+      {
+        "id": "S08",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 7.4
+      },
+      {
+        "id": "S09",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 4.4
+      },
+      {
+        "id": "S10",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 6.1
+      },
+      {
+        "id": "S11",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 5.9
+      },
+      {
+        "id": "S12",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 6.7
+      },
+      {
+        "id": "U01",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 8.2
+      },
+      {
+        "id": "U02",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.6
+      },
+      {
+        "id": "U03",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.5
+      },
+      {
+        "id": "U04",
+        "label": "unsupported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 6.5
+      },
+      {
+        "id": "U05",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 4.7
+      },
+      {
+        "id": "U06",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": false,
+        "latency_s": 7.3
+      },
+      {
+        "id": "U07",
+        "label": "unsupported",
+        "llm_kind": "assignment",
+        "patterns": true,
+        "latency_s": 5.8
+      },
+      {
+        "id": "U08",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 6.0
+      },
+      {
+        "id": "U09",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 4.7
+      },
+      {
+        "id": "U10",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": false,
+        "latency_s": 4.7
+      },
+      {
+        "id": "U11",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 5.5
+      },
+      {
+        "id": "U12",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 7.6
+      }
+    ]
+  },
+  {
+    "dataset": "problem sets (nl_v1 + handwritten_v1)",
+    "model": "qwen3:8b",
+    "llm": {
+      "recall": {
+        "k": 3,
+        "n": 3,
+        "low": 0.4385,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 32,
+        "low": 0.0,
+        "high": 0.1072
+      }
+    },
+    "patterns": {
+      "recall": {
+        "k": 3,
+        "n": 3,
+        "low": 0.4385,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 32,
+        "low": 0.0,
+        "high": 0.1072
+      }
+    },
+    "either": {
+      "recall": {
+        "k": 3,
+        "n": 3,
+        "low": 0.4385,
+        "high": 1.0
+      },
+      "false_positive_rate": {
+        "k": 0,
+        "n": 32,
+        "low": 0.0,
+        "high": 0.1072
+      }
+    },
+    "llm_failures": 0,
+    "items": [
+      {
+        "id": "T01",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 11.0
+      },
+      {
+        "id": "T02",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 11.3
+      },
+      {
+        "id": "T03",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.4
+      },
+      {
+        "id": "T04",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 15.2
+      },
+      {
+        "id": "T05",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 13.3
+      },
+      {
+        "id": "T06",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 5.6
+      },
+      {
+        "id": "T07",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.3
+      },
+      {
+        "id": "T08",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 13.7
+      },
+      {
+        "id": "T09",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 9.0
+      },
+      {
+        "id": "T10",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 13.1
+      },
+      {
+        "id": "T11",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 10.4
+      },
+      {
+        "id": "T12",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 21.0
+      },
+      {
+        "id": "A01",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 25.2
+      },
+      {
+        "id": "A02",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 21.0
+      },
+      {
+        "id": "A03",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 20.7
+      },
+      {
+        "id": "A04",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 20.1
+      },
+      {
+        "id": "A05",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 18.3
+      },
+      {
+        "id": "A06",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 20.5
+      },
+      {
+        "id": "A07",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 27.1
+      },
+      {
+        "id": "A08",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 19.7
+      },
+      {
+        "id": "A09",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 26.4
+      },
+      {
+        "id": "A10",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 19.7
+      },
+      {
+        "id": "A11",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 22.5
+      },
+      {
+        "id": "A12",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 19.1
+      },
+      {
+        "id": "U01",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 21.8
+      },
+      {
+        "id": "U02",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 21.5
+      },
+      {
+        "id": "U03",
+        "label": "unsupported",
+        "llm_kind": "unsupported",
+        "patterns": true,
+        "latency_s": 18.2
+      },
+      {
+        "id": "H01",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 28.9
+      },
+      {
+        "id": "H02",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 25.8
+      },
+      {
+        "id": "H03",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 18.6
+      },
+      {
+        "id": "H04",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 21.3
+      },
+      {
+        "id": "H05",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 22.5
+      },
+      {
+        "id": "H06",
+        "label": "supported",
+        "llm_kind": "transportation",
+        "patterns": false,
+        "latency_s": 22.8
+      },
+      {
+        "id": "H07",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 20.7
+      },
+      {
+        "id": "H08",
+        "label": "supported",
+        "llm_kind": "assignment",
+        "patterns": false,
+        "latency_s": 26.7
+      }
+    ]
+  }
+]

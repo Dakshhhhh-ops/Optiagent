@@ -13,7 +13,7 @@ from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from optiagent_agent.audit import audit
 from optiagent_agent.traceability import trace
@@ -21,6 +21,7 @@ from optiagent_eval.generate import DEFAULT_PATH, load
 from optiagent_eval.handwritten import items as handwritten_items
 from optiagent_eval.mutations import AuditEval, evaluate
 from optiagent_eval.run import RESULTS_DIR, Run
+from optiagent_eval.scope_llm import ScopeLLMResult
 from optiagent_eval.verification import Rate, VerificationBenchmark
 from optiagent_eval.verification import run as run_verification
 
@@ -62,6 +63,8 @@ class Summary(BaseModel):
     modes: list[ModeRow]
     audit: list[AuditRow]
     verification: VerificationBenchmark | None = None
+    scope_llm: list[ScopeLLMResult] = Field(default_factory=list)
+    """LLM out-of-scope detection, from stored runs of optiagent_eval.scope_llm."""
     notes: list[str]
 
 
@@ -147,6 +150,38 @@ def _pct(x: float) -> str:
 
 def _rate(r: Rate) -> str:
     return f"{r.value:.0%} ({r.k}/{r.n}; 95% CI {r.low:.0%}–{r.high:.0%})"
+
+
+def _scope_llm_markdown(results: list[ScopeLLMResult]) -> list[str]:
+    lines = [
+        "### Out-of-scope requests: AI analysis vs patterns",
+        "",
+        "The analysis step labels each request; 'either' flags a request when the AI or the "
+        "patterns do. scope_v1 tuned the patterns, so their v1 numbers are optimistic. The "
+        "problem sets are the 32 supported problems above (plus 3 unsupported): false positives "
+        "there mean an ordinary request was wrongly rejected. One run per model; the 2B model's "
+        "answers vary between runs (held-out recall 3/12 and 4/12 on two runs).",
+        "",
+        "| Set | Model | Detector | Recall | False-positive rate |",
+        "|---|---|---|---|---|",
+    ]
+    for r in results:
+        for name in ("llm", "patterns", "either"):
+            d = getattr(r, name)
+            label = {"llm": "AI analysis", "patterns": "patterns", "either": "either"}[name]
+            lines.append(
+                f"| {r.dataset} | {r.model} | {label} | {_rate(d.recall)} | "
+                f"{_rate(d.false_positive_rate)} |"
+            )
+    lines.append("")
+    return lines
+
+
+def _load_scope_llm() -> list[ScopeLLMResult]:
+    out: list[ScopeLLMResult] = []
+    for path in sorted(RESULTS_DIR.glob("scope_llm__*.json")):
+        out += [ScopeLLMResult.model_validate(r) for r in json.loads(path.read_text("utf-8"))]
+    return out
 
 
 def _verification_markdown(v: VerificationBenchmark) -> list[str]:
@@ -267,6 +302,8 @@ def markdown(summary: Summary) -> str:
         )
     if summary.verification is not None:
         lines += _verification_markdown(summary.verification)
+    if summary.scope_llm:
+        lines += _scope_llm_markdown(summary.scope_llm)
     lines += ["", "## Notes and limitations", ""]
     lines += [f"- {n}" for n in summary.notes]
     return "\n".join(lines) + "\n"
@@ -313,6 +350,7 @@ def build() -> Summary:
         modes=modes,
         audit=audits,
         verification=run_verification(),
+        scope_llm=_load_scope_llm(),
         notes=NOTES,
     )
 

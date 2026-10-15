@@ -1,6 +1,6 @@
 # OptiAgent evaluation report
 
-_Generated 2026-10-15 06:15 UTC by `python -m optiagent_eval.report`._
+_Generated 2026-10-15 07:07 UTC by `python -m optiagent_eval.report`._
 
 ## End to end: natural language to verified optimum
 
@@ -98,6 +98,31 @@ One corrupted cell per sample dataset (text, NaN, infinity, negative, blank): 10
 |---|---|---|
 | scope_v1 (tuning set) | 100% (15/15; 95% CI 80%–100%) | 0% (0/15; 95% CI 0%–20%) |
 | scope_v2 (held out) | 75% (9/12; 95% CI 47%–91%) | 0% (0/12; 95% CI 0%–24%) |
+
+### Out-of-scope requests: AI analysis vs patterns
+
+The analysis step labels each request; 'either' flags a request when the AI or the patterns do. scope_v1 tuned the patterns, so their v1 numbers are optimistic. The problem sets are the 32 supported problems above (plus 3 unsupported): false positives there mean an ordinary request was wrongly rejected. One run per model; the 2B model's answers vary between runs (held-out recall 3/12 and 4/12 on two runs).
+
+| Set | Model | Detector | Recall | False-positive rate |
+|---|---|---|---|---|
+| scope_v1 | qwen3:8b | AI analysis | 73% (11/15; 95% CI 48%–89%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v1 | qwen3:8b | patterns | 100% (15/15; 95% CI 80%–100%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v1 | qwen3:8b | either | 100% (15/15; 95% CI 80%–100%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v2 | qwen3:8b | AI analysis | 83% (10/12; 95% CI 55%–95%) | 0% (0/12; 95% CI 0%–24%) |
+| scope_v2 | qwen3:8b | patterns | 75% (9/12; 95% CI 47%–91%) | 0% (0/12; 95% CI 0%–24%) |
+| scope_v2 | qwen3:8b | either | 92% (11/12; 95% CI 65%–99%) | 0% (0/12; 95% CI 0%–24%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3:8b | AI analysis | 100% (3/3; 95% CI 44%–100%) | 0% (0/32; 95% CI 0%–11%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3:8b | patterns | 100% (3/3; 95% CI 44%–100%) | 0% (0/32; 95% CI 0%–11%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3:8b | either | 100% (3/3; 95% CI 44%–100%) | 0% (0/32; 95% CI 0%–11%) |
+| scope_v1 | qwen3-vl:2b-instruct | AI analysis | 13% (2/15; 95% CI 4%–38%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v1 | qwen3-vl:2b-instruct | patterns | 100% (15/15; 95% CI 80%–100%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v1 | qwen3-vl:2b-instruct | either | 100% (15/15; 95% CI 80%–100%) | 0% (0/15; 95% CI 0%–20%) |
+| scope_v2 | qwen3-vl:2b-instruct | AI analysis | 33% (4/12; 95% CI 14%–61%) | 0% (0/12; 95% CI 0%–24%) |
+| scope_v2 | qwen3-vl:2b-instruct | patterns | 75% (9/12; 95% CI 47%–91%) | 0% (0/12; 95% CI 0%–24%) |
+| scope_v2 | qwen3-vl:2b-instruct | either | 92% (11/12; 95% CI 65%–99%) | 0% (0/12; 95% CI 0%–24%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3-vl:2b-instruct | AI analysis | 0% (0/3; 95% CI 0%–56%) | 0% (0/32; 95% CI 0%–11%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3-vl:2b-instruct | patterns | 100% (3/3; 95% CI 44%–100%) | 0% (0/32; 95% CI 0%–11%) |
+| problem sets (nl_v1 + handwritten_v1) | qwen3-vl:2b-instruct | either | 100% (3/3; 95% CI 44%–100%) | 0% (0/32; 95% CI 0%–11%) |
 
 
 ## Notes and limitations

@@ -763,6 +763,11 @@ export interface components {
             /** Received */
             received: number;
         };
+        /** DetectorRates */
+        DetectorRates: {
+            recall: components["schemas"]["Rate"];
+            false_positive_rate: components["schemas"]["Rate"];
+        };
         /** DetectorScore */
         DetectorScore: {
             /** Detector */
@@ -1311,6 +1316,33 @@ export interface components {
             /** Expected Objective */
             expected_objective?: number | null;
         };
+        /** ScopeItem */
+        ScopeItem: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Llm Kind */
+            llm_kind: string | null;
+            /** Patterns */
+            patterns: boolean;
+            /** Latency S */
+            latency_s: number;
+        };
+        /** ScopeLLMResult */
+        ScopeLLMResult: {
+            /** Dataset */
+            dataset: string;
+            /** Model */
+            model: string;
+            llm: components["schemas"]["DetectorRates"];
+            patterns: components["schemas"]["DetectorRates"];
+            either: components["schemas"]["DetectorRates"];
+            /** Llm Failures */
+            llm_failures: number;
+            /** Items */
+            items: components["schemas"]["ScopeItem"][];
+        };
         /** ScopeResult */
         ScopeResult: {
             /** Dataset */
@@ -1512,6 +1544,8 @@ export interface components {
             /** Audit */
             audit: components["schemas"]["AuditRow"][];
             verification?: components["schemas"]["VerificationBenchmark"] | null;
+            /** Scope Llm */
+            scope_llm?: components["schemas"]["ScopeLLMResult"][];
             /** Notes */
             notes: string[];
         };
