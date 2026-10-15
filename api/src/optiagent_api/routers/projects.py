@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
+from optiagent_api.auth import CurrentUser
 from optiagent_api.db import get_engine
 from optiagent_api.projects import Project, ProjectStore, ProjectSummary
 from optiagent_api.settings import get_settings
@@ -39,7 +40,7 @@ def _default_name(request: CreateProject) -> str:
 
 
 @router.post("", response_model=Project, status_code=201)
-def create(request: CreateProject, projects: ProjectsDep) -> Project:
+def create(request: CreateProject, projects: ProjectsDep, user: CurrentUser) -> Project:
     # Solve on the server: a saved project never stores a result computed elsewhere.
     report = solve_problem(request.problem, analyze=True)
     return projects.create(
@@ -49,32 +50,33 @@ def create(request: CreateProject, projects: ProjectsDep) -> Project:
         report=report,
         description=request.description,
         dataset_id=request.dataset_id,
+        owner_id=user,
     )
 
 
 @router.get("", response_model=list[ProjectSummary])
-def list_projects(projects: ProjectsDep) -> list[ProjectSummary]:
-    return projects.list()
+def list_projects(projects: ProjectsDep, user: CurrentUser) -> list[ProjectSummary]:
+    return projects.list(user)
 
 
 @router.get("/{project_id}", response_model=Project)
-def get_project(project_id: str, projects: ProjectsDep) -> Project:
-    project = projects.get(project_id)
+def get_project(project_id: str, projects: ProjectsDep, user: CurrentUser) -> Project:
+    project = projects.get(project_id, user)
     if project is None:
         raise HTTPException(404, f"unknown project {project_id!r}")
     return project
 
 
 @router.patch("/{project_id}", response_model=Project)
-def rename(project_id: str, request: Rename, projects: ProjectsDep) -> Project:
-    project = projects.rename(project_id, request.name.strip())
+def rename(project_id: str, request: Rename, projects: ProjectsDep, user: CurrentUser) -> Project:
+    project = projects.rename(project_id, request.name.strip(), user)
     if project is None:
         raise HTTPException(404, f"unknown project {project_id!r}")
     return project
 
 
 @router.delete("/{project_id}", status_code=204)
-def delete(project_id: str, projects: ProjectsDep) -> Response:
-    if not projects.delete(project_id):
+def delete(project_id: str, projects: ProjectsDep, user: CurrentUser) -> Response:
+    if not projects.delete(project_id, user):
         raise HTTPException(404, f"unknown project {project_id!r}")
     return Response(status_code=204)

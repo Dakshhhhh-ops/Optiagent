@@ -18,6 +18,7 @@ from optiagent_agent.pipeline import (
 )
 from optiagent_agent.providers import make_llm
 from optiagent_agent.review import Review, review_requirements
+from optiagent_api.auth import CurrentUser, current_user
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.routers.datasets import StoreDep
 from optiagent_api.security import limit_llm_calls
@@ -32,7 +33,12 @@ from optiagent_core.ingest import (
 )
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 
-router = APIRouter(prefix="/api/v1/agent", tags=["agent"], dependencies=[Depends(limit_llm_calls)])
+router = APIRouter(
+    prefix="/api/v1/agent",
+    tags=["agent"],
+    # Sign-in first (when enabled), so the AI limit is counted per user rather than per IP.
+    dependencies=[Depends(current_user), Depends(limit_llm_calls)],
+)
 
 
 def get_llm() -> LLM:
@@ -71,19 +77,19 @@ class ExtractResponse(BaseModel):
     trace: Trace
 
 
-def _tables(store: DatasetStore, dataset_id: str) -> list[Table]:
+def _tables(store: DatasetStore, dataset_id: str, owner: str | None) -> list[Table]:
     try:
-        return store.tables(dataset_id)
+        return store.tables(dataset_id, owner)
     except KeyError:
         raise HTTPException(404, f"unknown dataset {dataset_id!r}") from None
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_endpoint(
-    request: AnalyzeRequest, llm: LLMDep, store: StoreDep
+    request: AnalyzeRequest, llm: LLMDep, store: StoreDep, user: CurrentUser
 ) -> AnalyzeResponse:
     profiles = (
-        [profile_table(t, preview_rows=3) for t in _tables(store, request.dataset_id)]
+        [profile_table(t, preview_rows=3) for t in _tables(store, request.dataset_id, user)]
         if request.dataset_id
         else None
     )
@@ -96,12 +102,12 @@ async def analyze_endpoint(
 
 @router.post("/extract", response_model=ExtractResponse)
 async def extract_endpoint(
-    request: ExtractRequest, llm: LLMDep, store: StoreDep
+    request: ExtractRequest, llm: LLMDep, store: StoreDep, user: CurrentUser
 ) -> ExtractResponse:
     text = with_answers(request.text, request.answers)
     try:
         if request.dataset_id:
-            tables = _tables(store, request.dataset_id)
+            tables = _tables(store, request.dataset_id, user)
             profiles = [profile_table(t, preview_rows=3) for t in tables]
             data = await extract_from_data(llm, text, request.kind, tables, profiles)
             response = ExtractResponse(

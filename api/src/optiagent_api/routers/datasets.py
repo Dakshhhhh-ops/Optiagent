@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Body, Depends, File, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
+from optiagent_api.auth import CurrentUser
 from optiagent_api.datasets import DatasetError, DatasetMeta, DatasetStore
 from optiagent_api.db import get_engine
 from optiagent_api.settings import get_settings
@@ -47,13 +48,14 @@ class BuildResponse(BaseModel):
     issues: list[DataIssue]
 
 
-def _detail(store: DatasetStore, meta: DatasetMeta) -> DatasetDetail:
-    return DatasetDetail(meta=meta, tables=[profile_table(t) for t in store.tables(meta.id)])
+def _detail(store: DatasetStore, meta: DatasetMeta, owner: str | None) -> DatasetDetail:
+    tables = store.tables(meta.id, owner)
+    return DatasetDetail(meta=meta, tables=[profile_table(t) for t in tables])
 
 
-def _tables(store: DatasetStore, dataset_id: str) -> list[Table]:
+def _tables(store: DatasetStore, dataset_id: str, owner: str | None) -> list[Table]:
     try:
-        return store.tables(dataset_id)
+        return store.tables(dataset_id, owner)
     except KeyError:
         raise HTTPException(404, f"unknown dataset {dataset_id!r}") from None
 
@@ -86,40 +88,44 @@ def download_sample(sample_id: str) -> Response:
 
 
 @router.post("/samples/{sample_id}", response_model=DatasetDetail, status_code=201)
-def create_from_sample(sample_id: str, store: StoreDep) -> DatasetDetail:
+def create_from_sample(sample_id: str, store: StoreDep, user: CurrentUser) -> DatasetDetail:
     try:
         files = sample_dataset_files(sample_id)
     except KeyError:
         raise HTTPException(404, f"unknown sample {sample_id!r}") from None
-    return _detail(store, store.create(files, source=f"sample:{sample_id}"))
+    return _detail(store, store.create(files, source=f"sample:{sample_id}", owner_id=user), user)
 
 
 @router.post("", response_model=DatasetDetail, status_code=201)
-async def upload(files: Annotated[list[UploadFile], File()], store: StoreDep) -> DatasetDetail:
+async def upload(
+    files: Annotated[list[UploadFile], File()], store: StoreDep, user: CurrentUser
+) -> DatasetDetail:
     payload = []
     for f in files:
         # Read one byte past the limit so oversized files are rejected without loading them fully.
         data = await f.read(store.max_file_bytes + 1)
         payload.append((f.filename or "upload", data))
     try:
-        meta = store.create(payload)
+        meta = store.create(payload, owner_id=user)
     except DatasetError as exc:
         raise HTTPException(422, str(exc)) from None
-    return _detail(store, meta)
+    return _detail(store, meta, user)
 
 
 @router.get("/{dataset_id}", response_model=DatasetDetail)
-def get_dataset(dataset_id: str, store: StoreDep) -> DatasetDetail:
+def get_dataset(dataset_id: str, store: StoreDep, user: CurrentUser) -> DatasetDetail:
     try:
-        meta = store.meta(dataset_id)
+        meta = store.meta(dataset_id, user)
     except KeyError:
         raise HTTPException(404, f"unknown dataset {dataset_id!r}") from None
-    return _detail(store, meta)
+    return _detail(store, meta, user)
 
 
 @router.post("/{dataset_id}/suggest", response_model=Suggestion)
-def suggest(dataset_id: str, request: SuggestRequest, store: StoreDep) -> Suggestion:
-    return suggest_mapping(_tables(store, dataset_id), request.kind)
+def suggest(
+    dataset_id: str, request: SuggestRequest, store: StoreDep, user: CurrentUser
+) -> Suggestion:
+    return suggest_mapping(_tables(store, dataset_id, user), request.kind)
 
 
 @router.post("/{dataset_id}/build", response_model=BuildResponse)
@@ -127,6 +133,7 @@ def build(
     dataset_id: str,
     mapping: Annotated[TransportationMapping | AssignmentMapping, Body(discriminator="kind")],
     store: StoreDep,
+    user: CurrentUser,
 ) -> BuildResponse:
-    result = load_problem(_tables(store, dataset_id), mapping)
+    result = load_problem(_tables(store, dataset_id, user), mapping)
     return BuildResponse(problem=result.problem, issues=result.issues)

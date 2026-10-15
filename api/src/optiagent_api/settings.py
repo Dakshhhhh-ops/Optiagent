@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10_000_000
     max_upload_files: int = 10
 
+    # Authentication (Clerk). Leave unset for local single-user mode.
+    auth_issuer: str | None = None
+    """Clerk Frontend API URL, e.g. https://your-app.clerk.accounts.dev"""
+    auth_authorized_parties: list[str] = []
+    """Origins allowed in the token's azp claim. Defaults to cors_origins."""
+
     # Abuse and cost protection (in-memory, per API instance).
     trust_proxy: bool = False
     """Set true behind Render/Fly/etc. so the client IP is read from X-Forwarded-For."""

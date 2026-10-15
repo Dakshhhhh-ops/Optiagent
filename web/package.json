@@ -11,6 +11,7 @@
     "gen:api": "uv run python -m optiagent_api.openapi openapi.json && openapi-typescript openapi.json -o src/lib/api-types.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.15",
     "@tanstack/react-query": "^5.104.2",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
