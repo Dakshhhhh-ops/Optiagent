@@ -1,7 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FolderOpen, Network, Plus, ShieldAlert, ShieldCheck, Trash2, Users } from "lucide-react";
+import {
+  FolderOpen,
+  Network,
+  Plus,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  TriangleAlert,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -86,12 +95,22 @@ export function ProjectList() {
                       <p className="text-xs text-muted-foreground">{p.status}</p>
                     </div>
                     {p.verified ? (
-                      <Badge className="gap-1">
-                        <ShieldCheck className="size-3.5" /> Verified
+                      <Badge className="gap-1" title="Proven optimal and re-checked against the data">
+                        <ShieldCheck className="size-3.5" /> Plan verified
                       </Badge>
                     ) : (
                       <Badge variant="destructive" className="gap-1">
                         <ShieldAlert className="size-3.5" /> {p.status === "infeasible" ? "Infeasible" : "Not verified"}
+                      </Badge>
+                    )}
+                    {p.formulation_status && p.formulation_status !== "checked" && (
+                      <Badge
+                        variant={p.formulation_status === "unsupported" ? "destructive" : "secondary"}
+                        className="gap-1"
+                        title="Whether the model matches the description"
+                      >
+                        <TriangleAlert className="size-3.5" />
+                        {p.formulation_status === "unsupported" ? "Unsupported" : "Needs review"}
                       </Badge>
                     )}
                     <Button

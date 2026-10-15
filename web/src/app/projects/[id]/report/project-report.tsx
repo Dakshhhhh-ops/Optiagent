@@ -74,7 +74,9 @@ export function ProjectReport({ id }: { id: string }) {
         <h1 className="text-2xl font-semibold tracking-tight">{p.name}</h1>
         <p className="text-muted-foreground">
           <span className="capitalize">{p.kind}</span> problem · solved {new Date(p.created_at).toLocaleString()} ·{" "}
-          {r.verified ? "verified optimal" : `not verified (${r.result.status})`}
+          {r.verified ? "plan verified optimal against the model and the data" : `no verified plan (${r.outcome.replace("_", " ")})`}
+          {p.formulation_status === "needs_review" && " · formulation has unresolved requirements"}
+          {p.formulation_status === "unsupported" && " · part of the request is not modelled"}
         </p>
       </header>
 

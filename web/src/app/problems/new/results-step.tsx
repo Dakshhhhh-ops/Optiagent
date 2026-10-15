@@ -5,13 +5,31 @@ import { ArrowLeft, CheckCircle2, ShieldAlert, ShieldCheck, TriangleAlert, XCirc
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Check, Problem, SolveReport } from "@/lib/api";
+import type { Check, Problem, SolveReport, TraceabilityReport } from "@/lib/api";
 import { fmt } from "@/lib/format";
 
 import { DiagnosisPanel, InsightsPanel, WhatIfPanel } from "./analysis-panels";
 import { type Flow, FlowDiagram } from "./flow-diagram";
+import { OUTCOME } from "./outcome";
+import { TraceabilityPanel } from "./traceability-panel";
+
+const SCOPE_LABELS = {
+  status: "Solver",
+  model: "Against the model",
+  problem: "Against your data",
+} as const;
 
 const CHECK_LABELS: Record<string, string> = {
+  values_finite: "Every value is a finite number",
+  plan_covers_allowed_pairs_only: "Only allowed pairs are used",
+  plan_values_finite: "Every planned quantity is a finite number",
+  plan_route_limits: "No negative or over-limit shipments",
+  plan_supply_respected: "No source ships more than it has",
+  plan_demand_met: "Every destination gets its demand",
+  plan_whole_assignments: "Every assignment is all-or-nothing",
+  plan_agent_capacity: "No agent is over capacity",
+  plan_task_staffing: "Every task is staffed exactly",
+  plan_objective_from_data: "Objective recomputed from your data",
   solver_status: "Solver reached an optimal solution",
   all_variables_reported: "Every variable has a value",
   variable_bounds: "All quantities within their bounds",
@@ -92,11 +110,14 @@ export function ResultsStep({
   onBack,
   backLabel = "Model",
   actions,
+  traceability,
 }: {
   report: SolveReport;
   problem: Problem;
   onBack: () => void;
   backLabel?: string;
+  /** Saved requirement traceability; absent for projects saved before it existed. */
+  traceability?: TraceabilityReport | null;
   /** Extra buttons shown next to the verification badge (export, print, ...). */
   actions?: React.ReactNode;
 }) {
@@ -128,12 +149,27 @@ export function ResultsStep({
         <div className="flex flex-wrap items-center gap-2">
           {actions}
           {report.verified ? (
-            <Badge className="gap-1.5 px-3 py-1 text-sm">
-              <ShieldCheck className="size-4" /> Verified optimal
+            <Badge
+              className="gap-1.5 px-3 py-1 text-sm"
+              title="Proven optimal for the approved model and re-checked against your data"
+            >
+              <ShieldCheck className="size-4" /> Plan verified
             </Badge>
           ) : (
             <Badge variant="destructive" className="gap-1.5 px-3 py-1 text-sm">
-              <ShieldAlert className="size-4" /> Not verified
+              <ShieldAlert className="size-4" /> {OUTCOME[report.outcome].badge}
+            </Badge>
+          )}
+          {traceability && traceability.status !== "checked" && (
+            <Badge
+              variant={traceability.status === "unsupported" ? "destructive" : "secondary"}
+              className="gap-1.5 px-3 py-1 text-sm"
+              title="Whether the model matches the description; separate from plan verification"
+            >
+              <TriangleAlert className="size-4" />
+              {traceability.status === "unsupported"
+                ? "Request partly unsupported"
+                : `Formulation: ${traceability.counts.unresolved} unresolved`}
             </Badge>
           )}
         </div>
@@ -142,10 +178,10 @@ export function ResultsStep({
       {!solution ? (
         <Card>
           <CardHeader>
-            <CardTitle>No feasible solution</CardTitle>
+            <CardTitle>{OUTCOME[report.outcome].title}</CardTitle>
             <CardDescription>
-              The solver reported <span className="font-mono">{result.status}</span>. The data checks
-              below explain why.
+              {OUTCOME[report.outcome].text}
+              {result.message && <> ({result.message})</>}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -290,6 +326,7 @@ export function ResultsStep({
       )}
 
       {report.diagnosis && <DiagnosisPanel diagnosis={report.diagnosis} />}
+      {traceability && <TraceabilityPanel report={traceability} />}
       {solution && <InsightsPanel report={report} />}
       {solution && <WhatIfPanel problem={problem} base={report} />}
 
@@ -311,15 +348,28 @@ export function ResultsStep({
           <CardHeader>
             <CardTitle className="text-base">Solution checks</CardTitle>
             <CardDescription>
-              Re-verified from the model alone, without trusting the solver.
+              Re-checked without trusting the solver: against the model, then against your data
+              directly (which also catches a bug in how the model was built). Tolerance 1e-6,
+              relative to each quantity.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ul className="divide-y">
-              {report.verification.checks.map((c) => (
-                <CheckRow key={c.name} check={c} />
-              ))}
-            </ul>
+          <CardContent className="space-y-4">
+            {(["status", "model", "problem"] as const).map((scope) => {
+              const checks = report.verification.checks.filter((c) => c.scope === scope);
+              if (!checks.length) return null;
+              return (
+                <section key={scope}>
+                  <h4 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    {SCOPE_LABELS[scope]}
+                  </h4>
+                  <ul className="divide-y">
+                    {checks.map((c) => (
+                      <CheckRow key={c.name} check={c} />
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
           </CardContent>
         </Card>
       </div>

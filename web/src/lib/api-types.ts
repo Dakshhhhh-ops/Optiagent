@@ -123,6 +123,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/traceability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Traceability Endpoint
+         * @description Deterministic requirement traceability and provenance (no AI call).
+         */
+        post: operations["traceability_endpoint_api_v1_traceability_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/datasets/samples": {
         parameters: {
             query?: never;
@@ -545,6 +565,12 @@ export interface components {
              * @default
              */
             detail: string;
+            /**
+             * Scope
+             * @default model
+             * @enum {string}
+             */
+            scope: "status" | "model" | "problem" | "data";
         };
         /** CheckReport */
         CheckReport: {
@@ -637,6 +663,10 @@ export interface components {
             change_if_increased?: number | null;
             /** Change If Decreased */
             change_if_decreased?: number | null;
+            /** Effect If Increased */
+            effect_if_increased?: ("changed" | "infeasible" | "not_applicable" | "solver_failed") | null;
+            /** Effect If Decreased */
+            effect_if_decreased?: ("changed" | "infeasible" | "not_applicable" | "solver_failed") | null;
         };
         /** CreateProject */
         CreateProject: {
@@ -653,6 +683,11 @@ export interface components {
             description?: string | null;
             /** Dataset Id */
             dataset_id?: string | null;
+            /** Mapping */
+            mapping?: (components["schemas"]["TransportationMapping"] | components["schemas"]["AssignmentMapping"]) | null;
+            /** Requirements */
+            requirements?: string[];
+            review?: components["schemas"]["Review-Input"] | null;
         };
         /** DataIssue */
         DataIssue: {
@@ -711,6 +746,13 @@ export interface components {
         };
         /** Diagnosis */
         Diagnosis: {
+            /**
+             * Method
+             * @default Minimum total shortfall: each demand (or task staffing) requirement may fall short by a non-negative amount, every unit of shortfall counts the same wherever it occurs, and all other limits (supply, route limits, agent capacities, forbidden pairs) stay hard. The total is the smallest possible; how it is split between destinations is one choice among several. A business with priorities (some customers matter more) should weigh shortfalls differently, which can give a different split.
+             */
+            method: string;
+            /** Relaxed */
+            relaxed: string[];
             /** Relaxed Feasible */
             relaxed_feasible: boolean;
             /**
@@ -766,6 +808,7 @@ export interface components {
             /** Issues */
             issues: components["schemas"]["DataIssue"][];
             audit: components["schemas"]["AuditReport"] | null;
+            traceability: components["schemas"]["TraceabilityReport"] | null;
             trace: components["schemas"]["Trace"];
         };
         /** Finding */
@@ -810,7 +853,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "binding" | "slack" | "unused_option" | "cost_range" | "limit";
+            kind: "alternative_optimum" | "binding" | "slack" | "unused_option" | "cost_range" | "limit";
             /** Title */
             title: string;
             /** Text */
@@ -1023,6 +1066,8 @@ export interface components {
             status: string;
             /** Verified */
             verified: boolean;
+            /** Formulation Status */
+            formulation_status?: ("checked" | "needs_review" | "unsupported") | null;
             /**
              * Created At
              * Format: date-time
@@ -1040,6 +1085,7 @@ export interface components {
             /** Problem */
             problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
             report: components["schemas"]["SolveReport"];
+            traceability?: components["schemas"]["TraceabilityReport"] | null;
         };
         /** ProjectSummary */
         ProjectSummary: {
@@ -1060,6 +1106,8 @@ export interface components {
             status: string;
             /** Verified */
             verified: boolean;
+            /** Formulation Status */
+            formulation_status?: ("checked" | "needs_review" | "unsupported") | null;
             /**
              * Created At
              * Format: date-time
@@ -1071,13 +1119,54 @@ export interface components {
              */
             updated_at: string;
         };
+        /** Provenance */
+        Provenance: {
+            /** Parameter */
+            parameter: string;
+            /** Value */
+            value: number;
+            /** Model Element */
+            model_element: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "text" | "file" | "default" | "unknown";
+            /** Evidence */
+            evidence?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "verified" | "represented" | "unresolved" | "unsupported";
+        };
         /** Rename */
         Rename: {
             /** Name */
             name: string;
         };
         /** RequirementCheck */
-        RequirementCheck: {
+        "RequirementCheck-Input": {
+            /** Requirement */
+            requirement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "covered" | "missing" | "contradicted" | "not_applicable";
+            /**
+             * Where
+             * @default
+             */
+            where: string;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+        };
+        /** RequirementCheck */
+        "RequirementCheck-Output": {
             /** Requirement */
             requirement: string;
             /**
@@ -1097,9 +1186,16 @@ export interface components {
             reason: string;
         };
         /** Review */
-        Review: {
+        "Review-Input": {
             /** Checks */
-            checks: components["schemas"]["RequirementCheck"][];
+            checks: components["schemas"]["RequirementCheck-Input"][];
+            /** Unexplained */
+            unexplained?: string[];
+        };
+        /** Review */
+        "Review-Output": {
+            /** Checks */
+            checks: components["schemas"]["RequirementCheck-Output"][];
             /** Unexplained */
             unexplained: string[];
         };
@@ -1112,7 +1208,7 @@ export interface components {
         };
         /** ReviewResponse */
         ReviewResponse: {
-            review: components["schemas"]["Review"];
+            review: components["schemas"]["Review-Output"];
             trace: components["schemas"]["Trace"];
         };
         /** Route */
@@ -1154,6 +1250,11 @@ export interface components {
              * @default false
              */
             degenerate: boolean;
+            /**
+             * Alternative Optima
+             * @default false
+             */
+            alternative_optima: boolean;
             /** Constraints */
             constraints: components["schemas"]["ConstraintInsight"][];
             /** Variables */
@@ -1219,8 +1320,19 @@ export interface components {
             /** Insights */
             insights: components["schemas"]["Insight"][];
             diagnosis: components["schemas"]["Diagnosis"] | null;
-            /** Verified */
+            /**
+             * Verified
+             * @description The plan is proven optimal for the model AND satisfies the original problem data.
+             *
+             *     This says nothing about whether the model matches the user's intent; that is the
+             *     formulation review (requirement traceability), reported separately.
+             */
             readonly verified: boolean;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            readonly outcome: "verified_optimal" | "verification_failed" | "infeasible" | "unbounded" | "time_limit" | "invalid_model" | "solver_error";
         };
         /** SolveResult */
         SolveResult: {
@@ -1246,12 +1358,17 @@ export interface components {
              * @default 0
              */
             wall_time_ms: number;
+            /**
+             * Message
+             * @default
+             */
+            message: string;
         };
         /**
          * SolveStatus
          * @enum {string}
          */
-        SolveStatus: "optimal" | "feasible" | "infeasible" | "unbounded" | "error";
+        SolveStatus: "optimal" | "feasible" | "infeasible" | "unbounded" | "time_limit" | "invalid" | "error";
         /** Source */
         Source: {
             /** Id */
@@ -1341,6 +1458,60 @@ export interface components {
         Trace: {
             /** Calls */
             calls: components["schemas"]["LLMCall"][];
+        };
+        /** TraceRow */
+        TraceRow: {
+            /** Requirement */
+            requirement: string;
+            /** Interpretation */
+            interpretation: string;
+            /** Model Element */
+            model_element?: string | null;
+            /** Units */
+            units?: string | null;
+            /**
+             * Method
+             * @enum {string}
+             */
+            method: "text_fact" | "wording" | "file_data" | "number_in_text" | "ai_review" | "pattern" | "none";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "verified" | "represented" | "unresolved" | "unsupported";
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+        };
+        /** TraceabilityReport */
+        TraceabilityReport: {
+            /** Requirements */
+            requirements: components["schemas"]["TraceRow"][];
+            /** Provenance */
+            provenance: components["schemas"]["Provenance"][];
+            /** Limitations */
+            limitations: string[];
+            /** Counts */
+            readonly counts: {
+                [key: string]: number;
+            };
+            /**
+             * Status
+             * @enum {string}
+             */
+            readonly status: "checked" | "needs_review" | "unsupported";
+        };
+        /** TraceabilityRequest */
+        TraceabilityRequest: {
+            /** Problem */
+            problem: components["schemas"]["TransportationProblem"] | components["schemas"]["AssignmentProblem"];
+            /** Text */
+            text?: string | null;
+            /** Requirements */
+            requirements?: string[];
+            review?: components["schemas"]["Review-Input"] | null;
         };
         /** TransportationMapping */
         TransportationMapping: {
@@ -1493,6 +1664,10 @@ export interface components {
             cost_from: number | null;
             /** Cost To */
             cost_to: number | null;
+            /** Change If Limit Raised */
+            change_if_limit_raised?: number | null;
+            /** Alternative Use */
+            alternative_use?: number | null;
         };
     };
     responses: never;
@@ -1682,6 +1857,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    traceability_endpoint_api_v1_traceability_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TraceabilityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TraceabilityReport"];
                 };
             };
             /** @description Validation Error */

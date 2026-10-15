@@ -149,11 +149,12 @@ export function Wizard() {
           mapping={mapping}
           onMappingChange={setMapping}
           onBack={() => setStep("input")}
-          onReview={(problem, issues) =>
+          onReview={(problem, issues, used) =>
             review({
               problem,
               source: "manual",
               issues,
+              mapping: used,
               requirements: analysis?.requirements,
               text: text || undefined,
               datasetId: dataset.meta.id,

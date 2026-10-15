@@ -10,6 +10,7 @@ import {
   Lock,
   PackageOpen,
   RotateCcw,
+  Shuffle,
   SlidersHorizontal,
   TriangleAlert,
 } from "lucide-react";
@@ -33,9 +34,12 @@ import {
 import { client, type Diagnosis, type Insight, type Problem, type SolveReport, unwrap } from "@/lib/api";
 import { fmt } from "@/lib/format";
 
+import { OUTCOME } from "./outcome";
+
 // --------------------------------------------------------------------------- insights
 
 const GROUPS: { title: string; kinds: Insight["kind"][]; icon: typeof Lock; limit: number }[] = [
+  { title: "Equally good alternatives", kinds: ["alternative_optimum"], icon: Shuffle, limit: 4 },
   { title: "What limits the plan", kinds: ["binding", "limit"], icon: Lock, limit: 6 },
   { title: "Options not used", kinds: ["unused_option"], icon: Lightbulb, limit: 5 },
   { title: "Spare capacity", kinds: ["slack"], icon: PackageOpen, limit: 5 },
@@ -50,8 +54,8 @@ export function InsightsPanel({ report }: { report: SolveReport }) {
       <CardHeader>
         <CardTitle className="text-base">What drives this plan</CardTitle>
         <CardDescription>
-          Computed from the solver: shadow prices, reduced costs and ranges. Each effect below was
-          checked by re-solving with one unit more or less.
+          One-unit effects and route-limit effects are exact: each was re-solved. Cost ranges are
+          local solver ranges that assume everything else stays the same; they are not forecasts.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -138,6 +142,12 @@ export function DiagnosisPanel({ diagnosis }: { diagnosis: Diagnosis }) {
           </p>
         </CardContent>
       )}
+      <CardContent className="pt-0">
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer text-primary">How this was computed</summary>
+          <p className="mt-2">{diagnosis.method}</p>
+        </details>
+      </CardContent>
     </Card>
   );
 }
@@ -305,7 +315,7 @@ export function WhatIfPanel({ problem, base }: { problem: Problem; base: SolveRe
               {param.group} <span className="font-medium">{param.label}</span>: {fmt(param.value)} →{" "}
               <span className="font-medium">{fmt(number)}</span>
             </p>
-            {result.result.status === "optimal" && newObj != null && delta != null ? (
+            {result.outcome === "verified_optimal" && newObj != null && delta != null ? (
               <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
                 <p className="text-2xl font-semibold tracking-tight">{fmt(newObj)}</p>
                 <p
@@ -322,16 +332,20 @@ export function WhatIfPanel({ problem, base }: { problem: Problem; base: SolveRe
                   {fmt(delta)} vs {fmt(baseObj)}
                   {baseObj !== 0 && ` (${delta >= 0 ? "+" : ""}${fmt((delta / Math.abs(baseObj)) * 100)}%)`}
                 </p>
-                <Badge variant={result.verified ? "default" : "destructive"}>
-                  {result.verified ? "Verified" : "Not verified"}
-                </Badge>
+                <Badge>Plan verified</Badge>
               </div>
             ) : (
               <Alert variant="destructive">
-                <AlertTitle>No feasible plan with this change</AlertTitle>
-                <AlertDescription>{result.diagnosis?.explanation ?? result.result.status}</AlertDescription>
+                <AlertTitle>{OUTCOME[result.outcome].title}</AlertTitle>
+                <AlertDescription>
+                  {result.diagnosis?.explanation ?? OUTCOME[result.outcome].text}
+                </AlertDescription>
               </Alert>
             )}
+            <p className="text-xs text-muted-foreground">
+              Scenario only: the approved model and the saved project are unchanged. Baseline{" "}
+              {fmt(baseObj)}; only {param.label} changed.
+            </p>
             {diff.length > 0 && (
               <table className="w-full text-sm">
                 <thead className="text-xs text-muted-foreground">
@@ -352,7 +366,7 @@ export function WhatIfPanel({ problem, base }: { problem: Problem; base: SolveRe
                 </tbody>
               </table>
             )}
-            {result.result.status === "optimal" && diff.length === 0 && (
+            {result.outcome === "verified_optimal" && diff.length === 0 && (
               <p className="text-sm text-muted-foreground">The plan itself does not change.</p>
             )}
           </div>

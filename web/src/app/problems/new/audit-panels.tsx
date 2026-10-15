@@ -115,6 +115,17 @@ const STATUS = {
   not_applicable: { icon: CircleSlash, className: "text-muted-foreground", label: "Background" },
 } as const;
 
+/** The AI requirement review. Shared by key, so several components reuse one request. */
+export function useReview(requirements: string[], problem: Problem) {
+  return useQuery({
+    queryKey: ["review", requirements, problem],
+    queryFn: () =>
+      unwrap(client.POST("/api/v1/agent/review", { body: { requirements, problem } })),
+    retry: false,
+    enabled: requirements.length > 0,
+  });
+}
+
 export function RequirementsPanel({
   requirements,
   problem,
@@ -122,12 +133,7 @@ export function RequirementsPanel({
   requirements: string[];
   problem: Problem;
 }) {
-  const review = useQuery({
-    queryKey: ["review", requirements, problem],
-    queryFn: () =>
-      unwrap(client.POST("/api/v1/agent/review", { body: { requirements, problem } })),
-    retry: false,
-  });
+  const review = useReview(requirements, problem);
   const checks = new Map<string, RequirementCheck>(
     review.data?.review.checks.map((c) => [c.requirement, c]) ?? [],
   );
@@ -148,7 +154,7 @@ export function RequirementsPanel({
               ? "Automatic check unavailable. Check each one against the model yourself."
               : problems
                 ? `${problems} requirement(s) may not be in the model.`
-                : "Each one was found in the model. This check is advisory."}
+                : "The AI found each one in the model. This is an opinion, not a proof."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">

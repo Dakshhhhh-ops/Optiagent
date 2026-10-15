@@ -107,6 +107,7 @@ export function ProjectView({ id }: { id: string }) {
       <ResultsStep
         report={p.report}
         problem={p.problem}
+        traceability={p.traceability}
         backLabel="Projects"
         onBack={() => router.push("/projects")}
         actions={

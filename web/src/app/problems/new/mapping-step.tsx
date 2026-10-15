@@ -315,7 +315,7 @@ export function MappingStep({
   mapping: Mapping | null;
   onMappingChange: (m: Mapping) => void;
   onBack: () => void;
-  onReview: (problem: Problem, issues: DataIssue[]) => void;
+  onReview: (problem: Problem, issues: DataIssue[], mapping: Mapping) => void;
 }) {
   const suggestion = useQuery({
     queryKey: ["suggest", dataset.meta.id, kind],
@@ -415,7 +415,7 @@ export function MappingStep({
           <Button
             className="flex-1"
             disabled={!problem || build.isFetching}
-            onClick={() => problem && onReview(problem, issues)}
+            onClick={() => problem && effective && onReview(problem, issues, effective)}
           >
             Review model <ArrowRight />
           </Button>

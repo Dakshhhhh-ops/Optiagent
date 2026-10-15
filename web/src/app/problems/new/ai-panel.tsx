@@ -54,6 +54,7 @@ export function AiPanel({
           requirements: analysis.requirements,
           ungrounded: r.ungrounded,
           issues: r.issues,
+          mapping: r.mapping,
           trace: r.trace,
         });
       }

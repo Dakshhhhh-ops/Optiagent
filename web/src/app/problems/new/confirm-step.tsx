@@ -21,6 +21,7 @@ import {
   client,
   type DataIssue,
   type Formulation,
+  type Mapping,
   type Problem,
   type Project,
   type Trace,
@@ -29,7 +30,8 @@ import {
 } from "@/lib/api";
 import { fmt } from "@/lib/format";
 
-import { AuditPanel, RequirementsPanel, useAudit } from "./audit-panels";
+import { AuditPanel, RequirementsPanel, useAudit, useReview } from "./audit-panels";
+import { TraceabilityPanel } from "./traceability-panel";
 
 export interface Candidate {
   problem: Problem;
@@ -41,6 +43,8 @@ export interface Candidate {
   /** The user's description, used by the audit. */
   text?: string;
   datasetId?: string | null;
+  /** How the problem was read from the dataset; the server re-checks it. */
+  mapping?: Mapping | null;
 }
 
 const PREVIEW_ITEMS = 4;
@@ -91,6 +95,24 @@ export function ConfirmStep({
   const { problem, requirements = [], ungrounded = [], issues = [], trace, text } = candidate;
   const audit = useAudit(problem, text);
   const auditErrors = audit.data?.findings.filter((x) => x.severity === "error").length ?? 0;
+  const review = useReview(requirements, problem);
+  const aiReview = review.data?.review ?? null;
+  const traceBody = {
+    problem,
+    text: text?.trim() || null,
+    requirements,
+    review: aiReview,
+  };
+  const traceability = useQuery({
+    queryKey: ["traceability", traceBody],
+    queryFn: () => unwrap(client.POST("/api/v1/traceability", { body: traceBody })),
+    // Wait for the AI review (if any) so its flags are included; it never blocks on failure.
+    enabled: requirements.length === 0 || !review.isPending,
+  });
+  const openItems =
+    (traceability.data?.counts.unresolved ?? 0) + (traceability.data?.counts.unsupported ?? 0);
+  const unsupported = traceability.data?.status === "unsupported";
+  const blockers = auditErrors + openItems;
 
   const formulation = useQuery({
     queryKey: ["formulation", problem],
@@ -107,6 +129,9 @@ export function ConfirmStep({
             source: candidate.source,
             description: text?.trim() || null,
             dataset_id: candidate.datasetId ?? null,
+            mapping: candidate.mapping ?? null,
+            requirements,
+            review: aiReview,
           },
         }),
       ),
@@ -226,6 +251,10 @@ export function ConfirmStep({
       </div>
 
       <div className="space-y-4 lg:sticky lg:top-20">
+        <TraceabilityPanel report={traceability.data} loading={traceability.isPending} />
+        {traceability.error && (
+          <p className="text-sm text-destructive">{traceability.error.message}</p>
+        )}
         <AuditPanel report={audit.data} loading={audit.isPending} />
         {audit.error && <p className="text-sm text-destructive">{audit.error.message}</p>}
 
@@ -264,18 +293,29 @@ export function ConfirmStep({
           </Alert>
         )}
 
+        {unsupported && (
+          <Alert variant="destructive">
+            <TriangleAlert className="size-4" />
+            <AlertTitle>Part of your request is not modelled</AlertTitle>
+            <AlertDescription>
+              The result will ignore it. Rephrase the problem without it, or approve only if it
+              truly does not matter.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex gap-2">
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft /> Back
           </Button>
           <Button
             className="flex-1"
-            variant={auditErrors ? "destructive" : "default"}
-            disabled={!f || solve.isPending}
+            variant={blockers ? "destructive" : "default"}
+            disabled={!f || solve.isPending || traceability.isPending}
             onClick={() => solve.mutate()}
           >
             {solve.isPending ? <Loader2 className="animate-spin" /> : <Play />}
-            {auditErrors ? `Approve despite ${auditErrors} issue(s)` : "Approve & solve"}
+            {blockers ? `Approve despite ${blockers} open issue(s)` : "Approve & solve"}
           </Button>
         </div>
       </div>
