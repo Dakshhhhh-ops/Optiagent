@@ -158,3 +158,13 @@ def test_a_fair_as_a_place_is_not_a_fairness_goal() -> None:
 
 def test_negated_requirements_are_not_flagged() -> None:
     assert unsupported_statements("Spreading the load evenly is not required.") == []
+
+
+def test_mixed_units_need_confirmation() -> None:
+    rows = unsupported_statements("Plant A has 20 tons. Store X needs 500 kg and Store Y 8 tons.")
+    assert [r.status for r in rows] == ["unresolved"]
+    assert "kg" in rows[0].interpretation and "tonnes" in rows[0].interpretation
+
+
+def test_one_unit_throughout_is_fine() -> None:
+    assert unsupported_statements("Plant A has 20 tons; Store X needs 5 tons, Y 8 tons.") == []

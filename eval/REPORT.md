@@ -1,6 +1,6 @@
 # OptiAgent evaluation report
 
-_Generated 2026-10-15 06:10 UTC by `python -m optiagent_eval.report`._
+_Generated 2026-10-15 06:15 UTC by `python -m optiagent_eval.report`._
 
 ## End to end: natural language to verified optimum
 

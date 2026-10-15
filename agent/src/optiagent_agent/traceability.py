@@ -209,6 +209,30 @@ def _clause_around(text: str, start: int, end: int) -> str:
 
 _PERCENT = re.compile(r"\b\d+(\.\d+)?\s*(%|per ?cent)", re.I)
 
+# A unit only counts when it follows a number ("20 tons", "500kg"), not as a word on its own.
+_N = r"\d[\d,]*(\.\d+)?\s*"
+_UNITS: dict[str, dict[str, re.Pattern[str]]] = {
+    "weight": {
+        "kg": re.compile(_N + r"(kg|kgs|kilo(gram)?s?)\b", re.I),
+        "tonnes": re.compile(_N + r"(t|tons?|tonnes?|mt)\b", re.I),
+        "pounds": re.compile(_N + r"(lbs?|pounds?)\b", re.I),
+    },
+    "volume": {
+        "litres": re.compile(_N + r"(l|litres?|liters?)\b", re.I),
+        "millilitres": re.compile(_N + r"(ml|millilit(re|er)s?)\b", re.I),
+        "gallons": re.compile(_N + r"(gal|gallons?)\b", re.I),
+    },
+    "distance": {
+        "km": re.compile(_N + r"(km|kilomet(re|er)s?)\b", re.I),
+        "miles": re.compile(_N + r"(mi|miles?)\b", re.I),
+    },
+    "time": {
+        "minutes": re.compile(_N + r"(min|mins|minutes?)\b", re.I),
+        "hours": re.compile(_N + r"(h|hrs?|hours?)\b", re.I),
+        "days": re.compile(_N + r"days?\b", re.I),
+    },
+}
+
 
 def unsupported_statements(text: str) -> list[TraceRow]:
     rows = []
@@ -240,6 +264,25 @@ def unsupported_statements(text: str) -> list[TraceRow]:
                 note="Check the numbers it affects in the provenance table.",
             )
         )
+    for dimension, units in _UNITS.items():
+        found = {}
+        for unit, pattern in units.items():
+            hit = pattern.search(text)
+            if hit:
+                found[unit] = hit
+        if len(found) > 1:
+            first = min(found.values(), key=lambda h: h.start())
+            rows.append(
+                TraceRow(
+                    requirement=_around(text, first.start(), first.end()),
+                    interpretation=f"The {dimension}s are given in different units "
+                    f"({', '.join(sorted(found))}). The model has no units, so they must have "
+                    "been converted to one, which may be wrong.",
+                    method="pattern",
+                    status="unresolved",
+                    note="State every quantity in the same unit, or check each converted number.",
+                )
+            )
     return rows
 
 

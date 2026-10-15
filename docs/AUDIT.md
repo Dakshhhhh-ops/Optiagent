@@ -44,8 +44,9 @@ After: 339 tests pass (Python), web lint and typecheck pass, CI green.
    "served entirely by one depot", "pass through a cross-dock" and a discount curve in the held-out
    set. The LLM analysis step also labels unsupported problems, but its accuracy is only measured
    on 3 examples.
-3. **Units are not modelled.** Currency mixing in files is caught; mixed units in text ("tons" vs
-   "kg") are not.
+3. **Units are not modelled.** Currency mixing in files is an error, and a description that mixes
+   units of one kind ("20 tons" and "500 kg") is flagged unresolved, but numbers are never
+   converted or unit-checked against each other: a consistent but wrong unit is not detected.
 4. **Evaluation sets are small and written by the developer.** Rates carry wide confidence
    intervals and may not transfer to real users' writing. An independent problem set is the
    single most valuable next step.
