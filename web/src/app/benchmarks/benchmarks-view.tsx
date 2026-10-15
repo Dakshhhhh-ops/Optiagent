@@ -40,6 +40,93 @@ function Bars({
   );
 }
 
+type Verification = NonNullable<BenchmarkSummary["verification"]>;
+type Rate = Verification["builder_faults"]["either"];
+
+function RateCell({ r }: { r: Rate }) {
+  return (
+    <td className="py-2 text-right font-mono tabular-nums" title={`95% CI ${pct(r.low)}–${pct(r.high)}`}>
+      {r.n ? pct(r.k / r.n) : "—"}{" "}
+      <span className="text-xs text-muted-foreground">
+        ({r.k}/{r.n})
+      </span>
+    </td>
+  );
+}
+
+function VerificationCard({ v }: { v: Verification }) {
+  const b = v.builder_faults;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Deterministic verification benchmark</CardTitle>
+        <CardDescription>
+          No AI involved. Recall: broken models flagged. False-positive rate: correct models
+          flagged. The two baselines show why both numbers matter. Hover a rate for its 95%
+          interval.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="text-xs text-muted-foreground">
+            <tr className="border-b">
+              <th className="py-2 text-left font-medium">Dataset · detector</th>
+              <th className="py-2 text-right font-medium">Recall</th>
+              <th className="py-2 text-right font-medium">False-positive rate</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {v.formulation.flatMap((f) =>
+              f.scores.map((d) => (
+                <tr key={`${f.dataset}-${d.detector}`}>
+                  <td className="py-2">
+                    <span className="text-muted-foreground">{f.dataset} · </span>
+                    <span className={d.detector.includes("baseline") ? "text-muted-foreground" : "font-medium"}>
+                      {d.detector}
+                    </span>
+                  </td>
+                  <RateCell r={d.recall} />
+                  <RateCell r={d.false_positive_rate} />
+                </tr>
+              )),
+            )}
+          </tbody>
+        </table>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-1 rounded-lg border p-4 text-sm">
+            <p className="font-medium">Model-builder faults</p>
+            <p className="text-muted-foreground">
+              {b.harmful} harmful faults. Checks against the model caught{" "}
+              <span className="font-mono text-foreground">{b.model_checks.k}</span>; checks
+              against your data (with a duality certificate) caught{" "}
+              <span className="font-mono text-foreground">{b.problem_checks.k}</span>.
+            </p>
+          </div>
+          <div className="space-y-1 rounded-lg border p-4 text-sm">
+            <p className="font-medium">Malformed data</p>
+            <p className="text-muted-foreground">
+              <span className="font-mono text-foreground">
+                {v.malformed_data.detected.k}/{v.malformed_data.detected.n}
+              </span>{" "}
+              corrupted cells reported with the exact cell;{" "}
+              {v.malformed_data.clean_false_alarms.k} false alarms on clean data.
+            </p>
+          </div>
+          <div className="space-y-1 rounded-lg border p-4 text-sm">
+            <p className="font-medium">Out-of-scope requests</p>
+            <p className="text-muted-foreground">
+              Held-out set: {v.scope_held_out.recall.k}/{v.scope_held_out.recall.n} flagged,{" "}
+              {v.scope_held_out.false_positive_rate.k}/{v.scope_held_out.false_positive_rate.n}{" "}
+              false alarms. (Tuning set: {v.scope_tuning.recall.k}/{v.scope_tuning.recall.n}, optimistic.)
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Results({ s }: { s: BenchmarkSummary }) {
   const label = (m: { mode: string; model: string }) =>
     `${MODE_LABEL[m.mode] ?? m.mode} · ${m.model}`;
@@ -106,7 +193,7 @@ function Results({ s }: { s: BenchmarkSummary }) {
             <table className="w-full text-sm">
               <thead className="text-xs text-muted-foreground">
                 <tr className="border-b">
-                  {["Approach", "Correct optimum", "Exact model", "Wrong models", "Caught by audit", "Audit false alarms", "Silent errors", "LLM calls", "Seconds / problem"].map((h, i) => (
+                  {["Approach", "Correct optimum", "Exact model", "Wrong models", "Caught before approval", "False alarms", "Silent errors", "LLM calls", "Seconds / problem"].map((h, i) => (
                     <th key={h} className={`py-2 font-medium ${i === 0 ? "text-left" : "text-right"}`}>
                       {h}
                     </th>
@@ -181,6 +268,8 @@ function Results({ s }: { s: BenchmarkSummary }) {
           ))}
         </CardContent>
       </Card>
+
+      {s.verification && <VerificationCard v={s.verification} />}
 
       <Card>
         <CardHeader>
