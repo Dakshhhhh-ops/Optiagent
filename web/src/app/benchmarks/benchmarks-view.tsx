@@ -127,6 +127,53 @@ function VerificationCard({ v }: { v: Verification }) {
   );
 }
 
+const DETECTORS = [
+  ["llm", "AI analysis"],
+  ["patterns", "Patterns"],
+  ["either", "Either"],
+] as const;
+
+function ScopeCard({ results }: { results: NonNullable<BenchmarkSummary["scope_llm"]> }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Out-of-scope requests: AI vs patterns</CardTitle>
+        <CardDescription>
+          Recall: unsupported requests flagged. False alarms: ordinary requests wrongly rejected.
+          scope_v2 was never used for tuning; the problem sets are the supported problems above.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="text-xs text-muted-foreground">
+            <tr className="border-b">
+              <th className="py-2 text-left font-medium">Set · model · detector</th>
+              <th className="py-2 text-right font-medium">Recall</th>
+              <th className="py-2 text-right font-medium">False alarms</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {results.flatMap((r) =>
+              DETECTORS.map(([key, name]) => (
+                <tr key={`${r.dataset}-${r.model}-${key}`}>
+                  <td className="py-2">
+                    <span className="text-muted-foreground">
+                      {r.dataset} · {r.model} ·{" "}
+                    </span>
+                    <span className={key === "either" ? "font-medium" : ""}>{name}</span>
+                  </td>
+                  <RateCell r={r[key].recall} />
+                  <RateCell r={r[key].false_positive_rate} />
+                </tr>
+              )),
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Results({ s }: { s: BenchmarkSummary }) {
   const label = (m: { mode: string; model: string }) =>
     `${MODE_LABEL[m.mode] ?? m.mode} · ${m.model}`;
@@ -270,6 +317,7 @@ function Results({ s }: { s: BenchmarkSummary }) {
       </Card>
 
       {s.verification && <VerificationCard v={s.verification} />}
+      {s.scope_llm && s.scope_llm.length > 0 && <ScopeCard results={s.scope_llm} />}
 
       <Card>
         <CardHeader>
