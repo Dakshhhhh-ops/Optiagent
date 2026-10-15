@@ -89,14 +89,12 @@ export function DataStep({
     queryFn: () => unwrap(client.GET("/api/v1/system/status")),
     staleTime: 30_000,
   });
-  const ollama = system.data?.ollama;
+  const llm = system.data?.llm;
   const aiProblem = system.error
     ? "the API is not reachable"
-    : ollama && !ollama.reachable
-      ? `Ollama is not running at ${ollama.base_url}`
-      : ollama && !ollama.configured_model_available
-        ? `the model ${ollama.configured_model} is not downloaded (run: ollama pull ${ollama.configured_model})`
-        : null;
+    : llm && (!llm.reachable || !llm.model_available)
+      ? `the AI model is unavailable (${llm.error ?? "unknown error"})`
+      : null;
 
   const samples = useQuery({
     queryKey: ["samples"],

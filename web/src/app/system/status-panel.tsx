@@ -64,37 +64,32 @@ export function StatusPanel() {
           <CardHeader className="flex-row items-start justify-between gap-4">
             <div className="space-y-1.5">
               <CardTitle className="flex items-center gap-2">
-                <Bot className="size-4" /> Ollama
+                <Bot className="size-4" /> AI model ·{" "}
+                {data?.llm.provider === "openai" ? "hosted API" : "Ollama (local)"}
               </CardTitle>
               <CardDescription className="font-mono text-xs">
-                {data?.ollama.base_url ?? "—"}
+                {data?.llm.base_url ?? "—"}
               </CardDescription>
             </div>
             {isPending ? (
               <Skeleton className="h-5 w-16" />
             ) : (
-              <StatusBadge
-                ok={!!data?.ollama.reachable}
-                warn={!data?.ollama.configured_model_available}
-              />
+              <StatusBadge ok={!!data?.llm.reachable} warn={!data?.llm.model_available} />
             )}
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            {data?.ollama.reachable ? (
+            {data?.llm.reachable ? (
               <>
                 <p>
-                  Model <span className="font-mono">{data.ollama.configured_model}</span>{" "}
-                  {data.ollama.configured_model_available ? (
+                  Model <span className="font-mono">{data.llm.model}</span>{" "}
+                  {data.llm.model_available ? (
                     <span className="text-muted-foreground">is available.</span>
                   ) : (
-                    <span className="text-destructive">
-                      is not pulled. Run{" "}
-                      <code className="font-mono">ollama pull {data.ollama.configured_model}</code>
-                    </span>
+                    <span className="text-destructive">{data.llm.error}</span>
                   )}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {data.ollama.models.map((m) => (
+                  {data.llm.models.slice(0, 12).map((m) => (
                     <Badge key={m} variant="secondary" className="font-mono">
                       {m}
                     </Badge>
@@ -102,9 +97,7 @@ export function StatusPanel() {
                 </div>
               </>
             ) : (
-              <p className="text-muted-foreground">
-                {data?.ollama.error ?? "Waiting for the API…"}
-              </p>
+              <p className="text-muted-foreground">{data?.llm.error ?? "Waiting for the API…"}</p>
             )}
           </CardContent>
         </Card>

@@ -7,6 +7,8 @@ Each attempt is recorded so latency and call counts can be reported.
 
 from __future__ import annotations
 
+import asyncio
+import json
 import time
 from collections.abc import Callable
 from typing import Any, Protocol
@@ -97,6 +99,139 @@ class OllamaLLM:
             prompt_tokens=data.get("prompt_eval_count", 0),
             completion_tokens=data.get("eval_count", 0),
         )
+
+
+class OpenAICompatibleLLM:
+    """Any server speaking the OpenAI chat-completions API: Groq, OpenRouter, OpenAI, vLLM,
+    or Ollama's own /v1 endpoint.
+
+    Asks for JSON matching the schema via `response_format=json_schema`. If the provider or model
+    rejects that, falls back to plain JSON mode with the schema in the prompt; `structured()`
+    validates and retries either way.
+    """
+
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        api_key: str | None = None,
+        timeout: float = 120.0,
+        max_retries: int = 2,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.model = model
+        self.api_key = api_key
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.transport = transport
+        self.json_schema_supported = True
+
+    def _headers(self) -> dict[str, str]:
+        return {"Authorization": f"Bearer {self.api_key}"} if self.api_key else {}
+
+    def _client(self) -> httpx.AsyncClient:
+        return httpx.AsyncClient(
+            base_url=self.base_url,
+            timeout=self.timeout,
+            headers=self._headers(),
+            transport=self.transport,
+        )
+
+    @staticmethod
+    def _error_detail(response: httpx.Response) -> str:
+        try:
+            body = response.json()
+        except ValueError:
+            return response.text[:500]
+        error = body.get("error", body) if isinstance(body, dict) else body
+        if isinstance(error, dict):
+            return str(error.get("message") or error)[:500]
+        return str(error)[:500]
+
+    async def _post(self, payload: dict[str, Any]) -> httpx.Response:
+        """POST with retries on rate limits and server errors."""
+        async with self._client() as client:
+            for attempt in range(self.max_retries + 1):
+                try:
+                    response = await client.post("/chat/completions", json=payload)
+                except httpx.HTTPError as exc:
+                    if attempt == self.max_retries:
+                        raise LLMError(
+                            f"Could not reach the LLM at {self.base_url}: {exc}"
+                        ) from exc
+                    await _sleep(2**attempt)
+                    continue
+                if response.status_code == 429 or response.status_code >= 500:
+                    if attempt == self.max_retries:
+                        return response
+                    retry_after = response.headers.get("retry-after", "")
+                    wait = (
+                        float(retry_after)
+                        if retry_after.replace(".", "", 1).isdigit()
+                        else 2**attempt
+                    )
+                    await _sleep(min(wait, 20.0))
+                    continue
+                return response
+        raise AssertionError("unreachable")
+
+    async def chat(self, messages: list[Message], schema: dict[str, Any]) -> LLMReply:
+        base: dict[str, Any] = {"model": self.model, "messages": messages, "temperature": 0}
+        start = time.perf_counter()
+        response = None
+        if self.json_schema_supported:
+            response = await self._post(
+                {
+                    **base,
+                    "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {"name": "output", "schema": schema, "strict": False},
+                    },
+                }
+            )
+            if response.status_code in (400, 422) and "response_format" in self._error_detail(
+                response
+            ):
+                self.json_schema_supported = False  # remember for later calls
+                response = None
+        if response is None:
+            schema_text = json.dumps(schema, separators=(",", ":"))
+            guided = [
+                {
+                    "role": "system",
+                    "content": f"{messages[0]['content']}\n\nReply with only a JSON object that "
+                    f"matches this JSON schema:\n{schema_text}",
+                },
+                *messages[1:],
+            ]
+            response = await self._post(
+                {**base, "messages": guided, "response_format": {"type": "json_object"}}
+            )
+
+        if response.is_error:
+            detail = self._error_detail(response)
+            if response.status_code == 401:
+                raise LLMError(f"The LLM provider rejected the API key (401): {detail}")
+            if response.status_code == 404:
+                raise LLMError(f"Model {self.model!r} not found at {self.base_url} (404): {detail}")
+            if response.status_code == 429:
+                raise LLMError(f"The LLM provider is rate limiting requests (429): {detail}")
+            raise LLMError(f"LLM error {response.status_code}: {detail}")
+
+        data = response.json()
+        usage = data.get("usage") or {}
+        return LLMReply(
+            content=data["choices"][0]["message"].get("content") or "",
+            model=data.get("model", self.model),
+            latency_ms=(time.perf_counter() - start) * 1000,
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+        )
+
+
+async def _sleep(seconds: float) -> None:
+    await asyncio.sleep(seconds)
 
 
 def _format_validation_error(exc: ValidationError) -> list[str]:

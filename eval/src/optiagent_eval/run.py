@@ -8,16 +8,18 @@ from __future__ import annotations
 import argparse
 import asyncio
 import math
+import os
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 
 from optiagent_agent.audit import audit
-from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace, structured
+from optiagent_agent.llm import LLM, LLMError, Trace, structured
 from optiagent_agent.pipeline import analyze, extract_from_text
 from optiagent_agent.prompts import PROMPT_VERSION
+from optiagent_agent.providers import LLMConfig, make_llm
 from optiagent_core.pipeline import solve_problem
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 from optiagent_core.solver import SolveStatus
@@ -271,7 +273,13 @@ class Run(BaseModel):
 async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="qwen3:8b")
+    parser.add_argument("--provider", choices=["ollama", "openai"], default="ollama")
     parser.add_argument("--base-url", default="http://localhost:11434")
+    parser.add_argument(
+        "--api-key-env",
+        default="OPTIAGENT_LLM_API_KEY",
+        help="environment variable holding the key",
+    )
     parser.add_argument("--data", type=Path, default=DEFAULT_PATH)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--ids")
@@ -285,7 +293,15 @@ async def main() -> None:
     if args.limit:
         items = items[: args.limit]
 
-    llm = OllamaLLM(args.base_url, args.model)
+    api_key = os.environ.get(args.api_key_env)
+    llm = make_llm(
+        LLMConfig(
+            provider=args.provider,
+            base_url=args.base_url,
+            model=args.model,
+            api_key=SecretStr(api_key) if api_key else None,
+        )
+    )
     started = datetime.now(UTC)
     results = []
     for item in items:

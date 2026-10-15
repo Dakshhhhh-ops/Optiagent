@@ -140,6 +140,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/datasets/samples/{sample_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download Sample
+         * @description The sample's files as a .zip, to use as a template for your own data.
+         */
+        get: operations["download_sample_api_v1_datasets_samples__sample_id__download_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/datasets/samples/{sample_id}": {
         parameters: {
             query?: never;
@@ -837,6 +857,29 @@ export interface components {
             /** Errors */
             errors: string[];
         };
+        /** LLMStatus */
+        LLMStatus: {
+            /**
+             * Provider
+             * @enum {string}
+             */
+            provider: "ollama" | "openai";
+            /** Base Url */
+            base_url: string;
+            /** Model */
+            model: string;
+            /** Reachable */
+            reachable: boolean;
+            /**
+             * Model Available
+             * @default false
+             */
+            model_available: boolean;
+            /** Models */
+            models: string[];
+            /** Error */
+            error: string | null;
+        };
         /** LinearModel */
         LinearModel: {
             /** Name */
@@ -938,27 +981,6 @@ export interface components {
             nonzeros: number;
             /** Is Mip */
             is_mip: boolean;
-        };
-        /** OllamaStatus */
-        OllamaStatus: {
-            /** Reachable */
-            reachable: boolean;
-            /** Base Url */
-            base_url: string;
-            /**
-             * Models
-             * @default []
-             */
-            models: string[];
-            /** Configured Model */
-            configured_model: string;
-            /**
-             * Configured Model Available
-             * @default false
-             */
-            configured_model_available: boolean;
-            /** Error */
-            error?: string | null;
         };
         /**
          * Origin
@@ -1290,7 +1312,7 @@ export interface components {
         SystemStatus: {
             /** Version */
             version: string;
-            ollama: components["schemas"]["OllamaStatus"];
+            llm: components["schemas"]["LLMStatus"];
             /** Services */
             services: components["schemas"]["ServiceStatus"][];
         };
@@ -1689,6 +1711,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SampleDataset"][];
+                };
+            };
+        };
+    };
+    download_sample_api_v1_datasets_samples__sample_id__download_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sample_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -26,6 +26,7 @@ def test_status_reports_unreachable_services() -> None:
 
     assert response.status_code == 200
     body = response.json()
-    assert body["ollama"]["reachable"] is False
+    assert body["llm"]["reachable"] is False
+    assert body["llm"]["provider"] == "ollama"
     assert {s["name"] for s in body["services"]} == {"postgres", "redis"}
     assert all(not s["reachable"] for s in body["services"])

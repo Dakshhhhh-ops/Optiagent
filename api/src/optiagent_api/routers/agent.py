@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from optiagent_agent.audit import AuditReport, audit
 from optiagent_agent.grounding import Ungrounded
-from optiagent_agent.llm import LLM, LLMError, OllamaLLM, Trace
+from optiagent_agent.llm import LLM, LLMError, Trace
 from optiagent_agent.pipeline import (
     Analysis,
     Answer,
@@ -16,6 +16,7 @@ from optiagent_agent.pipeline import (
     extract_from_text,
     with_answers,
 )
+from optiagent_agent.providers import make_llm
 from optiagent_agent.review import Review, review_requirements
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.routers.datasets import StoreDep
@@ -34,8 +35,7 @@ router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
 
 def get_llm() -> LLM:
-    s = get_settings()
-    return OllamaLLM(s.ollama_base_url, s.ollama_model)
+    return make_llm(get_settings().llm_config())
 
 
 LLMDep = Annotated[LLM, Depends(get_llm)]

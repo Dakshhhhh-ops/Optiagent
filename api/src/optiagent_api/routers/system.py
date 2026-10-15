@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 import optiagent_api
-from optiagent_agent.ollama import OllamaClient, OllamaStatus
+from optiagent_agent.providers import LLMStatus, llm_status
 from optiagent_api.settings import Settings, get_settings
 
 router = APIRouter(tags=["system"])
@@ -21,7 +21,7 @@ class ServiceStatus(BaseModel):
 
 class SystemStatus(BaseModel):
     version: str
-    ollama: OllamaStatus
+    llm: LLMStatus
     services: list[ServiceStatus]
 
 
@@ -43,14 +43,13 @@ async def health() -> dict[str, str]:
 
 @router.get("/api/v1/system/status", response_model=SystemStatus)
 async def system_status(settings: SettingsDep) -> SystemStatus:
-    ollama = OllamaClient(settings.ollama_base_url, settings.ollama_model)
-    ollama_status, postgres, redis = await asyncio.gather(
-        ollama.status(),
+    llm, postgres, redis = await asyncio.gather(
+        llm_status(settings.llm_config()),
         _tcp_check("postgres", settings.postgres_host, settings.postgres_port),
         _tcp_check("redis", settings.redis_host, settings.redis_port),
     )
     return SystemStatus(
         version=optiagent_api.__version__,
-        ollama=ollama_status,
+        llm=llm,
         services=[postgres, redis],
     )

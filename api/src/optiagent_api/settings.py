@@ -1,7 +1,11 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from optiagent_agent.providers import LLMConfig
 
 
 class Settings(BaseSettings):
@@ -9,6 +13,15 @@ class Settings(BaseSettings):
 
     app_name: str = "OptiAgent API"
     cors_origins: list[str] = ["http://localhost:3000"]
+
+    # LLM. "ollama" runs locally; "openai" is any OpenAI-compatible API (Groq, OpenRouter, ...).
+    llm_provider: Literal["ollama", "openai"] = "ollama"
+    llm_base_url: str = ""
+    """Defaults to ollama_base_url for Ollama. For Groq: https://api.groq.com/openai/v1"""
+    llm_model: str = ""
+    """Defaults to ollama_model for Ollama."""
+    llm_api_key: SecretStr | None = None
+    llm_timeout: float = 120.0
 
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3:8b"
@@ -22,6 +35,22 @@ class Settings(BaseSettings):
     database_path: Path = Path("data/optiagent.db")
     max_upload_bytes: int = 10_000_000
     max_upload_files: int = 10
+
+    def llm_config(self) -> LLMConfig:
+        if self.llm_provider == "ollama":
+            return LLMConfig(
+                provider="ollama",
+                base_url=self.llm_base_url or self.ollama_base_url,
+                model=self.llm_model or self.ollama_model,
+                timeout=self.llm_timeout,
+            )
+        return LLMConfig(
+            provider="openai",
+            base_url=self.llm_base_url,
+            model=self.llm_model,
+            api_key=self.llm_api_key,
+            timeout=self.llm_timeout,
+        )
 
 
 @lru_cache
