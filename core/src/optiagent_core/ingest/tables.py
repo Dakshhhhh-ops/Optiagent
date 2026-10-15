@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import io
 import re
+import zipfile
 from pathlib import PurePath
 from typing import Literal
 
@@ -17,6 +18,12 @@ from pydantic import BaseModel
 Cell = str | float | None
 
 SUPPORTED_EXTENSIONS = (".csv", ".tsv", ".xlsx")
+
+# Limits that keep a single upload from exhausting memory or CPU.
+MAX_ROWS = 100_000
+MAX_COLUMNS = 1_000
+MAX_SHEETS = 20
+MAX_XLSX_UNCOMPRESSED_BYTES = 100_000_000
 MISSING_TOKENS = frozenset({"", "-", "na", "n/a", "nan", "null", "none"})
 
 _CURRENCY = re.compile(r"^[\s$€£₹¥]+|[\s$€£₹¥]+$")
@@ -111,7 +118,14 @@ def read_csv(data: bytes, name: str) -> Table:
         )
     except csv.Error:
         dialect = csv.excel
-    raw = _drop_empty([list(r) for r in csv.reader(io.StringIO(text), dialect)])
+    records: list[list[Cell]] = []
+    for record in csv.reader(io.StringIO(text), dialect):
+        if len(records) > MAX_ROWS:
+            raise ValueError(f"{name}: more than {MAX_ROWS:,} rows")
+        if len(record) > MAX_COLUMNS:
+            raise ValueError(f"{name}: more than {MAX_COLUMNS:,} columns")
+        records.append(list(record))
+    raw = _drop_empty(records)
     if not raw:
         return Table(name=name, columns=[], rows=[])
     header, *body = raw
@@ -120,12 +134,34 @@ def read_csv(data: bytes, name: str) -> Table:
     return Table(name=name, columns=_clean_header(list(header)), rows=rows)
 
 
+def _check_xlsx_archive(data: bytes, name: str) -> None:
+    """Reject zip bombs: .xlsx files that are small on disk but expand enormously."""
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile as exc:
+        raise ValueError(f"{name}: not a valid .xlsx file") from exc
+    expanded = sum(info.file_size for info in archive.infolist())
+    if expanded > MAX_XLSX_UNCOMPRESSED_BYTES:
+        raise ValueError(
+            f"{name}: expands to more than {MAX_XLSX_UNCOMPRESSED_BYTES // 1_000_000} MB"
+        )
+
+
 def read_excel(data: bytes, name: str) -> list[Table]:
+    _check_xlsx_archive(data, name)
     workbook = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+    if len(workbook.worksheets) > MAX_SHEETS:
+        raise ValueError(f"{name}: more than {MAX_SHEETS} sheets")
     tables = []
     for sheet in workbook.worksheets:
         raw: list[list[Cell]] = []
         for row in sheet.iter_rows(values_only=True):
+            if len(raw) > MAX_ROWS:
+                raise ValueError(f"{name}: sheet {sheet.title!r} has more than {MAX_ROWS:,} rows")
+            if len(row) > MAX_COLUMNS:
+                raise ValueError(
+                    f"{name}: sheet {sheet.title!r} has more than {MAX_COLUMNS:,} columns"
+                )
             raw.append(
                 [c if isinstance(c, str | float | type(None)) else _excel_cell(c) for c in row]
             )

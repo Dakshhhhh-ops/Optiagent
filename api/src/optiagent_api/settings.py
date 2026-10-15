@@ -35,6 +35,22 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 10_000_000
     max_upload_files: int = 10
 
+    # Abuse and cost protection (in-memory, per API instance).
+    trust_proxy: bool = False
+    """Set true behind Render/Fly/etc. so the client IP is read from X-Forwarded-For."""
+    requests_per_minute: int = 240
+    """Per IP, all endpoints."""
+    llm_requests_per_hour: int = 30
+    """Per signed-in user (or IP), for endpoints that call the LLM."""
+    llm_requests_per_day: int = 2_000
+    """Across all users: caps the provider bill."""
+    max_request_bytes: int = 40_000_000
+
+    # Observability
+    log_json: bool = False
+    log_level: str = "info"
+    sentry_dsn: SecretStr | None = None
+
     def llm_config(self) -> LLMConfig:
         if self.llm_provider == "ollama":
             return LLMConfig(

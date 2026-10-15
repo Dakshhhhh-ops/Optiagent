@@ -12,6 +12,11 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 NonNegative = Annotated[float, Field(ge=0)]
+
+# Size limits: enough for real planning problems, small enough that one request cannot
+# tie up the solver (and that an LLM cannot produce an absurd model).
+MAX_ENTITIES = 5_000
+MAX_PAIRS = 100_000
 Identifier = Annotated[str, Field(min_length=1, max_length=128)]
 
 
@@ -55,9 +60,9 @@ class TransportationProblem(_Strict):
     kind: Literal["transportation"] = "transportation"
     name: str = "Transportation problem"
     sense: Literal["minimize", "maximize"] = "minimize"
-    sources: list[Source] = Field(min_length=1)
-    destinations: list[Destination] = Field(min_length=1)
-    routes: list[Route] = Field(min_length=1)
+    sources: list[Source] = Field(min_length=1, max_length=MAX_ENTITIES)
+    destinations: list[Destination] = Field(min_length=1, max_length=MAX_ENTITIES)
+    routes: list[Route] = Field(min_length=1, max_length=MAX_PAIRS)
     demand_constraint: Literal["equal", "at_least"] = "equal"
     """Whether each destination must receive exactly its demand or at least its demand."""
 
@@ -108,9 +113,9 @@ class AssignmentProblem(_Strict):
     kind: Literal["assignment"] = "assignment"
     name: str = "Assignment problem"
     sense: Literal["minimize", "maximize"] = "minimize"
-    agents: list[Agent] = Field(min_length=1)
-    tasks: list[Task] = Field(min_length=1)
-    pairings: list[Pairing] = Field(min_length=1)
+    agents: list[Agent] = Field(min_length=1, max_length=MAX_ENTITIES)
+    tasks: list[Task] = Field(min_length=1, max_length=MAX_ENTITIES)
+    pairings: list[Pairing] = Field(min_length=1, max_length=MAX_PAIRS)
 
     @model_validator(mode="after")
     def _check_references(self) -> AssignmentProblem:

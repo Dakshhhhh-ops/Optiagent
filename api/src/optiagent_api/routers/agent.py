@@ -20,6 +20,7 @@ from optiagent_agent.providers import make_llm
 from optiagent_agent.review import Review, review_requirements
 from optiagent_api.datasets import DatasetStore
 from optiagent_api.routers.datasets import StoreDep
+from optiagent_api.security import limit_llm_calls
 from optiagent_api.settings import get_settings
 from optiagent_core.formulation import Formulation, describe_problem
 from optiagent_core.ingest import (
@@ -31,7 +32,7 @@ from optiagent_core.ingest import (
 )
 from optiagent_core.schema import AssignmentProblem, TransportationProblem
 
-router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
+router = APIRouter(prefix="/api/v1/agent", tags=["agent"], dependencies=[Depends(limit_llm_calls)])
 
 
 def get_llm() -> LLM:

@@ -24,3 +24,11 @@ def engine(tmp_path: Path) -> Engine:
             connection.execute(text("DROP TABLE IF EXISTS alembic_version"))
     migrate(engine)
     return engine
+
+
+@pytest.fixture(autouse=True)
+def fresh_rate_limits() -> None:
+    """Rate limits are process-wide; start every test with a clean slate."""
+    from optiagent_api.security import limiter
+
+    limiter.reset()

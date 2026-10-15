@@ -275,3 +275,32 @@ def test_suggestion_uses_id_overlap_not_file_names() -> None:
         "t2.csv",
         "t3.csv",
     )
+
+
+def test_rejects_xlsx_zip_bomb(monkeypatch: pytest.MonkeyPatch) -> None:
+    import optiagent_core.ingest.tables as tables
+
+    wb = Workbook()
+    ws = wb.active
+    assert ws is not None
+    ws.append(["a"] * 50)
+    for _ in range(200):
+        ws.append([1] * 50)
+    buf = io.BytesIO()
+    wb.save(buf)
+    monkeypatch.setattr(tables, "MAX_XLSX_UNCOMPRESSED_BYTES", 10_000)
+    with pytest.raises(ValueError, match="expands to more than"):
+        read_file("big.xlsx", buf.getvalue())
+
+
+def test_rejects_too_many_rows(monkeypatch: pytest.MonkeyPatch) -> None:
+    import optiagent_core.ingest.tables as tables
+
+    monkeypatch.setattr(tables, "MAX_ROWS", 5)
+    with pytest.raises(ValueError, match="more than 5 rows"):
+        read_file("x.csv", ("a,b\n" + "1,2\n" * 10).encode())
+
+
+def test_rejects_corrupt_xlsx() -> None:
+    with pytest.raises(ValueError, match=r"not a valid \.xlsx"):
+        read_file("x.xlsx", b"not a zip at all")
