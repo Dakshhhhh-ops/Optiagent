@@ -20,6 +20,13 @@ COPY api api
 COPY eval eval
 RUN uv sync --frozen --no-dev --package optiagent-api
 
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 OPENBLAS_NUM_THREADS=1
+
+# Run as an unprivileged user.
+RUN useradd --create-home --uid 10001 app && mkdir -p /app/data && chown -R app /app/data
+USER app
+
 EXPOSE 8000
-CMD ["uvicorn", "optiagent_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Hosts like Render pass the port in $PORT. --proxy-headers makes HTTPS detection and client IPs
+# work behind their load balancer.
+CMD ["sh", "-c", "uvicorn optiagent_api.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

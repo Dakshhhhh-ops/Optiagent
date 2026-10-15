@@ -61,3 +61,26 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f api/Dockerfile -t optiagent-api .
+      - name: API image starts and answers /health
+        run: |
+          docker run -d --name api -p 8000:8000 -e PORT=8000 optiagent-api
+          for i in $(seq 1 30); do
+            if curl -fsS localhost:8000/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs api
+          exit 1
+      - name: Solve an example inside the container
+        run: |
+          problem=$(curl -fsS localhost:8000/api/v1/examples/t2_sunray | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)['problem']))")
+          curl -fsS -X POST localhost:8000/api/v1/solve -H 'content-type: application/json' -d "$problem" \
+            | python3 -c "import json,sys; r=json.load(sys.stdin); assert r['result']['objective']==435 and r['verified'], r['result']; print('solved 435, verified')"
+      - name: Build web image
+        run: docker build -t optiagent-web --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 web

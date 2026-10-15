@@ -1,0 +1,36 @@
+# Render blueprint for the OptiAgent API (https://render.com/docs/blueprint-spec).
+# Secrets marked `sync: false` are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: optiagent-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Database (Neon): postgresql://user:password@host/db?sslmode=require
+      - key: OPTIAGENT_DATABASE_URL
+        sync: false
+      # AI model (Groq by default; OpenRouter works the same way)
+      - key: OPTIAGENT_LLM_PROVIDER
+        value: openai
+      - key: OPTIAGENT_LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: OPTIAGENT_LLM_MODEL
+        value: qwen/qwen3-32b
+      - key: OPTIAGENT_LLM_API_KEY
+        sync: false
+      # Sign-in (Clerk Frontend API URL) and the website's origin
+      - key: OPTIAGENT_AUTH_ISSUER
+        sync: false
+      - key: OPTIAGENT_CORS_ORIGINS
+        sync: false # e.g. ["https://optiagent.vercel.app"]
+      # Behind Render's proxy; structured logs
+      - key: OPTIAGENT_TRUST_PROXY
+        value: "true"
+      - key: OPTIAGENT_LOG_JSON
+        value: "true"
+      - key: OPTIAGENT_SENTRY_DSN
+        sync: false

@@ -66,6 +66,11 @@ pnpm dev
 If port 8000 is taken, run the API on another port and start the web app with
 `NEXT_PUBLIC_API_URL=http://localhost:<port> pnpm dev`.
 
+### Deploying
+
+See **[DEPLOY.md](DEPLOY.md)**: Vercel (web), Render (API), Neon (Postgres), Groq or
+OpenRouter (AI) and Clerk (sign-in), all on free plans.
+
 ### With Docker
 
 ```bash
